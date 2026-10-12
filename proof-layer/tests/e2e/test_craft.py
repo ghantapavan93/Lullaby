@@ -143,3 +143,19 @@ def test_after_connecting_the_result_is_on_screen_with_focus_on_it(phone, server
     heading = phone.locator("#main .verified-card h2")
     expect(heading).to_be_focused(timeout=30000)
     expect(heading).to_be_in_viewport()
+
+
+def test_same_problem_different_cause_opens_from_home_with_five_steps_per_case(desktop):
+    desktop.get_by_role("button", name="Same problem. Different cause.").click()
+    sides = desktop.locator(".cmp-side")
+    expect(sides).to_have_count(2, timeout=120000)
+    expect(desktop.locator("#compare")).to_be_in_viewport()
+    for i in range(2):
+        steps = sides.nth(i).locator(".cmp-steps > li h3")
+        assert steps.all_inner_texts() == ["What the parent sees", "What the backend found", "What it lets the parent do",
+                                           "If the parent tries anyway", "What works on the camera now"]
+    # The two cases differ in what the backend decided, and codes stay behind the engineering detail.
+    texts = [sides.nth(i).locator(".cmp-steps").inner_text() for i in range(2)]
+    assert texts[0] != texts[1]
+    assert "_" not in texts[0] + texts[1], "status codes leaked into the parent-facing steps"
+    expect(sides.first.locator("details.cmp-eng")).not_to_have_attribute("open", "")

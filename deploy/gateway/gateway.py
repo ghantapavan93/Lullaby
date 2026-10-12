@@ -246,6 +246,11 @@ async def start_workspace(request: Request):
     if lease is not None and time.time() - lease[2] < IDLE_S and time.time() - lease[1] < MAX_S:
         store.touch(lease[0])
         return JSONResponse(lease_view(*lease) | {"new": False}, headers={"Cache-Control": "no-store"})
+    if lease is not None:
+        # This browser's own lease has expired: free its slot now, not at the
+        # janitor's next pass, so the same visitor can start again at once.
+        store.release(lease[0])
+        recent.pop(lease[0], None)
     ip = client_ip(request)
     if store.starts_last_hour(ip) >= NEW_PER_IP_PER_HOUR:
         return refuse(429, "TOO_MANY_WORKSPACES", "Too many new review workspaces from this address in the last hour. "

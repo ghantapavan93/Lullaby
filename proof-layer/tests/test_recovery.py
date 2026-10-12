@@ -20,6 +20,7 @@ from pathlib import Path
 
 import pytest
 from sqlalchemy import func, select, text
+from sqlalchemy.exc import OperationalError
 
 from app import claims, provider, seed, worker
 from app.db import SessionLocal, transaction
@@ -240,3 +241,18 @@ def test_a_job_removed_by_a_demo_reset_does_not_kill_the_worker(demo):
         missing = (db.execute(select(func.max(OutboxJob.id))).scalar_one() or 0) + 1000
     worker.finish(missing)
     worker.finish(missing, error="RuntimeError('the run was reset')")
+
+
+def test_polling_a_purchase_still_answers_when_the_provider_is_down(client, demo, monkeypatch):
+    """Backend review, 2026-10-12: the status endpoint read the provider inside
+    the request, so an outage turned a client's poll into a bare 500, exactly
+    when the client needs the stored state."""
+    i = prepared(client)
+
+    def down(_key):
+        raise OperationalError("SELECT 1", {}, Exception("provider database unavailable"))
+    monkeypatch.setattr(provider, "lookup", down)
+    r = client.get(f"/v1/purchase-intents/{i}", headers=PARENT)
+    assert r.status_code == 200, r.text
+    assert r.json()["state"] == "PREPARED" and r.json()["provider_record"] is None
+    assert r.json()["provider_reachable"] is False

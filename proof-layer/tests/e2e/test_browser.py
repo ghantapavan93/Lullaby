@@ -111,16 +111,14 @@ def test_refresh_shows_durable_state(page, server):
     expect(page.locator(".tile").filter(has_text="Camera observation")).to_contain_text("94.4%")
 
 
-def test_rendered_offer_creates_one_exposure_and_refresh_does_not_duplicate(page, server):
+def test_rendered_explanation_creates_one_exposure_and_refresh_does_not_duplicate(page, server):
+    """Exposure is the explanation card, where the experiment's variant renders
+    (Growth review, 2026-10-12), not the offer card a hardware-blocked family never sees."""
     before = receipts()
     page.goto(server + "/#/features")
     page.get_by_role("button", name="Check availability").click()
-    page.wait_for_timeout(800)
-    with SessionLocal() as db:   # below the fold: not seen, so not exposed
-        assert db.execute(select(func.count()).select_from(RenderReceipt)
-                          .where(RenderReceipt.surface == "feature_availability")).scalar_one() == 0
-    page.locator(".offer-card").scroll_into_view_if_needed()
-    expect(page.get_by_text("Start simulated upgrade")).to_be_in_viewport()
+    page.locator(".blocker-card").scroll_into_view_if_needed()
+    expect(page.locator(".blocker-card")).to_be_in_viewport()
     page.wait_for_timeout(800)
     with SessionLocal() as db:
         offer = db.execute(select(func.count()).select_from(RenderReceipt)
@@ -128,7 +126,7 @@ def test_rendered_offer_creates_one_exposure_and_refresh_does_not_duplicate(page
     assert offer == 1 and receipts() == before + 1
     page.reload()
     page.get_by_role("button", name="Check availability").click()   # a new decision is a new subject
-    page.locator(".offer-card").scroll_into_view_if_needed()
+    page.locator(".blocker-card").scroll_into_view_if_needed()
     page.wait_for_timeout(800)
     page.reload()                                                    # refresh of the same screen
     page.wait_for_timeout(800)
@@ -599,3 +597,17 @@ def test_present_never_claims_a_correction_another_visitor_beat_it_to(server, br
     assert "Revision 5" not in pg.locator(".present-line").inner_text()
     pg.locator("[data-present=exit]").click()
     context.close()
+
+
+def test_a_hardware_blocked_decision_is_exposed_to_the_experiment(page, server):
+    """The availability experiment asks about hardware-blocked decisions; they
+    show no offer card, so exposure must come from the explanation card."""
+    assert _api(server, "POST", "/v1/dev/mount", json={"mount": "flex_stand"}).status_code == 200
+    before = receipts()
+    page.goto(server + "/#/features")
+    page.get_by_role("button", name="Check availability").click()
+    expect(page.locator(".blocker-card.hardware")).to_be_visible()
+    assert page.locator(".offer-card").count() == 0
+    page.locator(".blocker-card").scroll_into_view_if_needed()
+    page.wait_for_timeout(800)
+    assert receipts() == before + 1

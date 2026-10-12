@@ -412,7 +412,16 @@ window.addEventListener("hashchange", async () => {
   const heading = document.querySelector("#main h1");
   if (heading) heading.tabIndex = -1;
   (heading || document.getElementById("main")).focus({ preventScroll: true });
+  if (state.openComparison && state.route === "studio") { state.openComparison = false; await openComparison(); }
 });
+
+async function openComparison() {
+  await runCompare();
+  render();
+  const card = document.getElementById("compare");
+  card?.scrollIntoView({ behavior: smooth(), block: "start" });
+  card?.querySelector(".cmp-grid")?.focus?.({ preventScroll: true });
+}
 
 function pendingCount() {
   const me = state.changes?.members?.find((m) => m.member_id === state.viewer);
@@ -744,7 +753,7 @@ function offerCard(d) {
   const minsLeft = Math.max(0, Math.round((until - Date.now()) / 60000));
   if (state.purchaseNote) return state.purchaseNote;
   // A killed experiment reports no variant, so its exposure is never counted.
-  return `<div class="card offer-card" data-render="feature_availability" data-subject="${d.decision_id}" data-variant="${d.experiment.killed ? "" : d.experiment.variant}">
+  return `<div class="card offer-card">
     <p class="offer-title">${esc(o.label)}</p>
     <p style="margin:8px 0 0"><span class="chip chip-sim">Simulated payment. No money moves.</span></p>
     <dl class="terms">
@@ -820,7 +829,7 @@ function decisionCard() {
   const checklist = `<h3 class="mt-4">Requirements</h3>${requirementList(d)}`;
   const side = `${d.offer && (!state.purchase || ["FAILED", "CANCELLED_BEFORE_SUBMISSION"].includes(state.purchase.state)) ? offerCard(d) : ""}${purchasePanel()}`;
   return `<div class="result-grid ${side.trim() ? "has-side" : ""}">
-    <div class="card blocker-card ${hardware.length ? "hardware" : ""}">
+    <div class="card blocker-card ${hardware.length ? "hardware" : ""}" data-render="feature_availability" data-subject="${d.decision_id}" data-variant="${d.experiment.killed ? "" : d.experiment.variant}">
       <h2>${esc(label)}</h2>
       ${checklistFirst ? checklist + `<div class="mt-4">${body}</div>` : body + checklist}
     </div>
@@ -1021,8 +1030,8 @@ function homeScreen() {
       <h2 id="start-title">Parents write: “I paid for this. Why can’t I use it?”</h2>
       <p>The cause differs from family to family: a plan bought but never connected, a code used on the wrong camera, a mount the feature can't use, a renewal the app hasn't seen. In most of them, buying again wouldn't help. This prototype finds the actual cause, and says so when a purchase isn't the answer.</p>
       <div class="btn-row"><button type="button" class="btn btn-primary" data-present="start:recruiter">Watch it work, in about a minute</button>
-        <a class="btn btn-secondary" href="#/customers">See what parents reported${icon("arrow", "icon-sm")}</a>
-        <a class="btn btn-ghost" href="#/studio">Build a scenario yourself</a></div>
+        <button type="button" class="btn btn-secondary" data-action="compare-open">Same problem. Different cause.</button>
+        <a class="btn btn-ghost" href="#/customers">What parents reported</a></div>
     </section>
     <div class="access-grid">${cards}</div>
     ${purchases}
@@ -1362,6 +1371,22 @@ function studioScreen() {
     ${accessMap()}`;
 }
 
+const ACTION_WORDS = { connect: "Connect the purchase to this camera", verify: "Check the camera again", check_again: "Wait, then check again",
+  contact_support: "Contact support with a summary", mount_guide: "See how to move the camera" };
+const DIFFERS_WORDS = { status: "the status", reason: "the cause", allowed_actions: "what the parent can do",
+  usable_features: "what works", offer: "whether a plan is offered", stages: "what was checked" };
+const STATE_WORD = { verified: "Verified", action: "Needs an action", waiting: "Waiting", blocked: "Blocked", conflicting: "Conflicting",
+  unknown: "Not yet known", not_needed: "Not needed", unchecked: "Not checked yet" };
+const PROBE_WORDS = { PAYMENT_RETRYING: "the store is still retrying the payment", HARDWARE_INCOMPATIBLE: "a plan can't fix the mount",
+  MOUNT_UNSUPPORTED: "a plan can't fix the mount" };
+const probeAction = (a) => a.replace(/^Buy a plan for nextnap$/i, "Sell a plan for NextNap").replace(/^Connect the (\w+) purchase to this camera$/,
+  (_, ch) => `Connect the ${CHANNEL_LABEL[ch] || ch} purchase again`);
+function probeAnswer(p) {
+  if ("offer_made" in p) return p.offer_made ? "Offered a plan" : `No offer: ${p.blockers.map((b) => PROBE_WORDS[b] || b.toLowerCase().replaceAll("_", " ")).join(", ")}`;
+  if (p.refused) return `Refused: ${(PROBE_WORDS[p.code?.replace(/^PURCHASE_/, "")] || p.code?.toLowerCase().replaceAll("_", " ") || "not allowed")}`;
+  return p.answer?.startsWith("already") ? "Already on this camera. Nothing changes" : "Connected";
+}
+
 // Same symptom, two causes: two real builds, the backend's decision in each,
 // and the backend's answer to the same two unsafe attempts.
 const COMPARABLE = ["billing_retry", "incompatible_hardware", "plan_ended", "paid_not_active", "billing_grace",
@@ -1370,25 +1395,38 @@ const COMPARABLE = ["billing_retry", "incompatible_hardware", "plan_ended", "pai
 function compareCard() {
   const c = state.compare;
   const pick = (id, chosen) => `<select id="${id}">${COMPARABLE.map((k) => `<option value="${k}"${k === chosen ? " selected" : ""}>${esc((state.studio || []).find((s) => s.key === k)?.title || k)}</option>`).join("")}</select>`;
+  // Each side tells the same five-step story, from the server's own answer:
+  // what the parent sees, what the backend found, what it allows, what it
+  // refuses (run for real, then rolled back), and what works now.
   const side = (x) => `<div class="cmp-side">
       <p class="eyebrow">${esc(x.title)}</p>
-      <div class="state-row">${accessPill(x.status)}<strong>${esc(x.headline)}</strong></div>
-      <p class="small">${esc(x.message)}</p>
-      <dl class="facts small"><dt>Decision</dt><dd><code>${esc(x.status)}</code> · <code>${esc(x.reason)}</code></dd>
-        <dt>Allowed next</dt><dd>${esc(x.allowed_actions.join(", ") || "nothing")}</dd>
-        <dt>Works now</dt><dd>${esc(x.usable_features.map(featureLabel).join(", ") || "nothing")}</dd>
-        <dt>Offer on this screen</dt><dd>${x.offer ? "yes" : "none"}</dd></dl>
-      <h3 class="small">If the parent tries anyway (real backend, rolled back)</h3>
-      <ul class="probe-list small">${x.probes.map((p) => `<li><span>${esc(p.action)}</span><strong class="${p.refused || p.offer_made === false || p.answer.startsWith("already") ? "st-ok" : "st-none"}">${esc(p.answer)}</strong></li>`).join("")}</ul>
-      <p class="small muted">Stages: ${x.stages.map((st) => `${esc(st.label)} ${esc(st.state)}`).join(" · ")} · fingerprint <code>${esc(x.fingerprint)}</code></p></div>`;
-  return `<section class="card" aria-labelledby="cmp-title"><h2 id="cmp-title">Same symptom, two causes</h2>
-    <p class="small muted card-sub">A parent sees the same thing: NextNap doesn't work. Build two situations, one after the other, and compare what the backend decided and what it refused.</p>
+      <ol class="cmp-steps">
+        <li><h3>What the parent sees</h3>
+          <div class="state-row">${accessPill(x.status)}<strong>${esc(x.headline)}</strong></div>
+          <p class="small">${esc(x.message)}</p></li>
+        <li><h3>What the backend found</h3>
+          <ul class="cmp-facts small">${x.stages.map((st) => `<li><span class="stage-dot st-${esc(st.state)}" aria-hidden="true"></span><span><strong>${esc(st.label)}.</strong> ${esc(st.fact || STATE_WORD[st.state] || st.state)}</span></li>`).join("")}</ul></li>
+        <li><h3>What it lets the parent do</h3>
+          <p class="small">${esc(x.allowed_actions.map((a) => ACTION_WORDS[a] || a).join(". ") || "Nothing on this screen. No purchase is offered")}.</p></li>
+        <li><h3>If the parent tries anyway</h3>
+          <ul class="probe-list small">${x.probes.map((p) => `<li><span>${esc(probeAction(p.action))}</span><strong class="${p.refused || p.offer_made === false ? "st-ok" : "st-none"}">${esc(probeAnswer(p))}</strong></li>`).join("")}</ul></li>
+        <li><h3>What works on the camera now</h3>
+          <p class="small">${esc(x.usable_features.map(featureLabel).join(", ") || "Nothing")}.</p></li>
+      </ol>
+      <details class="cmp-eng small"><summary>Engineering detail</summary>
+        <dl class="facts"><dt>Decision</dt><dd><code>${esc(x.status)}</code> · <code>${esc(x.reason)}</code></dd>
+          <dt>Probe answers</dt><dd>${x.probes.map((p) => `<code>${esc(p.answer)}</code>`).join(" ")}</dd>
+          <dt>Fingerprint</dt><dd><code>${esc(x.fingerprint)}</code> at revision ${esc(x.state_revision)}</dd>
+          <dt>Written by the probes</dt><dd>${x.probes_persisted ? "rows were written (unexpected)" : "nothing: each ran inside a transaction that was rolled back"}</dd></dl>
+      </details></div>`;
+  return `<section class="card cmp-card" id="compare" aria-labelledby="cmp-title"><p class="eyebrow">The standout case</p><h2 id="cmp-title">Same problem. Different cause.</h2>
+    <p class="small muted card-sub">Two parents write the same thing: "NextNap doesn't work." The backend builds both situations for real, finds a different cause in each, and allows and refuses different things. Pick two and compare.</p>
     <div class="cmp-pick"><label>First ${pick("cmp-a", state.comparePick?.a || c?.a?.scenario || "billing_retry")}</label>
       <label>Second ${pick("cmp-b", state.comparePick?.b || c?.b?.scenario || "incompatible_hardware")}</label>
       <button type="button" class="btn btn-primary" data-action="studio-compare">Compare</button></div>
     ${state.compareError ? `<p class="small" role="alert">${esc(state.compareError)}</p>` : ""}
     ${c ? `<div class="cmp-grid" role="status">${side(c.a)}${side(c.b)}</div>
-      <p class="small">Differs in: <strong>${esc(c.differs_in.join(", ") || "nothing")}</strong>. ${esc(c.note)}</p>` : ""}</section>`;
+      <p class="small">The backend's answers differ in: <strong>${esc(c.differs_in.map((k) => DIFFERS_WORDS[k] || k).join(", ") || "nothing")}</strong>. ${esc(c.note)}</p>` : ""}</section>`;
 }
 
 async function runCompare() {
@@ -1499,6 +1537,23 @@ function duration(s) {
   return `${Math.round(s / 86400)} days`;
 }
 
+// Purchase to use, five steps apart: each counted from its own rows, over the
+// same denominator, never inferred from the step before.
+function ladderCard(l) {
+  if (!l) return "";
+  const of = l.steps[0]?.of || 0;
+  const bar = (s) => {
+    const share = of ? Math.round((s.reached / of) * 100) : 0;
+    return `<li class="ladder-step">
+      <div class="ladder-head"><span>${esc(s.label)}</span><strong>${s.reached} of ${s.of}</strong></div>
+      <div class="ladder-track" aria-hidden="true"><span style="width:${share}%"></span></div>
+      <p class="small muted">${esc(s.source)}${s.median_s_from_previous != null ? ` · median ${esc(duration(s.median_s_from_previous))} after the step before` : ""}</p></li>`;
+  };
+  return `<h3 class="mt-6">From purchase to use, five steps apart</h3>
+    <p class="small muted">Each step counts only purchases that reached the step before it. Denominator: ${esc(l.denominator)}. A successful API response is step 1 or 2; the customer value is steps 4 and 5.</p>
+    <ol class="ladder">${l.steps.map(bar).join("")}</ol>`;
+}
+
 function funnelCard() {
   const f = state.funnel;
   if (!f) return "";
@@ -1507,8 +1562,10 @@ function funnelCard() {
   const row = (label, value, note = "") => `<li><span>${esc(label)}</span><strong>${esc(value)}</strong>${note ? `<span class="small muted">${esc(note)}</span>` : ""}</li>`;
   return `<section class="card" aria-labelledby="funnel-title"><h2 id="funnel-title">Access funnel <span class="chip chip-sim">synthetic</span></h2>
     <p class="small muted card-sub">From this family's stored records, computed when you open this page. ${esc(f.caveat)}</p>
+    ${ladderCard(f.ladder)}
+    <h3 class="mt-6">Timings and exceptions</h3>
     <ul class="funnel">
-      ${row("Store confirmed → usable on a camera", t.confirmed_to_usable.count ? `median ${duration(t.confirmed_to_usable.median_s)}` : "none yet", `${t.confirmed_to_usable.count} of ${t.journeys.length} purchases`)}
+      ${row("Store confirmed → a check found a feature usable", t.confirmed_to_usable.count ? `median ${duration(t.confirmed_to_usable.median_s)}` : "none yet", `${t.confirmed_to_usable.count} of ${t.journeys.length} purchases`)}
       ${row("Connected → first usable check", t.connected_to_usable.count ? `median ${duration(t.connected_to_usable.median_s)}` : "none yet", `${t.connected_to_usable.count} connected`)}
       ${row("Paid, not usable yet", String(f.unresolved.count), f.unresolved.count ? `${f.unresolved.not_connected} not connected · oldest ${duration(f.unresolved.oldest_s)}` : "")}
       ${row("Renewal payment failed → recovered", `${b.recovered} of ${b.purchases.length}`, b.failure_to_recovery.count ? `median ${duration(b.failure_to_recovery.median_s)} to recover` : "")}
@@ -2643,6 +2700,11 @@ async function onAction(e, el, action) {
     }
     case "studio-renewal": el.disabled = true; await storeNext(); render(); break;
     case "studio-compare": el.disabled = true; el.textContent = "Building both…"; await runCompare(); render(); break;
+    case "compare-open":          // Home → Studio, with the standout comparison built and in view
+      el.disabled = true; el.textContent = "Building both cases…";
+      if (state.route === "studio") await openComparison();
+      else { state.openComparison = true; location.hash = "#/studio"; }      // the route change finishes it
+      break;
     case "studio-worker": el.disabled = true; await studioWorker(Boolean(el.dataset.crash)); render(); break;
     case "growth-camera": state.accessDevice = el.dataset.device; state.windowNote = null; await refreshAccess(); await loadGrowth(); render(); break;
     case "window-event": el.disabled = true; await windowEvent(el); render(); break;

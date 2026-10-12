@@ -38,7 +38,13 @@ EXPERIMENTS = {
         "control": "reason_sentence",          # what everyone sees while the experiment is killed
         "surface": "feature_availability",
         "eligible": "households whose owner/admin opened a capability decision",
-        "primary_metric": "share of hardware-blocked decisions followed by a purchase attempt",
+        # Exposure is recorded on the explanation card, where the variant renders, for
+        # every decision (Growth review, 2026-10-12: it was on the offer card, which a
+        # hardware-blocked household never sees). A hardware-blocked decision carries no
+        # offer, so "purchase attempts" would be zero by construction in both arms.
+        "exposure": "the explanation card of a capability decision, at least half visible",
+        "primary_metric": "share of hardware-blocked decisions followed by the mount guide or a later "
+                          "check that finds the feature available (defined; not yet computed)",
         "guardrails": ["purchase_rejected rate", "support contact rate (not modeled)"],
     },
 }

@@ -138,6 +138,67 @@ def funnel(*, evidence: list[Any], binds: list[Any], claims: list[Any], checks: 
     }
 
 
+LADDER = (
+    ("confirmed", "Purchase confirmed", "purchase_evidence: the store's verified record"),
+    ("effective", "Entitlement effective on a camera", "entitlement_claims: active, and its period has started"),
+    ("eligible", "Feature eligible", "access_checks: the first check that found a feature usable on that camera"),
+    ("shown", "Shown to the parent", "analytics_events: access_check_rendered with a usable status"),
+    ("opened", "Opened while it worked", "analytics_events: access_feature_opened, stamped usable by the server"),
+)
+
+
+def ladder(*, evidence: list[Any], claims: list[Any], checks: list[Any], events: list[Any],
+           now: datetime) -> dict[str, Any]:
+    """Five steps from purchase to use, each counted from its own rows and never
+    inferred from another. A purchase reaches a step only after the step before
+    it, and every step has the same denominator: confirmed purchases. Pure."""
+    confirmed: dict[tuple[str, str], datetime] = {}
+    for e in evidence:
+        if e.status == "verified":
+            key = (e.channel, e.external_ref)
+            confirmed[key] = min(confirmed.get(key, e.received_at), e.received_at)
+    usable_at: dict[str, list[datetime]] = {}
+    for c in checks:
+        if c.status == USABLE:
+            usable_at.setdefault(c.device_id, []).append(c.created_at)
+    shown_at: dict[str, list[datetime]] = {}
+    opened_at: dict[str, list[datetime]] = {}
+    for e in events:
+        device = (e.properties or {}).get("device_id")
+        if e.name == "access_check_rendered" and str((e.properties or {}).get("status", "")).upper() == USABLE:   # the client sends it lowercased
+            shown_at.setdefault(device, []).append(e.received_at)
+        elif e.name == "access_feature_opened" and (e.properties or {}).get("usable_when_opened") is True:
+            opened_at.setdefault(device, []).append(e.received_at)
+
+    times: dict[str, list[tuple[datetime, datetime]]] = {key: [] for key, _, _ in LADDER}
+    for ref, at_confirmed in confirmed.items():
+        times["confirmed"].append((at_confirmed, at_confirmed))
+        effective = [(max(c.received_at, c.starts_at), c.device_id) for c in claims
+                     if (c.channel, c.external_ref) == ref and c.event_status == "active"
+                     and max(c.received_at, c.starts_at) <= now]
+        if not effective:
+            continue
+        at_effective, device = min(effective)
+        times["effective"].append((at_confirmed, at_effective))
+        previous = at_effective
+        for key, source in (("eligible", usable_at), ("shown", shown_at), ("opened", opened_at)):
+            reached = _first(source.get(device, []), after=previous)
+            if reached is None:
+                break
+            times[key].append((previous, reached))
+            previous = reached
+
+    total = len(confirmed)
+    return {
+        "synthetic": True,
+        "denominator": "confirmed purchases",
+        "steps": [{"key": key, "label": label, "source": source, "reached": len(times[key]), "of": total,
+                   "median_s_from_previous": (round(median([(b - a).total_seconds() for a, b in times[key]]), 3)
+                                              if times[key] and key != "confirmed" else None)}
+                  for key, label, source in LADDER],
+    }
+
+
 def video_funnel(runs: list[Any], observations: list[Any], annotations: list[Any],
                  events: list[Any]) -> dict[str, Any]:
     """Recorded-evidence facts, each from its own rows. Access verified, the
@@ -177,6 +238,10 @@ def household_funnel(db: Session, household_id: str) -> dict[str, Any]:
     purchases = [purchase_evidence.as_of(p, clock.now()) for p in purchase_evidence.household_purchases(db, household_id)]
     result = funnel(evidence=evidence, binds=binds, claims=claims, checks=checks, rejections=rejections, now=now,
                     purchases=purchases)
+    shown_or_opened = list(db.execute(select(AnalyticsEvent).where(
+        AnalyticsEvent.household_id == household_id,
+        AnalyticsEvent.name.in_(("access_check_rendered", "access_feature_opened")))).scalars())
+    result["ladder"] = ladder(evidence=evidence, claims=claims, checks=checks, events=shown_or_opened, now=now)
     runs = list(db.execute(select(VideoAnalysisRun).where(VideoAnalysisRun.household_id == household_id)).scalars())
     observations = list(db.execute(select(VideoObservation).where(VideoObservation.household_id == household_id)).scalars())
     annotations = list(db.execute(select(VideoAnnotation).where(VideoAnnotation.household_id == household_id)).scalars())

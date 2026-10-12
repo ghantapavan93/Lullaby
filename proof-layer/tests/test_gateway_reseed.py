@@ -19,6 +19,7 @@ from .conftest import ROOT
 def gateway(tmp_path, monkeypatch):
     monkeypatch.setenv("GATEWAY_STATE", str(tmp_path / "gateway.sqlite3"))
     monkeypatch.setenv("GATEWAY_SLOTS", "1,2")
+    monkeypatch.syspath_prepend(str(ROOT.parent / "deploy" / "gateway"))   # gateway.py imports headers.py beside it
     spec = importlib.util.spec_from_file_location("gateway_under_test", ROOT.parent / "deploy" / "gateway" / "gateway.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -75,3 +76,19 @@ def test_the_janitor_never_wipes_a_slot_handed_out_while_it_reseeded_another(gat
     asyncio.run(gateway.janitor_pass())
     assert gateway.calls == [1]                                         # slot 2's visitor keeps their data
     assert gateway.store.with_state("clean") == [1] and gateway.store.with_state("leased") == [2]
+
+
+def test_a_returning_visitors_own_expired_lease_is_freed_for_them_at_once(gateway):
+    """Backend review, 2026-10-12: with one slot, a visitor whose own lease had
+    expired was told every workspace was busy until the janitor's next pass."""
+    from starlette.testclient import TestClient
+    gateway.store.db.execute("DELETE FROM slots WHERE slot=2")      # one slot, as on the free host
+    gateway.store.db.execute("UPDATE slots SET state='clean'")
+    old = "old-visitor-token"
+    gateway.store.claim(old, "10.0.0.1")
+    gateway.store.db.execute("UPDATE slots SET created=created-100000, last_seen=last_seen-100000")   # long expired
+    client = TestClient(gateway.app)
+    client.cookies.set(gateway.COOKIE, old)
+    r = client.post("/v1/workspace")
+    assert r.status_code == 201, r.text
+    assert r.json()["new"] is True

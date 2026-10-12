@@ -24,7 +24,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import select
-from sqlalchemy.exc import DataError
+from sqlalchemy.exc import DataError, OperationalError
 from sqlalchemy.orm import Session
 
 from . import (access, access_metrics, acks, claims, compare, customer_evidence, decisions, engine as evidence,
@@ -364,12 +364,18 @@ def get_purchase(intent_id: str, db: Session = Depends(get_db), authorization: O
     transitions = db.execute(select(IntentTransition).where(IntentTransition.intent_id == intent.id)
                              .order_by(IntentTransition.id)).scalars()
     job = db.execute(select(OutboxJob).where(OutboxJob.dedupe_key == f"submit:{intent.id}")).scalar_one_or_none()
+    # The stored state is the answer; the provider's record is extra detail. An
+    # outage there must not turn a client's poll into a 500 (backend review, 2026-10-12).
+    try:
+        record, reachable = provider.lookup(intent.provider_operation_key), True
+    except OperationalError:
+        record, reachable = None, False
     return purchases.view(intent) | {
         "transitions": [{"from": t.from_state, "to": t.to_state, "reason": t.reason, "actor": t.actor,
                          "detail": t.detail, "trace_id": t.trace_id, "at": t.at.isoformat()} for t in transitions],
         "outbox": None if job is None else {"state": job.state, "attempts": job.attempts,
                                             "last_error": job.last_error},
-        "provider_record": provider.lookup(intent.provider_operation_key)}
+        "provider_record": record, "provider_reachable": reachable}
 
 
 @app.get("/v1/purchase-intents")

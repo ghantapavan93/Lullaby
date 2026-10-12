@@ -90,3 +90,33 @@ def test_an_unconnected_purchase_counts_as_unresolved(client, demo):
     m = client.get("/v1/access/metrics", headers=PARENT).json()
     assert m["unresolved"]["count"] == 1 and m["unresolved"]["not_connected"] == 1
     assert m["time_to_usable"]["confirmed_to_usable"]["count"] == 0
+
+
+# ---------------------------------------------------------------- the five-step ladder (Growth review, 2026-10-12)
+
+def test_the_ladder_keeps_five_steps_apart_each_from_its_own_rows():
+    """Confirmed, effective on a camera, eligible, shown, opened while usable:
+    each step counts only purchases that reached the step before it, over the
+    same denominator (confirmed purchases), and none is inferred from another."""
+    evidence = [ev("web", "w1", "verified", 1, 0), ev("web", "w2", "verified", 1, 0),
+                ev("web", "w3", "verified", 1, 0), ev("web", "w4", "pending", 1, 0)]
+    claims = [Row(channel="web", external_ref="w1", device_id="cam", event_status="active", received_at=at(10), starts_at=at(5)),
+              Row(channel="web", external_ref="w2", device_id="cam2", event_status="active", received_at=at(10), starts_at=at(5)),
+              # w3's period hasn't started: connected, but not effective yet.
+              Row(channel="web", external_ref="w3", device_id="cam3", event_status="active", received_at=at(10), starts_at=at(10_000))]
+    checks = [Row(device_id="cam", status=access_metrics.USABLE, created_at=at(20)),
+              Row(device_id="cam2", status=access_metrics.USABLE, created_at=at(20)),
+              Row(device_id="cam3", status=access_metrics.USABLE, created_at=at(20))]
+    events = [Row(name="access_check_rendered", received_at=at(25), properties={"device_id": "cam", "status": "active_feature_usable"}),
+              Row(name="access_check_rendered", received_at=at(25), properties={"device_id": "cam2", "status": "active_feature_usable"}),
+              Row(name="access_feature_opened", received_at=at(30), properties={"device_id": "cam", "usable_when_opened": True}),
+              # cam2 was opened after access was lost: not an outcome.
+              Row(name="access_feature_opened", received_at=at(30), properties={"device_id": "cam2", "usable_when_opened": False})]
+    lad = access_metrics.ladder(evidence=evidence, claims=claims, checks=checks, events=events, now=at(600))
+    steps = {s["key"]: s for s in lad["steps"]}
+    assert [s["key"] for s in lad["steps"]] == ["confirmed", "effective", "eligible", "shown", "opened"]
+    assert {k: (s["reached"], s["of"]) for k, s in steps.items()} == {
+        "confirmed": (3, 3), "effective": (2, 3), "eligible": (2, 3), "shown": (2, 3), "opened": (1, 3)}
+    assert steps["effective"]["median_s_from_previous"] == 10.0     # confirmed at 0, effective at max(received, starts)
+    assert all(s["source"] for s in lad["steps"])                    # every step names the rows it counts
+    assert lad["synthetic"] is True
