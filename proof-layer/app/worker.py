@@ -69,6 +69,8 @@ def claim(db: Session, worker_id: str, include_held: bool = False) -> Optional[O
 def finish(job_id: int, *, error: Optional[str] = None, retry_in: Optional[timedelta] = None) -> None:
     with transaction() as db:
         job = db.get(OutboxJob, job_id, with_for_update=True)
+        if job is None:      # a demo reset removed it mid-run: there is nothing left to record
+            return
         if error is None and retry_in is None:
             job.state, job.lease_until = "done", None
         else:
@@ -220,12 +222,18 @@ def main(argv: Optional[list[str]] = None) -> int:
     while True:
         if heartbeat is not None:
             heartbeat.touch()
-        if time.monotonic() - last_reconcile >= RECONCILE_EVERY or args.once:
-            reconciled = reconcile_intents(f"worker:{args.id}")
-            if reconciled:
-                print("reconciled:", reconciled, flush=True)
-            last_reconcile = time.monotonic()
-        n = run_once(args.id, args.crash_after_provider, args.include_held)
+        try:
+            if time.monotonic() - last_reconcile >= RECONCILE_EVERY or args.once:
+                reconciled = reconcile_intents(f"worker:{args.id}")
+                if reconciled:
+                    print("reconciled:", reconciled, flush=True)
+                last_reconcile = time.monotonic()
+            n = run_once(args.id, args.crash_after_provider, args.include_held)
+        except Exception as exc:   # an always-on worker outlives any one pass (a demo reset, a dropped connection)
+            if args.once:
+                raise
+            print("worker pass failed:", repr(exc), flush=True)
+            n = 0
         if args.once:
             print(f"processed {n} job(s)", flush=True)
             return 0

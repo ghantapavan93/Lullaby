@@ -29,8 +29,13 @@ def build(backend: str, out: Path = OUT) -> Path:
     backend = backend.rstrip("/")
     if not backend.startswith("https://"):
         raise SystemExit("the backend must be an https:// origin")
+    # Clear the last build but keep `.vercel/`, the link to the Vercel project:
+    # without it the CLI creates a new project instead of updating this one.
     if out.exists():
-        shutil.rmtree(out)
+        for item in out.iterdir():
+            if item.name != ".vercel":
+                shutil.rmtree(item) if item.is_dir() else item.unlink()
+    out.mkdir(parents=True, exist_ok=True)
     shutil.copytree(STATIC, out / "static")
     shutil.copy(REPO / "deploy" / "landing" / "index.html", out / "index.html")
     shutil.copy(STATIC / "index.html", out / "app.html")

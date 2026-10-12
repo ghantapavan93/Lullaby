@@ -100,6 +100,17 @@ def main() -> int:
         "gateway": ([sys.executable, "-m", "uvicorn", "gateway:app", "--host", "0.0.0.0", "--port", port,
                      "--proxy-headers", "--forwarded-allow-ips", "*"], GATEWAY, gateway_env),
     }
+    # On a tenth of a CPU, video analysis in the worker starved the API: page
+    # requests waited past the gateway's 60 s and got 502 (live sweep,
+    # 2026-10-12). Background work yields to the visitor's requests.
+    background = {"worker", "warm"}
+
+    def lower_priority() -> None:
+        os.nice(10)
+
+    def spawn(name: str, cmd: list[str], cwd: Path, env: dict[str, str]) -> subprocess.Popen:
+        return subprocess.Popen(cmd, cwd=cwd, env=env, preexec_fn=lower_priority if name in background else None)
+
     children: dict[str, subprocess.Popen] = {}
     stopping = False
 
@@ -113,8 +124,8 @@ def main() -> int:
     # The demo clip takes about half a minute to encode on a tenth of a CPU: make it
     # once, in the background, so a visitor's scenario finds it ready (Render's
     # disk is ephemeral, so this runs after every start).
-    warm = subprocess.Popen([sys.executable, "-c", "from app import video_evidence; video_evidence.sample_source()"],
-                            cwd=APP, env=slot_env)
+    warm = spawn("warm", [sys.executable, "-c", "from app import video_evidence; video_evidence.sample_source()"],
+                 APP, slot_env)
     while not stopping:
         if warm is not None and warm.poll() is not None:
             print("demo clip ready" if warm.returncode == 0 else f"demo clip failed ({warm.returncode})", flush=True)
@@ -124,7 +135,7 @@ def main() -> int:
             if p is None or p.poll() is not None:
                 if p is not None:
                     print(f"{name} exited with {p.returncode}; starting it again", flush=True)
-                children[name] = subprocess.Popen(cmd, cwd=cwd, env=env)
+                children[name] = spawn(name, cmd, cwd, env)
         time.sleep(2)
     for p in children.values():
         try:

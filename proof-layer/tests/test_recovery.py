@@ -19,11 +19,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 
 from app import claims, provider, seed, worker
 from app.db import SessionLocal, transaction
-from app.models import Household, IntentTransition, PurchaseIntent
+from app.models import Household, IntentTransition, OutboxJob, PurchaseIntent
 
 from .conftest import PARENT, ROOT
 
@@ -230,3 +230,13 @@ def test_state_revision_moves_on_confirmation(client, demo):
     worker.run_once("t")
     with SessionLocal() as db:
         assert db.get(Household, seed.HOUSEHOLD).state_revision == before + 1
+
+
+def test_a_job_removed_by_a_demo_reset_does_not_kill_the_worker(demo):
+    # Live on Render (2026-10-12): a reset truncated the outbox while the worker
+    # ran a job, and recording the job's outcome raised AttributeError, so the
+    # always-on worker exited. Its outcome now has nowhere to go and is dropped.
+    with SessionLocal() as db:
+        missing = (db.execute(select(func.max(OutboxJob.id))).scalar_one() or 0) + 1000
+    worker.finish(missing)
+    worker.finish(missing, error="RuntimeError('the run was reset')")
