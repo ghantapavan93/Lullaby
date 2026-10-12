@@ -729,3 +729,15 @@ def test_a_window_whose_activation_found_nothing_usable_is_not_holding():
     still = {"state": "still_verified", "lost": [], "gained": []}
     decision = access._window_decision(base, [], still, {})
     assert decision["state"] == "NOTHING_USABLE" and "nothing usable" in decision["reason"]
+
+
+def test_the_headline_says_plan_active_until_a_check_verifies_the_camera(client, demo):
+    """Final deployed review, 2026-10-12: Home said "Ready to use" while the same
+    card's feature stage said no check had run. Plan active, feature eligible and
+    feature verified are different facts; the headline names only what is known."""
+    before = status(client)
+    assert before["status"] == "ACTIVE_FEATURE_USABLE"
+    assert before["headline"] == "Plan active" and "erified" not in before["headline"]
+    assert verify(client).status_code == 200
+    after = status(client)
+    assert after["headline"] == "Verified on this camera"

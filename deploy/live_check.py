@@ -13,6 +13,7 @@ synthetic family members only.
 """
 from __future__ import annotations
 
+import re
 import argparse
 import json
 import sys
@@ -70,7 +71,7 @@ def main() -> int:
         pg.screenshot(path=str(out / "4-refused.png"), full_page=True)
         pg.goto(a.base + "/app#/access/dev_cam_demo")
         pg.get_by_role("button", name="Store sends the renewal").click()
-        expect(pg.locator(".access-status")).to_contain_text("Ready to use", timeout=120000)
+        expect(pg.locator(".access-status")).to_contain_text(re.compile("Plan active|Verified on this camera"), timeout=120000)
         mark("store renewal reached the camera")
         pg.locator(".recorded-link").click()
         run_worker = pg.get_by_role("button", name="Run the worker")

@@ -303,16 +303,20 @@ def assess(db: Session, household: Household, device: Device, *, member_can_bind
         preview = {"plan_code": focus["plan_code"],
                    "usable": [f["label"] for f in would if f["usable"]],
                    "hardware_limited": [f["label"] for f in would if f["included"] and f["blocked_by"] == ["hardware"]]}
+    checked = last_check is not None and last_check.fingerprint == fingerprint
     stages = _stages(status, focus=focus, plan=plan, device=device, features=features,
                      member_can_bind=member_can_bind, catalog_version=catalog_version, reason=reason,
-                     checked=last_check is not None and last_check.fingerprint == fingerprint)
+                     checked=checked)
+    # Plan active, feature eligible and feature verified are different facts: the
+    # headline claims verification only when a check matches the camera's current facts.
+    headline = "Verified on this camera" if status == USABLE and checked else HEADLINES[status]
     step(11, "stages and allowed actions from status and permissions", {"allowed_actions": actions})
     step(12, "returned; nothing written", None)
 
     return {
         "device": {"id": device.id, "label": device.label, "model": device.model, "mount": device.mount,
                    "mount_label": entitlements.MOUNT_LABELS.get(device.mount, device.mount)},
-        "status": status, "headline": HEADLINES[status], "message": _message(status, focus, plan, device, features,
+        "status": status, "headline": headline, "message": _message(status, focus, plan, device, features,
                                                                              catalog_version, reason),
         "reason": reason,
         "stages": stages, "allowed_actions": actions,
@@ -534,7 +538,7 @@ def _feature_focus(feature: str, features: list[dict[str, Any]], status: str, re
 
 
 HEADLINES = {
-    "ACTIVE_FEATURE_USABLE": "Ready to use",
+    "ACTIVE_FEATURE_USABLE": "Plan active",          # "Verified on this camera" once a check matches
     "ACTIVE_HARDWARE_BLOCKED": "Your plan is active. The mount is the limit",
     "PLAN_EXCLUDES_FEATURE": "Not included in this camera's plan",
     "ASSIGNED_PENDING_CONFIRMATION": "Connected. Checking your camera",

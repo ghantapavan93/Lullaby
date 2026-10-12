@@ -317,7 +317,9 @@ async function ensureWorkspace() {
     if ((body?.code && !preparing && !busy) || Date.now() - started > (busy ? 900000 : 180000)) break;
     document.getElementById("main").innerHTML = busy
       ? `<div class="alert alert-info" role="status">${icon("clock")}<div>
-      <p class="alert-title">Someone else is using the review workspace</p><p>This copy runs one private workspace at a time on free infrastructure. It frees up when they finish, or after a few idle minutes. This page keeps trying and opens as soon as it's yours.</p></div></div>`
+      <p class="alert-title">Someone else is using the review workspace</p><p>This copy runs one private workspace at a time on free infrastructure. It frees up when they finish, or after a few idle minutes. This page keeps trying and opens as soon as it's yours.</p>
+      <p>Meanwhile, here is the same app recorded on the live site, 74 seconds:</p>
+      <video class="demo-video" controls preload="none" src="/static/demo.mp4"></video></div></div>`
       : preparing
       ? `<div class="alert alert-info" role="status">${icon("clock")}<div>
       <p class="alert-title">Preparing your workspace…</p><p>Its synthetic data is being reset to the starting point. This takes a few seconds.</p></div></div>`
@@ -931,7 +933,7 @@ const ACCESS_TONE = {
   BILLING_GRACE: ["action", "alert"], BILLING_RETRY: ["warning", "alert"], PLAN_PAUSED: ["pending", "clock"],
 };
 const ACCESS_SHORT = {
-  ACTIVE_FEATURE_USABLE: "Ready to use", ACTIVE_HARDWARE_BLOCKED: "Mount limits features", PLAN_EXCLUDES_FEATURE: "Not in this plan",
+  ACTIVE_FEATURE_USABLE: "Plan active", ACTIVE_HARDWARE_BLOCKED: "Mount limits features", PLAN_EXCLUDES_FEATURE: "Not in this plan",
   ASSIGNED_PENDING_CONFIRMATION: "Connected, checking", VERIFIED_UNBOUND: "Needs attention", DUPLICATE_PURCHASE: "Already has this plan",
   ALREADY_ASSIGNED: "On another camera", PURCHASE_PENDING: "Waiting for the store", PROVIDER_UNKNOWN: "Still confirming",
   CONFLICTING_EVIDENCE: "Needs support", REFUNDED_OR_REVOKED: "Refunded", PLAN_EXPIRED: "Plan ended", PURCHASE_UNVERIFIED: "Not verified",
@@ -1031,7 +1033,8 @@ function homeScreen() {
       <p class="eyebrow">Start here</p>
       <h2 id="start-title">Parents write: “I paid for this. Why can’t I use it?”</h2>
       <p>The cause differs from family to family: a plan bought but never connected, a code used on the wrong camera, a mount the feature can't use, a renewal the app hasn't seen. In most of them, buying again wouldn't help. This prototype finds the actual cause, and says so when a purchase isn't the answer.</p>
-      <div class="btn-row"><button type="button" class="btn btn-primary" data-present="start:recruiter">Watch it work, in about a minute</button>
+      <div class="btn-row"><button type="button" class="btn btn-primary" data-action="start-paid">Show a parent who paid but can't use it</button>
+        <button type="button" class="btn btn-secondary" data-present="start:recruiter">Watch it work, in about a minute</button>
         <button type="button" class="btn btn-secondary" data-action="compare-open">Same problem. Different cause.</button>
         <a class="btn btn-ghost" href="#/customers">What parents reported</a></div>
     </section>
@@ -1562,7 +1565,10 @@ function ladderCard(l) {
   };
   return `<h3 class="mt-6">From purchase to use, five steps apart</h3>
     <p class="small muted">Each step counts only purchases that reached the step before it. Denominator: ${esc(l.denominator)}. A successful API response is step 1 or 2; the customer value is steps 4 and 5.</p>
-    <ol class="ladder">${l.steps.map(bar).join("")}</ol>`;
+    <ol class="ladder">${l.steps.map(bar).join("")}</ol>
+    ${of ? "" : `<div class="alert alert-info mt-4" role="status">${icon("clock")}<div><p class="alert-title">Nothing measured yet in this workspace</p>
+      <p>Every count here comes from stored events. To record one journey for real: show a parent who paid, connect the purchase, then press "Parent opens NextNap" below.</p>
+      <div class="btn-row"><button type="button" class="btn btn-secondary" data-action="start-paid">Show a parent who paid but can't use it</button></div></div></div>`}`;
 }
 
 function funnelCard() {
@@ -1649,6 +1655,7 @@ function certificationCard() {
     <h3 class="mt-6">Release gates</h3>
     <ul class="cert-list">${c.release_gates.map((g) => `<li><div class="cert-row static">${pill(g.state)}<span>${esc(g.statement || g.id)}${g.measured ? `<span class="small muted" style="display:block">${g.measured.requests} requests · ${g.measured.client_timeouts} client timeouts · p95 ${g.measured.p95_ms} ms · ${esc(g.file)}</span>` : ""}
       ${g.note ? `<span class="small" style="display:block">${esc(g.note)}</span>` : ""}</span></div></li>`).join("")}</ul>
+    <p class="small muted mt-4">Also unresolved, from earlier runs: a rare row-level deadlock in the demo-reset race test, not diagnosed. Passing the domain rules above doesn't hide either failure.</p>
   </section>`;
 }
 
@@ -1714,7 +1721,8 @@ function recordedScreen() {
     return head + `<section class="card"><h2>No clip on this camera yet</h2>
       <p>The demo uses one sample clip. It is stored privately and measured by the worker, not in your browser.</p>
       <div class="demo-bar" role="region" aria-label="Simulation"><span class="dev-chip">simulation</span><span>Not part of the parent app: store the demo clip and queue its analysis.</span>
-        <button type="button" data-action="video-sample">Load the demo clip</button></div></section>`;
+        <button type="button" data-action="video-sample">Load the demo clip</button>
+        <button type="button" data-action="evidence-scenario">Or build the whole guided case</button></div></section>`;
   }
   if (v.refused) {
     return head + `<section class="card access-status" aria-labelledby="gate-title"><div class="state-row">${accessPill("PLAN_EXCLUDES_FEATURE")}</div>
@@ -2500,6 +2508,7 @@ async function proofHtml() {
 }
 
 async function openXray() {
+  if (state.scenarioOpen) setScenario(false);   // one engineering panel at a time
   state.xrayOpener = document.activeElement;
   state.xrayOpen = true;
   document.body.classList.add("xray-is-open");     // >= 1280px the page reflows beside it
@@ -2575,6 +2584,7 @@ function devControls() {
 }
 
 function setScenario(open) {
+  if (open && state.xrayOpen) closeXray();       // one engineering panel at a time: the page keeps its width
   state.scenarioOpen = open;
   const d = document.getElementById("dev-drawer");
   d.classList.toggle("open", open);
@@ -2742,6 +2752,10 @@ async function onAction(e, el, action) {
     }
     case "studio-renewal": el.disabled = true; await storeNext(); render(); break;
     case "studio-compare": el.disabled = true; el.textContent = "Building both…"; await runCompare(); render(); break;
+    case "start-paid":            // builds "paid, not connected" on the backend, then opens that camera
+      el.disabled = true; el.textContent = "Building it on the backend…";
+      await presentScenario("paid_not_active");
+      break;
     case "compare-open":          // Home → Studio, with the standout comparison built and in view
       el.disabled = true; el.textContent = "Building both cases…";
       if (state.route === "studio") await openComparison();

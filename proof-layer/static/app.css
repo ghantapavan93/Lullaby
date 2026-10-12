@@ -911,3 +911,4 @@ main#main { min-height: calc(100dvh - var(--chrome-top, 36px) - 64px); }
 .ladder-track { height: 8px; margin-top: var(--pl-space-1); border-radius: var(--pl-radius-pill); background: var(--pl-surface-sunken); overflow: hidden; }
 .ladder-track span { display: block; height: 100%; background: var(--pl-accent-solid); border-radius: inherit; }
 .ladder-step p { margin: var(--pl-space-1) 0 0; }
+.demo-video { display: block; width: 100%; max-width: 720px; margin-top: var(--pl-space-3); border-radius: var(--pl-radius-md); background: var(--pl-surface-sunken); }

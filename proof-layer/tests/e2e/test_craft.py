@@ -206,3 +206,23 @@ def test_the_x_ray_keeps_focus_inside_below_1280(server, browser):  # noqa: F811
             escaped.append(pg.evaluate("document.activeElement.outerHTML.slice(0, 80)"))
     context.close()
     assert escaped == []
+
+
+def test_only_one_engineering_panel_is_open_at_a_time(desktop):
+    """Final deployed review, 2026-10-12: Scenario controls and the X-Ray open together squeezed the page."""
+    desktop.evaluate("document.getElementById('nav-eng').open = true")
+    desktop.get_by_role("button", name="Scenario controls").click()
+    expect(desktop.locator("#dev-drawer")).to_have_attribute("aria-hidden", "false")
+    desktop.locator('#side-nav [data-action="xray-open"]').click()
+    expect(desktop.locator("#xray")).to_have_attribute("aria-hidden", "false")
+    expect(desktop.locator("#dev-drawer")).to_have_attribute("aria-hidden", "true")
+
+
+def test_the_first_click_on_home_shows_the_advertised_problem(desktop):
+    """Final deployed review, 2026-10-12: Home opened on a working camera, not the
+    "I paid for this" problem the landing page promises. One click now builds that
+    case on the backend (no frontend state) and opens it."""
+    desktop.get_by_role("button", name="Show a parent who paid but can't use it").click()
+    expect(desktop.get_by_role("button", name="Connect to Nursery camera")).to_be_visible(timeout=60000)
+    assert "#/access/dev_cam_demo" in desktop.url
+    expect(desktop.locator(".access-status")).to_contain_text("isn't connected")

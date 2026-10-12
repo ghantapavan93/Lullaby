@@ -219,6 +219,10 @@ async def security(request: Request, call_next):
     response = await call_next(request)
     for key, value in SECURITY.items():
         response.headers.setdefault(key, value)
+    if request.url.path.startswith("/v1/"):
+        # A workspace's answers belong to one visitor: no shared cache (a CDN in
+        # front, such as Vercel) may store them unless the app chose a policy.
+        response.headers.setdefault("Cache-Control", "private, no-store")
     return response
 
 

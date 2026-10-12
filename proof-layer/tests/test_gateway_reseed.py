@@ -113,3 +113,32 @@ def test_refusals_that_ask_clients_to_wait_say_so_in_a_header(gateway):
     r = TestClient(gateway.app).post("/v1/workspace")
     assert r.json()["code"] == "ALL_WORKSPACES_BUSY"
     assert r.headers["retry-after"] == str(r.json()["retry_after_s"])
+
+
+def test_workspace_responses_are_never_stored_by_a_shared_cache(gateway):
+    """Final deployed review, 2026-10-12: a proxied workspace response carried no
+    Cache-Control, so a CDN in front (Vercel) was free to apply its own policy.
+    Every /v1 answer is private and no-store unless the app set its own policy."""
+    import httpx
+    from starlette.testclient import TestClient
+
+    class Body(httpx.AsyncByteStream):           # the gateway streams upstream bodies
+        def __init__(self, data: bytes):
+            self.data = data
+
+        async def __aiter__(self):
+            yield self.data
+
+    def upstream(request):
+        if request.url.path.startswith("/v1/media"):
+            return httpx.Response(206, headers={"cache-control": "private, max-age=60"}, stream=Body(b"x"))
+        return httpx.Response(200, headers={"content-type": "application/json"}, stream=Body(b'{"household": "synthetic"}'))
+    gateway.client = httpx.AsyncClient(transport=httpx.MockTransport(upstream))
+    gateway.store.db.execute("UPDATE slots SET state='clean'")
+    gateway.store.claim("visitor-cookie", "10.0.0.1")
+    c = TestClient(gateway.app)
+    c.cookies.set(gateway.COOKIE, "visitor-cookie")
+    r = c.get("/v1/access")
+    assert r.status_code == 200 and r.headers["cache-control"] == "private, no-store"
+    m = c.get("/v1/media/clip", headers={"range": "bytes=0-0"})
+    assert m.headers["cache-control"] == "private, max-age=60"          # the app's own policy is kept

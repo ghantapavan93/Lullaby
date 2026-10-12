@@ -4,6 +4,7 @@ Chromium (Playwright). These verify what a person actually sees.
 Run:  python -m pytest tests/e2e
 """
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -399,7 +400,7 @@ def test_customer_evidence_opens_the_working_scenario(server, browser):
     expect(pg.locator(".access-status")).not_to_contain_text("Upgrade")
     pg.goto(server + "/#/customers")
     pg.locator(".customer-card.demo").get_by_role("button", name="Try: Renewed, still active").click()
-    expect(pg.locator(".camera-card[aria-checked=true]")).to_contain_text("Ready to use")
+    expect(pg.locator(".camera-card[aria-checked=true]")).to_contain_text(re.compile("Plan active|Verified on this camera"))
     context.close()
 
 
@@ -451,7 +452,7 @@ def test_a_failed_renewal_payment_recovers_on_the_same_camera_in_the_browser(ser
     expect(status).to_contain_text("in your Google Play account")
     expect(status).to_contain_text("nothing more to buy")
     pg.get_by_role("button", name="Store recovers the payment").click()
-    expect(pg.locator(".access-status")).to_contain_text("Ready to use")
+    expect(pg.locator(".access-status")).to_contain_text(re.compile("Plan active|Verified on this camera"))
     with SessionLocal() as db:
         assert db.execute(select(func.count()).select_from(PurchaseIntent)).scalar_one() == 0
         assert db.execute(select(func.count()).select_from(AccessAction)).scalar_one() == 0    # no new connect
@@ -473,7 +474,7 @@ def test_recorded_evidence_after_the_renewal_in_the_browser(server, browser):
     assert pg.locator(".offer-card").count() == 0
     pg.goto(server + "/#/access/dev_cam_demo")
     pg.get_by_role("button", name="Store sends the renewal").click()
-    expect(pg.locator(".access-status")).to_contain_text("Ready to use")
+    expect(pg.locator(".access-status")).to_contain_text(re.compile("Plan active|Verified on this camera"))
     pg.locator(".recorded-link").click()
     pg.get_by_role("button", name="Run the worker").click()
     expect(pg.locator(".run-status")).to_contain_text("Analysed", timeout=90000)
