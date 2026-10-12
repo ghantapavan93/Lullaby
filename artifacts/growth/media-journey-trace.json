@@ -1,0 +1,173 @@
+{
+ "generated_at": "2026-10-11T23:21:11.576101+00:00",
+ "instance": "rvfd34cd59",
+ "verified_status": "ACTIVE_FEATURE_USABLE",
+ "report_status": 201,
+ "links": [
+  {
+   "link": "Synthetic purchase (store renewal)",
+   "code": "app/purchase_evidence.py",
+   "rows": [
+    [
+     "verified",
+     "SUBSCRIBED/INITIAL_BUY",
+     "1"
+    ],
+    [
+     "verified",
+     "DID_RENEW",
+     "2"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Evidence reconciled to the camera",
+   "code": "app/provider_lifecycle.py, app/claims.py",
+   "rows": [
+    [
+     "dev_cam_demo",
+     "active",
+     "milestones"
+    ],
+    [
+     "dev_cam_demo",
+     "active",
+     "milestones"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Entitlement effective (verified check)",
+   "code": "app/access.py:verify",
+   "rows": [
+    [
+     "ACTIVE_FEATURE_USABLE",
+     "milestones",
+     "[\"developmental_milestones\", \"nextnap\", \"sleep_analysis\", \"video_history_7d\"]"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Feature eligibility (video gate)",
+   "code": "app/video_evidence.py:require_gate",
+   "rows": [
+    [
+     "{\"allowed\": true, \"device_id\": \"dev_cam_demo\"}"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Media bytes authorised",
+   "code": "app/main.py:video_media",
+   "rows": [
+    [
+     "206",
+     "1024"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Analysis completed by the worker",
+   "code": "app/video_evidence.py:process",
+   "rows": [
+    [
+     "COMPLETED",
+     "motion-baseline-2",
+     "1",
+     "1125"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Feature opened (page rendered)",
+   "code": "static/app.js:trackRecordedView",
+   "rows": [
+    [
+     "{\"asset_id\": \"vas_c1046ac7e8854e7b\", \"device_id\": \"dev_cam_demo\"}"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Caregiver report kept beside the measurement",
+   "code": "app/video_evidence.py:annotate",
+   "rows": [
+    [
+     "2",
+     "infant_still",
+     "Caregiver B"
+    ]
+   ],
+   "holds": true
+  },
+  {
+   "link": "Growth event for the report",
+   "code": "app/growth.py",
+   "rows": [
+    [
+     "{\"label\": \"infant_still\", \"asset_id\": \"vas_c1046ac7e8854e7b\", \"correction\": false}"
+    ]
+   ],
+   "holds": true
+  }
+ ],
+ "gaps": [
+  {
+   "gap": "The access funnel counts usable access checks only, not video-gate passes",
+   "evidence": {
+    "time_to_usable": {
+     "count": 1,
+     "median_s": 3.347,
+     "max_s": 3.347
+    },
+    "video": {
+     "runs": {
+      "completed": 1,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 1,
+       "median_s": 1.125,
+       "max_s": 1.125
+      }
+     },
+     "intervals": {
+      "measured": 8,
+      "without_enough_evidence": 2
+     },
+     "reports": {
+      "added": 1,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 1,
+      "checked_refused": 0,
+      "evidence_opened": 1
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   },
+   "consequence": "Counted as usable here only because this trace ran an explicit access check. A parent who opens the clip directly passes the video gate without one, and would show as unresolved in the access funnel."
+  },
+  {
+   "gap": "A refused read leaves no row",
+   "gate_refused_before_renewal": true,
+   "checked_refused_in_funnel": 0,
+   "consequence": "Reads write nothing by design, so the refusal before the renewal is not in the funnel: refusals are counted only when a command (a media link, a report) is refused."
+  },
+  {
+   "caveat": "The evidence_review_opened event here was sent by this script; the page's own render path is checked by tests/e2e/test_browser.py::test_recorded_evidence_after_the_renewal_in_the_browser."
+  },
+  {
+   "not_shown": "A finished analysis of one sample clip says nothing about long-term value; no retention or repeat-use signal exists here."
+  }
+ ],
+ "all_links_hold": true
+}

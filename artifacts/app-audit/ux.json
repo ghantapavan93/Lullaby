@@ -1,0 +1,222 @@
+{
+ "results": {
+  "tab order 1280": {
+   "first30": [
+    "a | Night briefing | outline=solid 2px",
+    "a | What changed | outline=solid 2px",
+    "a | Feature availability | outline=solid 2px",
+    "button | Engineering X-Ray | outline=solid 2px",
+    "summary | Scenario controls\ndeveloper | outline=solid 2px",
+    "button | Correct final wake | outline=solid 2px",
+    "summary | Show as list | outline=solid 2px",
+    "button | Acknowledge revision 4 | outline=solid 2px",
+    "a | Privacy | outline=solid 2px",
+    "a | Source on GitHub | outline=solid 2px",
+    "BODY",
+    "a | Skip to briefing | outline=solid 2px",
+    "button | Parent A | outline=solid 2px",
+    "button | Caregiver B | outline=solid 2px",
+    "button | Present | outline=solid 2px",
+    "#theme-toggle | Switch color theme | outline=solid 2px",
+    "a | Night briefing | outline=solid 2px",
+    "a | What changed | outline=solid 2px",
+    "a | Feature availability | outline=solid 2px",
+    "button | Engineering X-Ray | outline=solid 2px",
+    "summary | Scenario controls\ndeveloper | outline=solid 2px",
+    "button | Correct final wake | outline=solid 2px",
+    "summary | Show as list | outline=solid 2px",
+    "button | Acknowledge revision 4 | outline=solid 2px",
+    "a | Privacy | outline=solid 2px",
+    "a | Source on GitHub | outline=solid 2px",
+    "BODY",
+    "a | Skip to briefing | outline=solid 2px",
+    "button | Parent A | outline=solid 2px",
+    "button | Caregiver B | outline=solid 2px"
+   ],
+   "no_visible_outline": []
+  },
+  "poll re-render vs keyboard focus (side nav)": {
+   "before": "a | What changed | outline=solid 2px",
+   "after_poll": "BODY"
+  },
+  "poll re-render vs focus (viewer switch)": {
+   "after_poll": "BODY"
+  },
+  "x-ray keyboard + poll": {
+   "focus_on_open": "#xray-close | Close Engineering X-Ray | outline=solid 2px | in-xray",
+   "details_open_before_poll": 1,
+   "details_open_after_poll": 0,
+   "focus_after_poll": "BODY",
+   "scrollTop_before": 200,
+   "scrollTop_after": 200,
+   "tab_leaves_drawer": true,
+   "closed_by_escape": true,
+   "focus_after_close": "button | Parent A | outline=solid 2px"
+  },
+  "proof explorer content": {
+   "tests": "artifact: artifacts/test-results/final-*.xml (JUnit)\nreport\ttests\tfailures\terrors\tskipped\tseconds\trun at\nfinal-backend.xml\t407\t0\t0\t1\t177\t2026-10-10T05:50\nfinal-e2e.xml\t8\t0\t0\t0\t26\t2026-10-10T03:49\nMutation testing\nartifact: artifacts/mutation/mutation-results.json\n\nKnown defects planted one at a time: the suite caught 0 of 0.\n\nmutant\tguarantee\tverdict\tcaught by\nnone",
+   "reliability": "artifact: artifacts/recovery-traces/*.json, artifacts/failure-lab/failure-lab.json\nRecovered crashes\ncrash-in-process-reconciled.json\n\u2192 CONFIRMED PREPARED (prepared) \u2192 SUBMITTED (submission_authorized) \u2192 CONFIRMED (reconciled_from_provider_ledger) \u00b7 provider SUCCEEDED, attempts 1\ncrash-real-process-reconciled.json\n\u2192 CONFIRMED PREPARED (prepared) \u2192 SUBMITTED (submission_authorized) \u2192 CONFIRMED (reconciled_from_provider_ledger) \u00b7 provider SUCCEEDED, attempts 1\nFailure lab\nfault\texpected\tobserved\tresult\nDuplicate sleep event (camera re-sends a record under a new key)\tminutes and the recorded-sleep fingerprint unchanged; caregivers aren't asked to re-review\trev 4\u21925, minutes 640.0\u2192640.0, fingerprint same\theld\nOut-of-order observation (an earlier camera report arrives last)\tobserved minutes rise by exactly the 20 newly covered minutes; coverage stays \u2264 100%\tobserved 680.0\u2192700.0 min (+20.0), 94.4%\u219297.2%\theld\nMissing camera coverage (sleep recorded, no availability report)\tcoverage is unknown (no percentage), never 100% and never a measured 0%\tstate=unknown, pct=None\theld\nSimultaneous corrections (8 parents' screens submit at once)\texactly one wins (200); seven get 409; exactly one new revision\tstatus codes [200, 409, 409, 409, 409, 409, 409, 409]; revisions 4\u21925\theld\nStale caregiver screen (acknowledges an older revision after a correction)\tthe ack binds to the revision shown, says a n",
+   "schema": "database: live PostgreSQL catalog\n\nMigration 0003_camera_plans. Sizes are planner estimates for the whole database, not one household.\n\ntable\trows (est.)\tsize\tappend-only\tFKs\tunique\tpartial unique\nack_heads\t0\t8 kB\t\u2014\t2\t0\t0\nacknowledgments\t0\t32 kB\tyes\t3\t1\t0\nanalytics_events\t0\t32 kB\t\u2014\t0\t0\t0\nauthorization_log\t0\t40 kB\t\u2014\t0\t0\t0\nbriefing_revisions\t0\t120 kB\tyes\t1\t2\t0\nbriefing_windows\t0\t72 kB\t\u2014\t1\t2\t0\ncapability_decisions\t0\t32 kB\t\u2014\t2\t1\t0\nchildren\t0\t56 kB\t\u2014\t1\t1\t0\ncommercial_config\t0\t24 kB\t\u2014\t0\t0\t0\ndevices\t0\t72 kB\t\u2014\t1\t1\t1\nentitlement_claims\t0\t64 kB\tyes\t1\t1\t1\nevidence_events\t27\t96 kB\tyes\t3\t3\t0\nexperiment_assignments\t0\t8 kB\t\u2014\t1\t0\t0\nhouseholds\t0\t24 kB\t\u2014\t0\t0\t0\nintent_transitions\t0\t32 kB\tyes\t1\t0\t0\nmembers\t0\t56 kB\t\u2014\t1\t1\t0\nnotifications\t0\t32 kB\t\u2014\t1\t1\t0\noutbox\t0\t32 kB\t\u2014\t0\t1\t0\npurchase_intents\t0\t56 kB\t\u2014\t3\t3\t1\nrender_receipts\t0\t64 kB\t\u2014\t1\t1\t0\nack_heads constraints\nacknowledgments constraints\nbriefing_revisions constraints\nbriefing_windows constraints\ncapability_decisions constraints\nchildren constraints\ndevices constraints\nentitlement_claims constraints\nevidence_events constraints\nexperiment_assignments constraints\nintent_transitions constraints\nmembers constraints\nnotifications constraints\npurchase_intents constraints\nrender_receipts constraints",
+   "stress": "artifact: artifacts/benchmarks/*.json\n\nOne laptop, synthetic data. Relative numbers, not capacity claims.\n\nLoad runs\nrun\tconc.\treq/s\tp50 ms\tp95 ms\tp99 ms\terrors\tinvariant\ncorrection_storm \u00b7 four-workers\t50\t39.1\t584\t835\t869\t0.00%\theld\nduplicate_purchase \u00b7 camera-claims\t20\t44\t353\t428\t428\t0.00%\theld\nduplicate_purchase \u00b7 four-workers\t20\t31.9\t464\t538\t538\t0.00%\theld\nmixed \u00b7 four-workers\t32\t41.6\t527\t2,155\t3,292\t0.00%\theld\nread_burst \u00b7 baseline\t32\t27.8\t567\t2,507\t30,557\t1.07%\t\u2014\nread_burst \u00b7 camera-claims\t32\t88.9\t251\t982\t1,414\t0.00%\t\u2014\nread_burst \u00b7 four-workers\t32\t52\t427\t1,654\t2,508\t0.00%\t\u2014\nread_burst \u00b7 one-connection\t32\t44.3\t520\t1,929\t2,825\t0.00%\t\u2014\nread_burst \u00b7 serial\t1\t59.4\t16\t21\t23\t0.00%\t\u2014\nread_burst \u00b7 two-drivers-a\t16\t32.2\t313\t1,324\t2,383\t0.00%\t\u2014\nread_burst \u00b7 two-drivers-b\t16\t32.3\t301\t1,325\t2,250\t0.00%\t\u2014\nQuery plans \u00b7 large-100k",
+   "availability": "artifact: data/public_research/manifest.json\n\nIs any row-level Nanit dataset publicly downloadable? no. Every family, night and purchase in this app is synthetic.\n\nsource\tclass\trecords\tuse here\tredistribute\nnanit_sleep_index_2026\tPUBLIC AGGREGATE\t50 state rows\tYes, as a labelled public-aggregate reference with source and date. Not as child records.\tRaw HTML: no (gitignored). Derived per-state numbers: not licensed; cite Nanit as source.\npmc13075246_breathing_band_2026\tAVAILABLE UPON REQUEST (data). Article text is open access (CC BY 4.0). Code: see github_nanit_breathing_band_code.\t0 data rows public. Paper reports 1,755 analysed 1-min epochs.\tAggregate figures only, cited, labelled as published results\tArticle XML yes under CC BY 4.0 with attribution. Data: not available.\ngithub_nanit_breathing_band_code\tPUBLIC CODE (no licence file; GitHub API license = null)\tnot verified (.RData not downloaded)\tNo. No licence. Reading for audit only.\tNo\npmc13420802_milestones_sleep_2026\tAVAILABLE UPON REQUEST\t0 public rows. Paper reports 7,530 nights in the analysis windows.\tAggregate figures only, cited\tNo\npmc13551599_temperament_osf_2026\tRESTRICTED OR PRIVATE\tnot verified (paper reports 2,169 night observations)\tNo data. Aggregate figures only if cited.\tNo\nnanit_lab_papers_2024_2025\tRESTRICTED OR PRIVATE\tnot public\tCited aggregate findings only\tNo\nnanit_personal_data_export\tPERSONAL DATA E",
+   "flows": "Correct a night\nAcknowledge what was shown\nCheck a feature on one camera\nPrepare and submit a purchase\nAssign, render, count\nReferral qualification\n\nA parent corrects the final wake time. One transaction appends evidence, writes the next revision and queues the other caregiver's notification.\n\nhand-written; code locations resolved at runtime\nvalidationRequest schema\nproof-layer/app/main.py:116\n\nTimezone-aware times; expected_revision required\n\nauthAuthenticate\nproof-layer/app/security.py:107\n\nSigned token \u2192 member; revoked members stop here\n\ntransactionLock household\nproof-layer/app/security.py:154\n\nSELECT \u2026 FOR UPDATE: the serialization point\n\nauthRecheck membership\nproof-layer/app/security.py:160\n\nA revocation that landed while waiting still stops it\n\nauthAuthorize\nproof-layer/app/security.py:122\n\nRole policy; every decision is logged\n\ntenancyScoped load\nproof-layer/app/security.py:137\n\nForeign ids look like missing ids (404)\n\ndomainRevision check\nproof-layer/app/engine.py:210\n\nexpected_revision \u2260 current \u2192 REVISION_CONFLICT\n\ndomainRecompute\nproof-layer/app/briefing.py:75\n\nInterval algebra in UTC; coverage only from usable camera reports\n\nstorageWrite revision\nproof-layer/app/engine.py:135\n\nAppend-only; fingerprints per fact; outbox job in the same commit\n\nworkerNotify\nproof-layer/app/worker.py:109\n\nOnce per member and revision (unique constraint)\n\n5 tests guard this flow",
+   "reliability_broken_rows": [
+    "Invalid referral qualification\t\tnot run: referrals are not built\tbroken"
+   ],
+   "schema_zero_rows": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "27",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ],
+   "actual_rows": {
+    "evidence_events": 27,
+    "briefing_revisions": 11,
+    "members": 3,
+    "devices": 3
+   }
+  },
+  "correction: toast vs screen update": {
+   "toast_ms": 177,
+   "screen_rev5_ms": 3771,
+   "badge_when_toast_shown": "Rev 4",
+   "notifications": [
+    [
+     "mem_caregiver_b",
+     5
+    ]
+   ],
+   "outbox": [
+    [
+     "notify_revision",
+     "done"
+    ]
+   ]
+  },
+  "correction sheet keyboard": {
+   "focus_in_sheet": "#wake-time |  | outline=solid 2px",
+   "closed_by_escape": true,
+   "focus_after": "button | Correct final wake | outline=solid 2px"
+  },
+  "boot error (GET /v1/me 500)": {
+   "main": "We couldn't load the prototype.\n\nIs the database running? Cannot read properties of undefined (reading 'find')"
+  },
+  "decision error (500)": {
+   "error_ui": "We couldn't check availability\n\nSomething failed."
+  },
+  "proof explorer error (500)": {
+   "xray": "Live trace\nData & proof\n\nThe proof explorer could not load."
+  },
+  "offline: poll + acknowledge": {
+   "any_offline_indicator": 2,
+   "ack_clicked": true,
+   "toast": null,
+   "new_pageerrors": [
+    {
+     "page": "D",
+     "error": "Failed to fetch"
+    },
+    {
+     "page": "D",
+     "error": "Failed to fetch"
+    }
+   ]
+  },
+  "mobile drawer focus + close": {
+   "error": "TimeoutError: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Correct final wake\")\n    - locator resolved to <button type=\"button\" class=\"btn btn-secondary\" data-action=\"correct-open\" data-viewer=\"mem_parent_a\">\u2026</button>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stabl"
+  }
+ },
+ "console": [
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  },
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  },
+  {
+   "page": "D",
+   "type": "error",
+   "text": "Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  }
+ ],
+ "pageerrors": [
+  {
+   "page": "D",
+   "error": "Failed to fetch"
+  },
+  {
+   "page": "D",
+   "error": "Failed to fetch"
+  }
+ ],
+ "http_errors": [
+  {
+   "page": "D",
+   "method": "POST",
+   "url": "/v1/capability-decisions",
+   "status": 500,
+   "t": 1791630682.9516344
+  },
+  {
+   "page": "D",
+   "method": "GET",
+   "url": "/v1/proof",
+   "status": 500,
+   "t": 1791630683.8194125
+  },
+  {
+   "page": "D",
+   "method": "GET",
+   "url": "/v1/proof",
+   "status": 500,
+   "t": 1791630684.2177286
+  },
+  {
+   "page": "D",
+   "method": "GET",
+   "url": "/v1/proof",
+   "status": 500,
+   "t": 1791630684.7585657
+  }
+ ]
+}

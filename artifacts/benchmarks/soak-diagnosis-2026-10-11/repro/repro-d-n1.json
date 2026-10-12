@@ -1,0 +1,14 @@
+{
+  "requests": 160,
+  "p50_ms": 1.6,
+  "p99_ms": 6.9,
+  "max_ms": 8.0,
+  "over_1s": 0,
+  "timeouts_10s": 0,
+  "processes": 1,
+  "loop": "selector",
+  "seconds": 40,
+  "slow_accepts": 0,
+  "slow_accept_max_s": null,
+  "slow_accept_events": []
+}

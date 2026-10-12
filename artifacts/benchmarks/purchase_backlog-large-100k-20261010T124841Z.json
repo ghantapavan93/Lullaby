@@ -1,0 +1,60 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8721",
+    "server_workers": 4,
+    "dataset": {
+      "households": 100000,
+      "evidence_events": 1794220,
+      "briefing_revisions": 315015
+    },
+    "executed_at": "2026-10-10T12:47:22.958535+00:00"
+  },
+  "label": "large-100k",
+  "scenario": "purchase_backlog",
+  "concurrency": 32,
+  "seed": 7,
+  "measured": {
+    "requests": 2000,
+    "wall_seconds": 62.43,
+    "throughput_rps": 32.0,
+    "p50_ms": 818.1,
+    "p95_ms": 2139.6,
+    "p99_ms": 3281.4,
+    "max_ms": 4882.0,
+    "mean_ms": 983.1,
+    "status_codes": {
+      "201": 2000
+    },
+    "error_rate": 0.0,
+    "backlog_before_drain": 2000,
+    "worker_processes": 4,
+    "jobs_processed_per_worker": [
+      505,
+      506,
+      503,
+      508
+    ],
+    "drain_seconds": 15.03,
+    "drain_jobs_per_second": 133.1,
+    "pg_after": {
+      "connections": 40,
+      "waiting_on_locks": 0,
+      "idle_in_transaction": 0
+    }
+  },
+  "invariant": {
+    "rule": "every queued purchase is submitted exactly once: one provider operation per intent, attempts = 1, nothing left in the queue",
+    "intents_by_state": {
+      "CONFIRMED": 2020
+    },
+    "provider_operations": 2020,
+    "max_attempts": 1,
+    "jobs_left": 0,
+    "held": true
+  }
+}

@@ -1,0 +1,1281 @@
+{
+ "results": {
+  "dev-reset": {
+   "ok": true,
+   "db_rev": 4,
+   "badge": "Rev 4",
+   "log": "07:07  demo reset: night 2026-10-09 at revision 4; no acknowledgments",
+   "calls": [
+    "POST /v1/render-receipts 200",
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  },
+  "viewer-switch": {
+   "ok": true,
+   "checked": "Caregiver B",
+   "after_reload": "Parent A",
+   "correct_btn_for_B": 0,
+   "calls": [
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  },
+  "correct-final-wake (sheet)": {
+   "ok": true,
+   "toast": "Correction saved as revision 5. The camera's record is kept.",
+   "badge": "Rev 4",
+   "was": [],
+   "db_rev": 5,
+   "badge_after_reload": "Rev 5",
+   "notifications": [],
+   "calls": [
+    "POST /v1/render-receipts 200",
+    "POST /v1/windows/win_433c2a7772254f35/corrections 200",
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  },
+  "second-client stale banner (poll)": {
+   "ok": true,
+   "B_banner": "A newer version exists. You're viewing revision 4.",
+   "B_badge": "Rev 4 \u00b7 earlier version",
+   "B_changes_badge": [],
+   "calls": []
+  },
+  "acknowledge (stale rev 4, Caregiver B)": {
+   "ok": true,
+   "B_card": "You acknowledged the earlier version.",
+   "db_ack_head": [
+    [
+     4
+    ]
+   ],
+   "calls": [
+    "POST /v1/analytics 200",
+    "POST /v1/windows/win_433c2a7772254f35/acknowledgments 200"
+   ]
+  },
+  "changes route: other client sees B's ack": {
+   "ok": true,
+   "A_sees": [
+    "caregiver",
+    "owner"
+   ],
+   "lede": "Parent A corrected a sleep record. Two details changed; everything else stands.",
+   "calls": []
+  },
+  "review latest + ack rev 5": {
+   "ok": true,
+   "changed_tiles": [
+    "Recorded sleep\nChanged",
+    "Final wake\nChanged"
+   ],
+   "db_ack_head": [
+    [
+     5
+    ]
+   ],
+   "calls": [
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "POST /v1/render-receipts 200",
+    "POST /v1/analytics 200",
+    "POST /v1/windows/win_433c2a7772254f35/acknowledgments 200"
+   ]
+  },
+  "show as list": {
+   "ok": true,
+   "rows": 4,
+   "calls": []
+  },
+  "correction conflict + retry Save": {
+   "ok": true,
+   "other_device": 200,
+   "inline_error": "Not saved\n\nThe briefing changed since this screen loaded. Show the newer revision, then correct it.",
+   "first_submit": [
+    "POST /v1/windows/win_433c2a7772254f35/corrections 409"
+   ],
+   "second_submit_requests": [],
+   "sheet_open_after_second": false,
+   "toast_visible": 0,
+   "db_rev": 6,
+   "rev_before": 6,
+   "calls": [
+    "POST /v1/windows/win_433c2a7772254f35/corrections 409"
+   ]
+  },
+  "check availability (offer)": {
+   "ok": true,
+   "alert": "Needs a plan",
+   "db_decision": [
+    [
+     "dec_409554d5b7574ce2",
+     "BLOCKED",
+     true
+    ]
+   ],
+   "render_receipts": [],
+   "calls": [
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "stale buy after camera moved": {
+   "ok": true,
+   "note": "We didn't submit this offer.\n\nIt was based on an earlier eligibility check. Your camera setup or plan changed after this offer was shown. Nothing was charged.",
+   "db_intents": 0,
+   "provider_ops": 0,
+   "recheck": "Blocked by hardware",
+   "offer_cards": 0,
+   "success_anim": 0,
+   "calls": [
+    "POST /v1/dev/mount 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/analytics 200",
+    "POST /v1/purchase-intents 409",
+    "POST /v1/render-receipts 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "buy (confirmed) + reload": {
+   "ok": true,
+   "pill": [
+    "Confirmed (simulated)"
+   ],
+   "db_intent": [
+    [
+     "CONFIRMED",
+     "dev_cam_demo"
+    ]
+   ],
+   "provider": [
+    [
+     "SUCCEEDED",
+     1
+    ]
+   ],
+   "camera_plan_line": "Floor Stand \u00b7 Milestones plan",
+   "after_reload_panel": [
+    "Confirmed (simulated)"
+   ],
+   "after_reload_plan": "Floor Stand \u00b7 Milestones plan",
+   "calls": [
+    "POST /v1/dev/mount 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/analytics 200",
+    "POST /v1/render-receipts 200",
+    "POST /v1/purchase-intents 201",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_278fbc40c1574b2f 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "GET /v1/purchase-intents/pi_278fbc40c1574b2f 200"
+   ]
+  },
+  "caregiver B on features": {
+   "ok": true,
+   "B": "Only the account owner can check plans",
+   "calls": []
+  },
+  "camera picker (Playroom) + reload": {
+   "ok": true,
+   "alert": "Blocked by hardware",
+   "offers": 0,
+   "camera_after_reload": "Nursery camera",
+   "calls": [
+    "GET /v1/devices/dev_cam_playroom/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_playroom/plan-preview 200",
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/windows/win_433c2a7772254f35/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "GET /v1/purchase-intents/pi_278fbc40c1574b2f 200"
+   ]
+  },
+  "feature picker x4": {
+   "ok": true,
+   "Sleep analysis": "Available on this account",
+   "NextNap": "Available on this account",
+   "7-day video history": "Available on this account",
+   "Developmental milestones": "Available on this account",
+   "calls": [
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/features 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "crash after provider + restart worker": {
+   "ok": true,
+   "mid": {
+    "pill": "Pending \u2014 waiting for the provider",
+    "db": [
+     [
+      "SUBMITTED"
+     ]
+    ],
+    "provider": [
+     [
+      "SUCCEEDED"
+     ]
+    ]
+   },
+   "end": "Confirmed (simulated)",
+   "transitions": [
+    [
+     null,
+     "PREPARED",
+     "prepared"
+    ],
+    [
+     "PREPARED",
+     "SUBMITTED",
+     "submission_authorized"
+    ],
+    [
+     "SUBMITTED",
+     "CONFIRMED",
+     "reconciled_from_provider_ledger"
+    ]
+   ],
+   "provider_ops": 1,
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_aaa6943ad39e4f2d/week 200",
+    "GET /v1/windows/win_aaa6943ad39e4f2d/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/analytics 200",
+    "POST /v1/purchase-intents 201",
+    "GET /v1/purchase-intents/pi_9ad2894e53b14a2d 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_9ad2894e53b14a2d 200",
+    "GET /v1/purchase-intents/pi_9ad2894e53b14a2d 200",
+    "GET /v1/purchase-intents/pi_9ad2894e53b14a2d 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_9ad2894e53b14a2d 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "2 simultaneous requests (same key)": {
+   "ok": true,
+   "log": [
+    "07:08  worker exit=0",
+    "07:08  POST purchase-intents key=buy-ui-9e25cc41-\u2026 \u2192 201 pi_737e46d7493547d1",
+    "07:08  POST purchase-intents key=buy-ui-9e25cc41-\u2026 \u2192 200 pi_737e46d7493547d1 (replayed)",
+    "07:08  decision dec_f448b0015e594fab: BLOCKED [PLAN_REQUIRED] offer=milestones setup rev 1"
+   ],
+   "db_intents": 1,
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_8df50c8407104c96/week 200",
+    "GET /v1/windows/win_8df50c8407104c96/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/analytics 200",
+    "POST /v1/purchase-intents 201",
+    "POST /v1/purchase-intents 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_737e46d7493547d1 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "provider decline": {
+   "ok": true,
+   "pill": "Failed \u2014 not charged",
+   "confirmed_shown": 0,
+   "db": [
+    [
+     "FAILED"
+    ]
+   ],
+   "offer_again": 1,
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_56f3b670e2ee40d4/week 200",
+    "GET /v1/windows/win_56f3b670e2ee40d4/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/provider/next 200",
+    "POST /v1/analytics 200",
+    "POST /v1/render-receipts 200",
+    "POST /v1/purchase-intents 201",
+    "GET /v1/purchase-intents/pi_8821eb624b3a469e 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_8821eb624b3a469e 200"
+   ]
+  },
+  "provider pending -> resolve -> reconcile": {
+   "ok": true,
+   "mid": "Outcome unknown \u2014 checking",
+   "after_resolve_before_reconcile": "Outcome unknown \u2014 checking",
+   "end": "Confirmed (simulated)",
+   "db": [
+    [
+     "CONFIRMED"
+    ]
+   ],
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_0b9ba398e7474d3e/week 200",
+    "GET /v1/windows/win_0b9ba398e7474d3e/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200",
+    "POST /v1/dev/provider/next 200",
+    "POST /v1/analytics 200",
+    "POST /v1/purchase-intents 201",
+    "GET /v1/purchase-intents/pi_f25dabccd9fe4ddb 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_f25dabccd9fe4ddb 200",
+    "POST /v1/dev/provider/resolve 200",
+    "GET /v1/purchase-intents/pi_f25dabccd9fe4ddb 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_f25dabccd9fe4ddb 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "provider pending -> settles failed": {
+   "ok": true,
+   "end": "Failed \u2014 not charged",
+   "db": [
+    [
+     "FAILED"
+    ]
+   ],
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_c380737175ca4198/week 200",
+    "GET /v1/windows/win_c380737175ca4198/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200",
+    "POST /v1/dev/provider/next 200",
+    "POST /v1/analytics 200",
+    "POST /v1/purchase-intents 201",
+    "GET /v1/purchase-intents/pi_f0b81c94a91c4992 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_f0b81c94a91c4992 200",
+    "POST /v1/dev/provider/resolve 200",
+    "GET /v1/purchase-intents/pi_f0b81c94a91c4992 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_f0b81c94a91c4992 200"
+   ]
+  },
+  "provider response lost": {
+   "ok": true,
+   "mid": "Confirmed (simulated)",
+   "end": "Confirmed (simulated)",
+   "db": [
+    [
+     "CONFIRMED"
+    ]
+   ],
+   "provider": [
+    [
+     "SUCCEEDED",
+     1
+    ]
+   ],
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_69d8eb97f46f4fbe/week 200",
+    "GET /v1/windows/win_69d8eb97f46f4fbe/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200",
+    "POST /v1/dev/provider/next 200",
+    "POST /v1/analytics 200",
+    "POST /v1/purchase-intents 201",
+    "GET /v1/purchase-intents/pi_12cfca2e4444433c 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_12cfca2e4444433c 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/purchase-intents/pi_12cfca2e4444433c 200"
+   ]
+  },
+  "dev controls without preconditions": {
+   "ok": true,
+   "resolve": "07:09  no purchase yet",
+   "crash": "07:09  no open offer: check availability first",
+   "concurrent": "07:09  no open offer: check availability first (camera on Floor Stand)",
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "channel claims (6 buttons)": {
+   "ok": true,
+   "Apple purchase pending (Milestones)": "07:09  apple pending on dev_cam_demo: sleep/active \u2192 sleep/checking, team up to 2",
+   "decide_while_pending": "We can't tell yet\n\nWe're confirming a recent purchase for this camera. There's nothing more to buy; this updates when the store confirms it. We won't suggest a ",
+   "offer_while_pending": 0,
+   "Apple confirms it late": [
+    "07:09  apple active on dev_cam_demo: sleep/checking \u2192 milestones/active, team up to 50"
+   ],
+   "same Google event delivered twice": [
+    "07:09  google active on dev_cam_demo (duplicate: no-op): milestones/active \u2192 milestones/active, team up to 50",
+    "07:09  google active on dev_cam_demo: milestones/active \u2192 milestones/active, team up to 50"
+   ],
+   "activation code on Nursery": [
+    "07:09  activation_code active on dev_cam_demo: milestones/active \u2192 milestones/active, team up to 50"
+   ],
+   "same code on Playroom": [
+    "07:09  activation_code active \u2192 refused: CODE_ALREADY_REDEEMED"
+   ],
+   "refund the Apple purchase": [
+    "07:09  apple revoked on dev_cam_demo: milestones/active \u2192 milestones/active, team up to 50"
+   ],
+   "db_claims": [
+    [
+     "trial",
+     "trial-dev_cam_demo",
+     "active",
+     "dev_cam_demo"
+    ],
+    [
+     "trial",
+     "trial-dev_cam_other",
+     "active",
+     "dev_cam_other"
+    ],
+    [
+     "apple",
+     "apple-demo-1",
+     "pending",
+     "dev_cam_demo"
+    ],
+    [
+     "apple",
+     "apple-demo-1",
+     "active",
+     "dev_cam_demo"
+    ],
+    [
+     "google",
+     "gpa-demo-1",
+     "active",
+     "dev_cam_demo"
+    ],
+    [
+     "activation_code",
+     "CODE-DEMO-1",
+     "active",
+     "dev_cam_demo"
+    ],
+    [
+     "apple",
+     "apple-demo-1",
+     "revoked",
+     "dev_cam_demo"
+    ]
+   ],
+   "nursery_line": "Nursery camera | Floor Stand \u00b7 Milestones plan | Team members: up to 50",
+   "calls": [
+    "POST /v1/dev/claims 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/capability-decisions 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/claims 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/claims 200",
+    "POST /v1/dev/claims 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/features 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/claims 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/claims 409",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/dev/claims 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200"
+   ]
+  },
+  "past-night correction + week": {
+   "ok": true,
+   "log": null,
+   "edited_after": [
+    "edited\n10h 55m\n8 Thu"
+   ],
+   "edited_after_reload": 1,
+   "db_oct8_rev": 2,
+   "avg": "Average 10 h 56 min \u00b7 7 of 7 nights",
+   "calls": [
+    "POST /v1/render-receipts 200",
+    "GET /v1/me 200",
+    "POST /v1/windows/win_d76aced694cb4348/corrections 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  },
+  "dev: two screens, correct, B ack": {
+   "ok": true,
+   "frames": [
+    "Rev 4 \u00b7 earlier version",
+    "Rev 4 \u00b7 earlier version"
+   ],
+   "B_ack": "You acknowledged the earlier version.\n\nTwo details have changed since then. Your acknowledgment was recorded for revision 4; revision 5 is t",
+   "two_screens_after_reload": 0,
+   "db_rev": 5,
+   "calls": [
+    "POST /v1/render-receipts 200",
+    "POST /v1/windows/win_cb359f0f5fee4758/corrections 200",
+    "POST /v1/analytics 200",
+    "POST /v1/windows/win_cb359f0f5fee4758/acknowledgments 200",
+    "POST /v1/dev/worker 200",
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  },
+  "theme toggle": {
+   "ok": true,
+   "theme": "dark",
+   "localStorage": "dark",
+   "after_reload": "dark",
+   "B_theme": null,
+   "calls": [
+    "GET /v1/dev/accounts 200",
+    "POST /v1/dev/sessions 200",
+    "POST /v1/dev/sessions 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/windows/win_cb359f0f5fee4758/week 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/features 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  },
+  "other client after reset (stale window)": {
+   "ok": true,
+   "B_before": "Rev 5 \u00b7 earlier version",
+   "B_after_9s": "Rev 5 \u00b7 earlier version",
+   "B_poll_errors": [
+    "GET /v1/windows/win_433c2a7772254f35/brief 404",
+    "GET /v1/windows/win_433c2a7772254f35/changes 404",
+    "GET /v1/windows/win_433c2a7772254f35/brief 404",
+    "GET /v1/windows/win_433c2a7772254f35/changes 404"
+   ],
+   "stale_indicator": 1,
+   "calls": [
+    "POST /v1/dev/reset 200",
+    "GET /v1/me 200",
+    "GET /v1/windows/win_5b42a7f67e114171/week 200",
+    "GET /v1/windows/win_5b42a7f67e114171/week 200",
+    "GET /v1/features 200",
+    "GET /v1/purchase-intents 200",
+    "GET /v1/household/commercial 200",
+    "GET /v1/devices/dev_cam_demo/plan-preview 200",
+    "POST /v1/render-receipts 200"
+   ]
+  }
+ },
+ "console": [
+  {
+   "page": "A",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "page": "A",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "A",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "A",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "A",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "B",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  }
+ ],
+ "pageerrors": [],
+ "http_errors": [
+  {
+   "page": "A",
+   "method": "POST",
+   "url": "/v1/windows/win_433c2a7772254f35/corrections",
+   "status": 409,
+   "t": 1791630481.6831243
+  },
+  {
+   "page": "A",
+   "method": "POST",
+   "url": "/v1/purchase-intents",
+   "status": 409,
+   "t": 1791630484.7547946
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630491.8853538
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630491.9331467
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630495.4975028
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630495.5100942
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630499.5139449
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630499.5376306
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630503.5002625
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630503.5144908
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630507.520714
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630507.542133
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630511.5112758
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630511.53255
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630515.9221914
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630515.9520366
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630519.508781
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630519.5199883
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630523.5176473
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630523.5413158
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630527.5181713
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630527.531217
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630531.5150657
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630531.5368278
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630535.5133736
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630535.5265138
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630539.5194194
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630539.543746
+  },
+  {
+   "page": "A",
+   "method": "GET",
+   "url": "/v1/windows/win_69d8eb97f46f4fbe/brief",
+   "status": 404,
+   "t": 1791630542.6030493
+  },
+  {
+   "page": "A",
+   "method": "GET",
+   "url": "/v1/windows/win_69d8eb97f46f4fbe/changes",
+   "status": 404,
+   "t": 1791630542.6320164
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630543.520145
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630543.5393598
+  },
+  {
+   "page": "A",
+   "method": "POST",
+   "url": "/v1/dev/claims",
+   "status": 409,
+   "t": 1791630547.143649
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630547.4959445
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630547.5065274
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630551.511748
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630551.52456
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630556.1432254
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630556.1846085
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630559.5040927
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630559.5189269
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/brief",
+   "status": 404,
+   "t": 1791630563.509765
+  },
+  {
+   "page": "B",
+   "method": "GET",
+   "url": "/v1/windows/win_433c2a7772254f35/changes",
+   "status": 404,
+   "t": 1791630563.5247774
+  }
+ ]
+}

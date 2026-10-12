@@ -1,0 +1,30 @@
+{
+  "requests": 159,
+  "p50_ms": 4.3,
+  "p99_ms": 16.6,
+  "max_ms": 1029.3,
+  "over_1s": 1,
+  "timeouts_10s": 0,
+  "processes": 4,
+  "loop": "selector",
+  "seconds": 40,
+  "slow_accepts": 3,
+  "slow_accept_max_s": 1.018,
+  "slow_accept_events": [
+    {
+      "pid": 27036,
+      "slow_accept_s": 1.013,
+      "t": 1791712007.8298106
+    },
+    {
+      "pid": 19096,
+      "slow_accept_s": 1.005,
+      "t": 1791712019.9974792
+    },
+    {
+      "pid": 476,
+      "slow_accept_s": 1.018,
+      "t": 1791712033.2359314
+    }
+  ]
+}

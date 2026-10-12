@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Proof Layer — From purchase to access</title>
+  <meta name="description" content="Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300&family=JetBrains+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <!-- Sticky chrome: the disclosure is always visible; Present Mode's controls
+       sit in the same flow, so they push the page down instead of covering it. -->
+  <div class="top-stack" id="top-stack">
+    <aside class="disclosure" role="note" aria-label="Prototype disclosure">
+      <svg class="icon icon-sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.</span>
+    </aside>
+    <div id="present-slot"></div>
+  </div>
+
+  <header class="app-header">
+    <div class="wordmark">Proof Layer<small class="viewer-label">research prototype</small></div>
+    <div class="header-actions">
+      <span class="viewer-label" id="viewer-label">Viewing as</span>
+      <div class="segmented" role="radiogroup" aria-labelledby="viewer-label" id="viewer-switch"></div>
+      <button class="btn btn-secondary present-start" type="button" data-present="start:recruiter" title="Guided walkthrough of the real app">Present</button>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch color theme">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="side-nav" aria-label="Primary" id="side-nav"></nav>
+    <main id="main" tabindex="-1"></main>
+  </div>
+
+  <nav class="tab-bar" aria-label="Primary" id="tab-bar"></nav>
+
+  <div class="scrim xray-scrim" id="xray-scrim"></div>
+  <aside class="xray" id="xray" aria-label="Engineering X-Ray" aria-hidden="true">
+    <header>
+      <h2>Engineering X-Ray</h2>
+      <span class="chip xray-chip">Not shown to parents</span>
+      <button class="icon-btn" type="button" id="xray-close" aria-label="Close Engineering X-Ray">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+    <div class="xray-body" id="xray-body"></div>
+  </aside>
+
+  <aside class="dev-drawer" id="dev-drawer" aria-label="Scenario controls" aria-hidden="true">
+    <header>
+      <h2>Scenario controls</h2>
+      <span class="dev-chip">developer</span>
+      <button class="icon-btn" type="button" data-action="scenario-close" aria-label="Close scenario controls">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+    <p class="dev-intro">Synthetic events and fault injection against the real backend. Not part of the parent experience.</p>
+    <div class="dev-drawer-body" id="dev-drawer-body"></div>
+  </aside>
+
+  <dialog class="sheet" id="correction-sheet" aria-labelledby="correction-title"></dialog>
+  <dialog class="sheet" id="access-sheet" aria-labelledby="access-sheet-title"></dialog>
+  <footer class="app-footer"><a href="/privacy">Privacy</a> · <a href="https://github.com/ghantapavan93">Source on GitHub</a></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="sr-only" id="announcer" role="status" aria-live="polite"></div>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

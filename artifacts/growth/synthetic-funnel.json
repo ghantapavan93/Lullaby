@@ -1,0 +1,509 @@
+{
+ "generated_at": "2026-10-11T11:44:09.730017+00:00",
+ "synthetic": true,
+ "journeys": [
+  {
+   "journey": "paid, not connected \u2192 connect \u2192 verify \u2192 opened",
+   "started_at": "2026-10-11T11:44:05.182151+00:00",
+   "metrics": {
+    "synthetic": true,
+    "caveat": "Computed from synthetic records made by scenarios, tests and demo clicks. It shows the instrumentation works; it is not a customer rate.",
+    "time_to_usable": {
+     "journeys": [
+      {
+       "purchase": 1,
+       "channel": "web",
+       "connected": true,
+       "connected_via": "connect",
+       "confirmed_to_connected_s": 0.088,
+       "connected_to_usable_s": 0.018,
+       "confirmed_to_usable_s": 0.106,
+       "unresolved_for_s": null
+      }
+     ],
+     "confirmed_to_usable": {
+      "count": 1,
+      "median_s": 0.106,
+      "max_s": 0.106
+     },
+     "connected_to_usable": {
+      "count": 1,
+      "median_s": 0.018,
+      "max_s": 0.018
+     }
+    },
+    "unresolved": {
+     "count": 0,
+     "not_connected": 0,
+     "oldest_s": null
+    },
+    "refused_before_payment": {},
+    "billing_recovery": {
+     "purchases": [],
+     "recovered": 0,
+     "still_failing": 0,
+     "failure_to_recovery": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "verification_outcomes": {
+     "checks": 1,
+     "usable": 1,
+     "by_status": {
+      "ACTIVE_FEATURE_USABLE": 1
+     }
+    },
+    "video": {
+     "runs": {
+      "completed": 0,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 0,
+       "median_s": null,
+       "max_s": null
+      }
+     },
+     "intervals": {
+      "measured": 0,
+      "without_enough_evidence": 0
+     },
+     "reports": {
+      "added": 0,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 0,
+      "checked_refused": 0,
+      "evidence_opened": 0
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   }
+  },
+  {
+   "journey": "plan ended \u2192 offer shown \u2192 store renewal \u2192 old offer paid \u2192 verify \u2192 opened",
+   "started_at": "2026-10-11T11:44:05.879813+00:00",
+   "metrics": {
+    "synthetic": true,
+    "caveat": "Computed from synthetic records made by scenarios, tests and demo clicks. It shows the instrumentation works; it is not a customer rate.",
+    "time_to_usable": {
+     "journeys": [
+      {
+       "purchase": 1,
+       "channel": "apple",
+       "connected": true,
+       "connected_via": "claim",
+       "confirmed_to_connected_s": 0.017,
+       "connected_to_usable_s": 0.084,
+       "confirmed_to_usable_s": 0.101,
+       "unresolved_for_s": null
+      }
+     ],
+     "confirmed_to_usable": {
+      "count": 1,
+      "median_s": 0.101,
+      "max_s": 0.101
+     },
+     "connected_to_usable": {
+      "count": 1,
+      "median_s": 0.084,
+      "max_s": 0.084
+     }
+    },
+    "unresolved": {
+     "count": 0,
+     "not_connected": 0,
+     "oldest_s": null
+    },
+    "refused_before_payment": {
+     "STALE_DECISION": 1
+    },
+    "billing_recovery": {
+     "purchases": [],
+     "recovered": 0,
+     "still_failing": 0,
+     "failure_to_recovery": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "verification_outcomes": {
+     "checks": 1,
+     "usable": 1,
+     "by_status": {
+      "ACTIVE_FEATURE_USABLE": 1
+     }
+    },
+    "video": {
+     "runs": {
+      "completed": 0,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 0,
+       "median_s": null,
+       "max_s": null
+      }
+     },
+     "intervals": {
+      "measured": 0,
+      "without_enough_evidence": 0
+     },
+     "reports": {
+      "added": 0,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 0,
+      "checked_refused": 0,
+      "evidence_opened": 0
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   }
+  },
+  {
+   "journey": "payment on hold \u2192 store recovery \u2192 verify",
+   "started_at": "2026-10-11T11:44:06.426345+00:00",
+   "metrics": {
+    "synthetic": true,
+    "caveat": "Computed from synthetic records made by scenarios, tests and demo clicks. It shows the instrumentation works; it is not a customer rate.",
+    "time_to_usable": {
+     "journeys": [
+      {
+       "purchase": 1,
+       "channel": "google",
+       "connected": true,
+       "connected_via": "claim",
+       "confirmed_to_connected_s": 0.038,
+       "connected_to_usable_s": 0.045,
+       "confirmed_to_usable_s": 0.083,
+       "unresolved_for_s": null
+      }
+     ],
+     "confirmed_to_usable": {
+      "count": 1,
+      "median_s": 0.083,
+      "max_s": 0.083
+     },
+     "connected_to_usable": {
+      "count": 1,
+      "median_s": 0.045,
+      "max_s": 0.045
+     }
+    },
+    "unresolved": {
+     "count": 0,
+     "not_connected": 0,
+     "oldest_s": null
+    },
+    "refused_before_payment": {},
+    "billing_recovery": {
+     "purchases": [
+      {
+       "purchase": 1,
+       "channel": "google",
+       "grace": false,
+       "failure_to_recovery_s": 0.007,
+       "recovery_to_usable_check_s": 0.029,
+       "still_failing": false,
+       "out_of_order": false
+      }
+     ],
+     "recovered": 1,
+     "still_failing": 0,
+     "failure_to_recovery": {
+      "count": 1,
+      "median_s": 0.007,
+      "max_s": 0.007
+     }
+    },
+    "verification_outcomes": {
+     "checks": 1,
+     "usable": 1,
+     "by_status": {
+      "ACTIVE_FEATURE_USABLE": 1
+     }
+    },
+    "video": {
+     "runs": {
+      "completed": 0,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 0,
+       "median_s": null,
+       "max_s": null
+      }
+     },
+     "intervals": {
+      "measured": 0,
+      "without_enough_evidence": 0
+     },
+     "reports": {
+      "added": 0,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 0,
+      "checked_refused": 0,
+      "evidence_opened": 0
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   }
+  },
+  {
+   "journey": "purchase pending (unresolved)",
+   "started_at": "2026-10-11T11:44:06.961618+00:00",
+   "metrics": {
+    "synthetic": true,
+    "caveat": "Computed from synthetic records made by scenarios, tests and demo clicks. It shows the instrumentation works; it is not a customer rate.",
+    "time_to_usable": {
+     "journeys": [],
+     "confirmed_to_usable": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     },
+     "connected_to_usable": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "unresolved": {
+     "count": 0,
+     "not_connected": 0,
+     "oldest_s": null
+    },
+    "refused_before_payment": {},
+    "billing_recovery": {
+     "purchases": [],
+     "recovered": 0,
+     "still_failing": 0,
+     "failure_to_recovery": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "verification_outcomes": {
+     "checks": 1,
+     "usable": 0,
+     "by_status": {
+      "PURCHASE_PENDING": 1
+     }
+    },
+    "video": {
+     "runs": {
+      "completed": 0,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 0,
+       "median_s": null,
+       "max_s": null
+      }
+     },
+     "intervals": {
+      "measured": 0,
+      "without_enough_evidence": 0
+     },
+     "reports": {
+      "added": 0,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 0,
+      "checked_refused": 0,
+      "evidence_opened": 0
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   }
+  },
+  {
+   "journey": "paid twice \u2192 checkout for a feature the plan already has",
+   "started_at": "2026-10-11T11:44:07.480328+00:00",
+   "metrics": {
+    "synthetic": true,
+    "caveat": "Computed from synthetic records made by scenarios, tests and demo clicks. It shows the instrumentation works; it is not a customer rate.",
+    "time_to_usable": {
+     "journeys": [
+      {
+       "purchase": 1,
+       "channel": "apple",
+       "connected": true,
+       "connected_via": "connect",
+       "confirmed_to_connected_s": 0.034,
+       "connected_to_usable_s": 0.022,
+       "confirmed_to_usable_s": 0.055,
+       "unresolved_for_s": null
+      },
+      {
+       "purchase": 2,
+       "channel": "web",
+       "connected": false,
+       "connected_via": null,
+       "confirmed_to_connected_s": null,
+       "connected_to_usable_s": null,
+       "confirmed_to_usable_s": null,
+       "unresolved_for_s": 0.034
+      }
+     ],
+     "confirmed_to_usable": {
+      "count": 1,
+      "median_s": 0.055,
+      "max_s": 0.055
+     },
+     "connected_to_usable": {
+      "count": 1,
+      "median_s": 0.022,
+      "max_s": 0.022
+     }
+    },
+    "unresolved": {
+     "count": 1,
+     "not_connected": 1,
+     "oldest_s": 0.034
+    },
+    "refused_before_payment": {
+     "NO_ELIGIBLE_OFFER": 1
+    },
+    "billing_recovery": {
+     "purchases": [],
+     "recovered": 0,
+     "still_failing": 0,
+     "failure_to_recovery": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "verification_outcomes": {
+     "checks": 1,
+     "usable": 1,
+     "by_status": {
+      "ACTIVE_FEATURE_USABLE": 1
+     }
+    },
+    "video": {
+     "runs": {
+      "completed": 0,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 0,
+       "median_s": null,
+       "max_s": null
+      }
+     },
+     "intervals": {
+      "measured": 0,
+      "without_enough_evidence": 0
+     },
+     "reports": {
+      "added": 0,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 0,
+      "checked_refused": 0,
+      "evidence_opened": 0
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   }
+  },
+  {
+   "journey": "renewal \u2192 recorded evidence \u2192 report",
+   "started_at": "2026-10-11T11:44:08.080882+00:00",
+   "metrics": {
+    "synthetic": true,
+    "caveat": "Computed from synthetic records made by scenarios, tests and demo clicks. It shows the instrumentation works; it is not a customer rate.",
+    "time_to_usable": {
+     "journeys": [
+      {
+       "purchase": 1,
+       "channel": "apple",
+       "connected": true,
+       "connected_via": "claim",
+       "confirmed_to_connected_s": 0.019,
+       "connected_to_usable_s": null,
+       "confirmed_to_usable_s": null,
+       "unresolved_for_s": 1.102
+      }
+     ],
+     "confirmed_to_usable": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     },
+     "connected_to_usable": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "unresolved": {
+     "count": 1,
+     "not_connected": 0,
+     "oldest_s": 1.102
+    },
+    "refused_before_payment": {},
+    "billing_recovery": {
+     "purchases": [],
+     "recovered": 0,
+     "still_failing": 0,
+     "failure_to_recovery": {
+      "count": 0,
+      "median_s": null,
+      "max_s": null
+     }
+    },
+    "verification_outcomes": {
+     "checks": 0,
+     "usable": 0,
+     "by_status": {}
+    },
+    "video": {
+     "runs": {
+      "completed": 1,
+      "failed": 0,
+      "in_progress": 0,
+      "failure_codes": {},
+      "analysis_s": {
+       "count": 1,
+       "median_s": 0.933,
+       "max_s": 0.933
+      }
+     },
+     "intervals": {
+      "measured": 10,
+      "without_enough_evidence": 1
+     },
+     "reports": {
+      "added": 0,
+      "corrections": 0
+     },
+     "access": {
+      "checked_allowed": 1,
+      "checked_refused": 0,
+      "evidence_opened": 1
+     },
+     "source": "sample or staged clip processed in this prototype; not customer usage"
+    }
+   }
+  }
+ ]
+}

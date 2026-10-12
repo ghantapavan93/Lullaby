@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System architecture — Proof Layer</title>
+  <meta name="description" content="Three editable Excalidraw boards: the backend as built, same symptom with different causes, and the demo storyboard.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <style>
+    .boards { display: grid; gap: var(--pl-space-8); }
+    .board-figure { margin: 0; }
+    .board-figure .scroll { overflow-x: auto; border: 1px solid var(--pl-border-subtle); border-radius: var(--pl-radius-md);
+      background: #ffffff; }
+    .board-figure img { display: block; width: 100%; min-width: 900px; max-width: none; height: auto; }   /* phones scroll the board sideways */
+    .board-figure figcaption { margin-top: var(--pl-space-2); }
+  </style>
+</head>
+<body>
+  <aside class="disclosure" role="note" aria-label="Prototype disclosure"><span>Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.</span></aside>
+  <main id="main" class="standalone">
+    <p class="eyebrow">For engineers</p>
+    <h1 class="display">System architecture</h1>
+    <p class="lede">Three boards, generated from the code they describe by <code>docs/architecture/boards.py</code>, which stops if an arrow names code that doesn't exist or a decision disagrees with the tests. The images were exported by the Excalidraw library itself. Download a <code>.excalidraw</code> file to open and edit it at excalidraw.com.</p>
+    <div class="boards">
+      <figure class="board-figure">
+        <h2>A. The backend, as built</h2>
+        <div class="scroll" tabindex="0" role="region" aria-label="Backend architecture board"><img src="/architecture/A-backend-architecture.svg" alt="Backend architecture: clients, the trust boundary, FastAPI routes, domain modules, the outbox and worker, the provider simulator, video processing and PostgreSQL tables, with real code paths, failure paths and proposed components marked."></div>
+        <figcaption class="small">Every solid arrow names its code in <code>docs/architecture/ARCHITECTURE_EDGES.md</code>. <a href="/architecture/A-backend-architecture.excalidraw" download>Editable source (.excalidraw)</a></figcaption>
+      </figure>
+      <figure class="board-figure">
+        <h2>B. Same symptom, different cause, different safe outcome</h2>
+        <div class="scroll" tabindex="0" role="region" aria-label="Decision board"><img src="/architecture/B-same-symptom-different-cause.svg" alt="Decision tree from 'I paid for this. Why can't I use it?' to twelve tested cases in three groups: works, explain or wait, refuse or revoke, each with the evidence, the decision, the allowed and forbidden actions, the parent's words and the tests."></div>
+        <figcaption class="small">Each card is a Scenario Studio scenario or a tested case. <a href="/architecture/B-same-symptom-different-cause.excalidraw" download>Editable source (.excalidraw)</a></figcaption>
+      </figure>
+      <figure class="board-figure">
+        <h2>C. The 90-second demonstration</h2>
+        <div class="scroll" tabindex="0" role="region" aria-label="Storyboard"><img src="/architecture/C-demo-storyboard.png" alt="Seven cropped screenshots of the running app: the ended plan, the diagnosis, the renewal on the same camera, the recorded evidence after the plan check, a safe refusal, the X-Ray and the Growth Lab funnel."></div>
+        <figcaption class="small">Real screenshots captured by <code>scripts/visual_qa.py</code>. <a href="/architecture/C-demo-storyboard.excalidraw" download>Editable source (.excalidraw)</a></figcaption>
+      </figure>
+    </div>
+    <p class="mt-6"><a href="/">Back to the prototype</a></p>
+  </main>
+</body>
+</html>

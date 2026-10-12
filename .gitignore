@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.hypothesis/
+*.egg-info/
+node_modules/
+artifacts/visual-qa/*/*.png
+!artifacts/visual-qa/*/*-1440x900.png
+.env

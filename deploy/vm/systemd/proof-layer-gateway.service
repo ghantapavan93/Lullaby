@@ -1,0 +1,24 @@
+[Unit]
+Description=Proof Layer review gateway (one private workspace per visitor)
+After=network.target postgresql.service
+Wants=postgresql.service
+StartLimitIntervalSec=0
+
+[Service]
+User=prooflayer
+Group=prooflayer
+EnvironmentFile=/etc/proof-layer/gateway.env
+WorkingDirectory=/opt/proof-layer/app/deploy/gateway
+ExecStart=/opt/proof-layer/venv/bin/uvicorn gateway:app --host 127.0.0.1 --port 8800
+Restart=always
+RestartSec=2
+MemoryMax=400M
+TasksMax=64
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/proof-layer
+
+[Install]
+WantedBy=multi-user.target

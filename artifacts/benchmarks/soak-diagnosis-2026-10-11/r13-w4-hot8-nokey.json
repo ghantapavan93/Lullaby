@@ -1,0 +1,1470 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8813",
+    "server_workers": 4,
+    "dataset": {
+      "households": 100000,
+      "evidence_events": 1794220,
+      "briefing_revisions": 315015
+    },
+    "executed_at": "2026-10-11T09:46:17.842075+00:00"
+  },
+  "label": "r13-w4-hot8-nokey",
+  "scenario": "soak (diag_soak)",
+  "concurrency": 16,
+  "seed": 7,
+  "duration_s": 180,
+  "hot_households": 8,
+  "measured": {
+    "requests": 6400,
+    "wall_seconds": 222.37,
+    "throughput_rps": 28.8,
+    "p50_ms": 246.5,
+    "p95_ms": 739.2,
+    "p99_ms": 1211.6,
+    "max_ms": 60326.0,
+    "mean_ms": 357.9,
+    "status_codes": {
+      "200": 6395,
+      "599": 5
+    },
+    "error_rate": 0.0008,
+    "client_timeouts": 5,
+    "requests_over_1s": 119,
+    "requests_over_5s": 5,
+    "new_tcp_connections": 51,
+    "client_loop_lag_ms": {
+      "p50": 37.9,
+      "max": 1025.7
+    },
+    "intervals": [
+      {
+        "t_seconds": 32,
+        "requests": 1600,
+        "throughput_rps": 52.2,
+        "p50_ms": 232.0,
+        "p99_ms": 1019.3,
+        "max_ms": 1415.0,
+        "error_rate": 0.0,
+        "client_timeouts": 0,
+        "connections": 16,
+        "waiting_on_locks": 0,
+        "idle_in_transaction": 0,
+        "longest_active_query_s": 0.0,
+        "longest_idle_in_transaction_s": 0.0,
+        "server_memory_mb": null,
+        "inter_batch_gap_s": 0.93
+      },
+      {
+        "t_seconds": 66,
+        "requests": 1600,
+        "throughput_rps": 47.0,
+        "p50_ms": 264.8,
+        "p99_ms": 1202.1,
+        "max_ms": 1515.9,
+        "error_rate": 0.0,
+        "client_timeouts": 0,
+        "connections": 16,
+        "waiting_on_locks": 0,
+        "idle_in_transaction": 0,
+        "longest_active_query_s": 0.0,
+        "longest_idle_in_transaction_s": 0.0,
+        "server_memory_mb": null,
+        "inter_batch_gap_s": 0.85
+      },
+      {
+        "t_seconds": 152,
+        "requests": 1600,
+        "throughput_rps": 18.9,
+        "p50_ms": 224.1,
+        "p99_ms": 1817.1,
+        "max_ms": 60326.0,
+        "error_rate": 0.0025,
+        "client_timeouts": 4,
+        "connections": 17,
+        "waiting_on_locks": 0,
+        "idle_in_transaction": 0,
+        "longest_active_query_s": 0.0,
+        "longest_idle_in_transaction_s": 0.0,
+        "server_memory_mb": null,
+        "inter_batch_gap_s": 0.98
+      },
+      {
+        "t_seconds": 222,
+        "requests": 1600,
+        "throughput_rps": 23.0,
+        "p50_ms": 258.2,
+        "p99_ms": 1056.5,
+        "max_ms": 60110.5,
+        "error_rate": 0.0006,
+        "client_timeouts": 1,
+        "connections": 23,
+        "waiting_on_locks": 0,
+        "idle_in_transaction": 0,
+        "longest_active_query_s": 0.0,
+        "longest_idle_in_transaction_s": 0.0,
+        "server_memory_mb": null,
+        "inter_batch_gap_s": 0.76
+      }
+    ]
+  },
+  "slow_or_failed_requests": [
+    {
+      "t0": 1.582,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.325,
+      "t0_epoch": 1791711755.512
+    },
+    {
+      "t0": 1.989,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.065,
+      "t0_epoch": 1791711755.919
+    },
+    {
+      "t0": 3.386,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.193,
+      "t0_epoch": 1791711757.316
+    },
+    {
+      "t0": 4.896,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.001,
+      "t0_epoch": 1791711758.826
+    },
+    {
+      "t0": 9.464,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.415,
+      "t0_epoch": 1791711763.394
+    },
+    {
+      "t0": 9.553,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.179,
+      "t0_epoch": 1791711763.483
+    },
+    {
+      "t0": 12.919,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.06,
+      "t0_epoch": 1791711766.849
+    },
+    {
+      "t0": 13.908,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.029,
+      "t0_epoch": 1791711767.838
+    },
+    {
+      "t0": 15.796,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.234,
+      "t0_epoch": 1791711769.726
+    },
+    {
+      "t0": 18.564,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.027,
+      "t0_epoch": 1791711772.494
+    },
+    {
+      "t0": 19.671,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.242,
+      "t0_epoch": 1791711773.601
+    },
+    {
+      "t0": 19.764,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.053,
+      "t0_epoch": 1791711773.694
+    },
+    {
+      "t0": 22.246,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.019,
+      "t0_epoch": 1791711776.176
+    },
+    {
+      "t0": 24.424,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.144,
+      "t0_epoch": 1791711778.354
+    },
+    {
+      "t0": 24.469,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.186,
+      "t0_epoch": 1791711778.399
+    },
+    {
+      "t0": 26.84,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.133,
+      "t0_epoch": 1791711780.77
+    },
+    {
+      "t0": 29.222,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.357,
+      "t0_epoch": 1791711783.152
+    },
+    {
+      "t0": 32.173,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.387,
+      "t0_epoch": 1791711786.103
+    },
+    {
+      "t0": 32.213,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.173,
+      "t0_epoch": 1791711786.143
+    },
+    {
+      "t0": 33.582,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.239,
+      "t0_epoch": 1791711787.512
+    },
+    {
+      "t0": 33.836,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.1,
+      "t0_epoch": 1791711787.766
+    },
+    {
+      "t0": 35.259,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.424,
+      "t0_epoch": 1791711789.189
+    },
+    {
+      "t0": 36.765,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.058,
+      "t0_epoch": 1791711790.695
+    },
+    {
+      "t0": 37.078,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.071,
+      "t0_epoch": 1791711791.008
+    },
+    {
+      "t0": 37.405,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.305,
+      "t0_epoch": 1791711791.335
+    },
+    {
+      "t0": 38.865,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.26,
+      "t0_epoch": 1791711792.795
+    },
+    {
+      "t0": 44.375,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.202,
+      "t0_epoch": 1791711798.305
+    },
+    {
+      "t0": 44.978,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.228,
+      "t0_epoch": 1791711798.908
+    },
+    {
+      "t0": 45.051,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.084,
+      "t0_epoch": 1791711798.981
+    },
+    {
+      "t0": 46.356,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.466,
+      "t0_epoch": 1791711800.286
+    },
+    {
+      "t0": 47.256,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.212,
+      "t0_epoch": 1791711801.186
+    },
+    {
+      "t0": 49.996,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.224,
+      "t0_epoch": 1791711803.926
+    },
+    {
+      "t0": 54.082,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.257,
+      "t0_epoch": 1791711808.012
+    },
+    {
+      "t0": 58.331,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.198,
+      "t0_epoch": 1791711812.261
+    },
+    {
+      "t0": 59.078,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.018,
+      "t0_epoch": 1791711813.008
+    },
+    {
+      "t0": 61.286,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.394,
+      "t0_epoch": 1791711815.216
+    },
+    {
+      "t0": 62.269,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.094,
+      "t0_epoch": 1791711816.199
+    },
+    {
+      "t0": 63.619,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.038,
+      "t0_epoch": 1791711817.549
+    },
+    {
+      "t0": 64.223,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.516,
+      "t0_epoch": 1791711818.153
+    },
+    {
+      "t0": 64.228,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.276,
+      "t0_epoch": 1791711818.158
+    },
+    {
+      "t0": 64.402,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.221,
+      "t0_epoch": 1791711818.332
+    },
+    {
+      "t0": 64.462,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.363,
+      "t0_epoch": 1791711818.392
+    },
+    {
+      "t0": 64.501,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.007,
+      "t0_epoch": 1791711818.431
+    },
+    {
+      "t0": 64.714,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.029,
+      "t0_epoch": 1791711818.644
+    },
+    {
+      "t0": 66.932,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 3.627,
+      "t0_epoch": 1791711820.862
+    },
+    {
+      "t0": 66.981,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.031,
+      "t0_epoch": 1791711820.911
+    },
+    {
+      "t0": 67.595,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.188,
+      "t0_epoch": 1791711821.525
+    },
+    {
+      "t0": 67.766,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.28,
+      "t0_epoch": 1791711821.696
+    },
+    {
+      "t0": 67.808,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.32,
+      "t0_epoch": 1791711821.738
+    },
+    {
+      "t0": 67.892,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 2.457,
+      "t0_epoch": 1791711821.822
+    },
+    {
+      "t0": 67.923,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 3.071,
+      "t0_epoch": 1791711821.853
+    },
+    {
+      "t0": 68.029,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.015,
+      "t0_epoch": 1791711821.959
+    },
+    {
+      "t0": 68.033,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.08,
+      "t0_epoch": 1791711821.963
+    },
+    {
+      "t0": 68.058,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 2.116,
+      "t0_epoch": 1791711821.988
+    },
+    {
+      "t0": 68.232,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.71,
+      "t0_epoch": 1791711822.162
+    },
+    {
+      "t0": 68.62,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.492,
+      "t0_epoch": 1791711822.55
+    },
+    {
+      "t0": 68.638,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.241,
+      "t0_epoch": 1791711822.568
+    },
+    {
+      "t0": 69.053,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.836,
+      "t0_epoch": 1791711822.983
+    },
+    {
+      "t0": 69.057,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.17,
+      "t0_epoch": 1791711822.987
+    },
+    {
+      "t0": 69.121,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.015,
+      "t0_epoch": 1791711823.051
+    },
+    {
+      "t0": 69.161,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.978,
+      "t0_epoch": 1791711823.091
+    },
+    {
+      "t0": 69.201,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.791,
+      "t0_epoch": 1791711823.131
+    },
+    {
+      "t0": 69.298,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.528,
+      "t0_epoch": 1791711823.228
+    },
+    {
+      "t0": 69.942,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.541,
+      "t0_epoch": 1791711823.872
+    },
+    {
+      "t0": 70.001,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.787,
+      "t0_epoch": 1791711823.931
+    },
+    {
+      "t0": 70.064,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.261,
+      "t0_epoch": 1791711823.994
+    },
+    {
+      "t0": 70.16,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.061,
+      "t0_epoch": 1791711824.09
+    },
+    {
+      "t0": 70.197,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.23,
+      "t0_epoch": 1791711824.127
+    },
+    {
+      "t0": 70.38,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.279,
+      "t0_epoch": 1791711824.31
+    },
+    {
+      "t0": 70.396,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 2.046,
+      "t0_epoch": 1791711824.326
+    },
+    {
+      "t0": 70.56,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.485,
+      "t0_epoch": 1791711824.49
+    },
+    {
+      "t0": 71.166,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.14,
+      "t0_epoch": 1791711825.096
+    },
+    {
+      "t0": 71.459,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.117,
+      "t0_epoch": 1791711825.389
+    },
+    {
+      "t0": 71.585,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.83,
+      "t0_epoch": 1791711825.515
+    },
+    {
+      "t0": 71.824,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.878,
+      "t0_epoch": 1791711825.754
+    },
+    {
+      "t0": 72.102,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.934,
+      "t0_epoch": 1791711826.032
+    },
+    {
+      "t0": 72.46,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.008,
+      "t0_epoch": 1791711826.39
+    },
+    {
+      "t0": 72.82,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.17,
+      "t0_epoch": 1791711826.75
+    },
+    {
+      "t0": 72.861,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.245,
+      "t0_epoch": 1791711826.791
+    },
+    {
+      "t0": 73.338,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.715,
+      "t0_epoch": 1791711827.268
+    },
+    {
+      "t0": 73.579,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.116,
+      "t0_epoch": 1791711827.509
+    },
+    {
+      "t0": 73.655,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.345,
+      "t0_epoch": 1791711827.585
+    },
+    {
+      "t0": 75.062,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.703,
+      "t0_epoch": 1791711828.992
+    },
+    {
+      "t0": 76.121,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.001,
+      "t0_epoch": 1791711830.051
+    },
+    {
+      "t0": 76.405,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 2.463,
+      "t0_epoch": 1791711830.335
+    },
+    {
+      "t0": 80.267,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.118,
+      "t0_epoch": 1791711834.197
+    },
+    {
+      "t0": 80.552,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.817,
+      "t0_epoch": 1791711834.482
+    },
+    {
+      "t0": 86.319,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.035,
+      "t0_epoch": 1791711840.249
+    },
+    {
+      "t0": 87.424,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.147,
+      "t0_epoch": 1791711841.354
+    },
+    {
+      "t0": 90.974,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 599,
+      "error": "ReadTimeout",
+      "lat": 60.326,
+      "t0_epoch": 1791711844.904
+    },
+    {
+      "t0": 91.168,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 599,
+      "error": "ReadTimeout",
+      "lat": 60.176,
+      "t0_epoch": 1791711845.098
+    },
+    {
+      "t0": 91.25,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 599,
+      "error": "ReadTimeout",
+      "lat": 60.109,
+      "t0_epoch": 1791711845.18
+    },
+    {
+      "t0": 91.275,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 599,
+      "error": "ReadTimeout",
+      "lat": 60.039,
+      "t0_epoch": 1791711845.205
+    },
+    {
+      "t0": 93.634,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.289,
+      "t0_epoch": 1791711847.564
+    },
+    {
+      "t0": 154.041,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.142,
+      "t0_epoch": 1791711907.971
+    },
+    {
+      "t0": 154.223,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.028,
+      "t0_epoch": 1791711908.153
+    },
+    {
+      "t0": 154.652,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.708,
+      "t0_epoch": 1791711908.582
+    },
+    {
+      "t0": 158.006,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.013,
+      "t0_epoch": 1791711911.936
+    },
+    {
+      "t0": 158.466,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.337,
+      "t0_epoch": 1791711912.396
+    },
+    {
+      "t0": 159.447,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.03,
+      "t0_epoch": 1791711913.377
+    },
+    {
+      "t0": 161.692,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.146,
+      "t0_epoch": 1791711915.622
+    },
+    {
+      "t0": 161.833,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 599,
+      "error": "ReadTimeout",
+      "lat": 60.111,
+      "t0_epoch": 1791711915.763
+    },
+    {
+      "t0": 165.838,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.0,
+      "t0_epoch": 1791711919.768
+    },
+    {
+      "t0": 166.013,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.056,
+      "t0_epoch": 1791711919.943
+    },
+    {
+      "t0": 166.062,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.192,
+      "t0_epoch": 1791711919.992
+    },
+    {
+      "t0": 166.988,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.058,
+      "t0_epoch": 1791711920.918
+    },
+    {
+      "t0": 167.12,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.002,
+      "t0_epoch": 1791711921.05
+    },
+    {
+      "t0": 168.723,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.026,
+      "t0_epoch": 1791711922.653
+    },
+    {
+      "t0": 168.782,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.228,
+      "t0_epoch": 1791711922.712
+    },
+    {
+      "t0": 170.502,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.03,
+      "t0_epoch": 1791711924.432
+    },
+    {
+      "t0": 172.912,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.022,
+      "t0_epoch": 1791711926.842
+    },
+    {
+      "t0": 173.886,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.356,
+      "t0_epoch": 1791711927.816
+    },
+    {
+      "t0": 177.237,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.264,
+      "t0_epoch": 1791711931.167
+    },
+    {
+      "t0": 177.524,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.583,
+      "t0_epoch": 1791711931.454
+    },
+    {
+      "t0": 178.971,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "ack",
+      "status": 200,
+      "lat": 1.017,
+      "t0_epoch": 1791711932.901
+    },
+    {
+      "t0": 180.06,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.14,
+      "t0_epoch": 1791711933.99
+    },
+    {
+      "t0": 181.148,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.466,
+      "t0_epoch": 1791711935.078
+    },
+    {
+      "t0": 182.402,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.348,
+      "t0_epoch": 1791711936.332
+    },
+    {
+      "t0": 183.0,
+      "new_conn": false,
+      "phase": "http11.response_closed.complete",
+      "local_port": null,
+      "kind": "read",
+      "status": 200,
+      "lat": 1.559,
+      "t0_epoch": 1791711936.93
+    }
+  ],
+  "diagnosis_summary": {
+    "label": "r13-w4-hot8-nokey",
+    "read_timeouts_60s": 5,
+    "client_error_types": {
+      "ReadTimeout": 5
+    },
+    "slow_accepts_over_0_25s": 5,
+    "slow_accept_max_s": 61.164,
+    "slow_accept_total_s": 84.2,
+    "workers": 4,
+    "loop": "nokey",
+    "hot_households": 8,
+    "started_utc": "2026-10-11T09:42:32Z",
+    "requests": 6400,
+    "rps": 28.8,
+    "p50_ms": 246.5,
+    "p95_ms": 739.2,
+    "p99_ms": 1211.6,
+    "max_ms": 60326.0,
+    "client_timeouts": 5,
+    "status_codes": {
+      "200": 6395,
+      "599": 5
+    },
+    "over_1s": 119,
+    "over_5s": 5,
+    "new_tcp_connections": 51,
+    "client_loop_lag_ms": {
+      "p50": 37.9,
+      "max": 1025.7
+    },
+    "host_cpu_pct": {
+      "mean": 53.6,
+      "max": 100.0
+    },
+    "cim_load_pct": {
+      "mean": 60.8,
+      "max": 87.0
+    },
+    "host_mem_load_pct": {
+      "mean": 89.4,
+      "max": 97.0
+    },
+    "host_avail_mb_min": 394.0,
+    "loader_cpu_pct_of_core": {
+      "mean": 51.4,
+      "max": 101.5
+    },
+    "server_cpu_pct_of_core": {
+      "mean": 25.5,
+      "max": 57.8
+    },
+    "postgres_cpu_pct_of_core": {
+      "mean": 6.9,
+      "max": 87.5
+    },
+    "pg_bench_conns_max": 23,
+    "pg_cluster_conns_max": 33,
+    "pg_lock_wait_samples": 0,
+    "pg_lock_waits_max": 0,
+    "pg_not_granted_max": 0,
+    "pg_not_granted_by_type_sum": {},
+    "pg_wait_events_sum": {
+      "Client:ClientRead": 47,
+      "IO:WalWrite": 1
+    },
+    "pg_longest_active_s_max": 0,
+    "pg_longest_xact_s_max": 0.02,
+    "samples": 223,
+    "per_worker": {
+      "34940": {
+        "served": 2571,
+        "max_loop_lag_s": 7.011,
+        "max_oldest_inflight_s": 0.02
+      },
+      "35980": {
+        "served": 1422,
+        "max_loop_lag_s": 0.292,
+        "max_oldest_inflight_s": 0.02
+      },
+      "39476": {
+        "served": 383,
+        "max_loop_lag_s": 15.336,
+        "max_oldest_inflight_s": 0.01
+      },
+      "8512": {
+        "served": 2024,
+        "max_loop_lag_s": 68.459,
+        "max_oldest_inflight_s": 0.07
+      }
+    },
+    "stall_dumps": [
+      "stall-34940-1.txt",
+      "stall-39476-1.txt",
+      "stall-8512-1.txt",
+      "stall-8512-2.txt"
+    ],
+    "server_log": {
+      "WinError_10022": 0,
+      "WinError_87": 0,
+      "Accept_failed": 0,
+      "QueuePool": 0,
+      "Traceback": 0
+    },
+    "timeouts_detail": [
+      {
+        "t0": 90.974,
+        "t0_epoch": 1791711844.904,
+        "lat": 60.326,
+        "kind": "read",
+        "new_conn": false,
+        "phase": "http11.response_closed.complete",
+        "error": "ReadTimeout",
+        "local_port": null
+      },
+      {
+        "t0": 91.168,
+        "t0_epoch": 1791711845.098,
+        "lat": 60.176,
+        "kind": "read",
+        "new_conn": false,
+        "phase": "http11.response_closed.complete",
+        "error": "ReadTimeout",
+        "local_port": null
+      },
+      {
+        "t0": 91.25,
+        "t0_epoch": 1791711845.18,
+        "lat": 60.109,
+        "kind": "read",
+        "new_conn": false,
+        "phase": "http11.response_closed.complete",
+        "error": "ReadTimeout",
+        "local_port": null
+      },
+      {
+        "t0": 91.275,
+        "t0_epoch": 1791711845.205,
+        "lat": 60.039,
+        "kind": "read",
+        "new_conn": false,
+        "phase": "http11.response_closed.complete",
+        "error": "ReadTimeout",
+        "local_port": null
+      },
+      {
+        "t0": 161.833,
+        "t0_epoch": 1791711915.763,
+        "lat": 60.111,
+        "kind": "read",
+        "new_conn": false,
+        "phase": "http11.response_closed.complete",
+        "error": "ReadTimeout",
+        "local_port": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8721",
+    "server_workers": 4,
+    "dataset": {
+      "households": 100000,
+      "evidence_events": 1794220,
+      "briefing_revisions": 315015
+    },
+    "executed_at": "2026-10-10T12:47:13.637092+00:00"
+  },
+  "label": "large-100k",
+  "scenario": "large_history",
+  "concurrency": 16,
+  "seed": 7,
+  "measured": {
+    "requests": 300,
+    "wall_seconds": 3.71,
+    "throughput_rps": 80.9,
+    "p50_ms": 145.8,
+    "p95_ms": 462.0,
+    "p99_ms": 741.6,
+    "max_ms": 1125.9,
+    "mean_ms": 186.9,
+    "status_codes": {
+      "200": 300
+    },
+    "error_rate": 0.0,
+    "ordinary": {
+      "requests": 300,
+      "wall_seconds": 3.75,
+      "throughput_rps": 80.0,
+      "p50_ms": 149.7,
+      "p95_ms": 456.6,
+      "p99_ms": 602.4,
+      "max_ms": 1199.2,
+      "mean_ms": 190.7,
+      "status_codes": {
+        "200": 300
+      },
+      "error_rate": 0.0
+    },
+    "long_history_nights": 730
+  },
+  "invariant": {
+    "rule": "a household's history length does not change the week view's cost (p50 within 2x of an ordinary household)",
+    "held": true
+  }
+}

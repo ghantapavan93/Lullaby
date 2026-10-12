@@ -1,0 +1,18 @@
+# Runtime (versions verified with Python 3.13 on 2026-10-10)
+fastapi==0.143.0
+starlette==1.7.0
+uvicorn==0.54.0
+SQLAlchemy==2.1.4
+psycopg[binary]==3.3.6
+alembic==1.20.0
+pydantic==2.14.0
+prometheus-client==0.26.0
+# Video evidence: decoding (bundles FFmpeg) and frame measurement. Added 2026-10-11 with the owner's approval.
+av==19.0.1
+numpy==2.5.4
+
+# Tests
+pytest==9.1.1
+pytest-cov==7.1.0
+hypothesis
+httpx==0.28.1

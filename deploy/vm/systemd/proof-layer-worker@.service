@@ -1,0 +1,25 @@
+[Unit]
+Description=Proof Layer workspace %i (outbox worker: purchases, notifications, video analysis)
+After=network.target postgresql.service proof-layer-slot@%i.service
+Wants=postgresql.service
+StartLimitIntervalSec=0
+
+[Service]
+User=prooflayer
+Group=prooflayer
+EnvironmentFile=/etc/proof-layer/slot-%i.env
+WorkingDirectory=/opt/proof-layer/app/proof-layer
+ExecStart=/opt/proof-layer/venv/bin/python -m app.worker --id slot%i
+Restart=always
+RestartSec=2
+MemoryMax=900M
+CPUQuota=200%
+TasksMax=64
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/proof-layer
+
+[Install]
+WantedBy=multi-user.target

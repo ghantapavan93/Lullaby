@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8721",
+    "server_workers": 4,
+    "dataset": {
+      "households": 10000,
+      "evidence_events": 417866,
+      "briefing_revisions": 73238
+    },
+    "executed_at": "2026-10-10T09:32:58.790527+00:00"
+  },
+  "label": "four-workers",
+  "scenario": "duplicate_purchase",
+  "concurrency": 20,
+  "seed": 7,
+  "measured": {
+    "requests": 20,
+    "wall_seconds": 0.63,
+    "throughput_rps": 31.9,
+    "p50_ms": 463.7,
+    "p95_ms": 538.3,
+    "p99_ms": 538.3,
+    "max_ms": 538.3,
+    "mean_ms": 439.6,
+    "status_codes": {
+      "201": 1,
+      "200": 19
+    },
+    "error_rate": 0.0
+  },
+  "invariant": {
+    "rule": "one idempotency key -> one intent and one submit job",
+    "intents": 1,
+    "submit_jobs": 1,
+    "held": true
+  }
+}

@@ -1,0 +1,45 @@
+{
+ "tab_leaves_drawer": [
+  "a | Privacy | outline=solid 2px",
+  "a | Source on GitHub | outline=solid 2px",
+  "BODY",
+  "a | Skip to briefing | outline=solid 2px",
+  "button | Parent A | outline=solid 2px"
+ ],
+ "close_box": {
+  "x": 323.609375,
+  "y": 54,
+  "width": 35.390625,
+  "height": 44
+ },
+ "scrim_open": 1,
+ "scrim_box": {
+  "x": 0,
+  "y": 36,
+  "width": 375,
+  "height": 776
+ },
+ "xray_box": {
+  "x": 0,
+  "y": 36,
+  "width": 375,
+  "height": 776
+ },
+ "hit_at_5_300": "xray-body",
+ "closed_by_close_btn": true,
+ "hit_after_close": [
+  "BUTTON",
+  "btn btn-secondary",
+  "",
+  384
+ ],
+ "sheet_box": {
+  "x": 0,
+  "y": 436,
+  "width": 375,
+  "height": 376
+ },
+ "desktop_focus_after_escape": "BODY",
+ "desktop_focus_after_close_btn": "BODY",
+ "tabbar_xray_space_opens": false
+}

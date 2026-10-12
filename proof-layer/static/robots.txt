@@ -1,0 +1,3 @@
+# Independent research prototype with synthetic data. Not meant to be indexed.
+User-agent: *
+Disallow: /

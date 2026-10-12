@@ -1,0 +1,7 @@
+[Unit]
+Description=Proof Layer nightly database backup (synthetic data; kept 7 days)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'runuser -u postgres -- pg_dumpall | gzip > /var/lib/proof-layer/backups/all-$(date +%%F).sql.gz && find /var/lib/proof-layer/backups -name "all-*.sql.gz" -mtime +7 -delete'

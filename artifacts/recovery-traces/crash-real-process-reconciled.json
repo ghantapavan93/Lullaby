@@ -1,0 +1,95 @@
+{
+  "intent_id": "pi_7b07444f99b1459e",
+  "state": "CONFIRMED",
+  "decision_id": "dec_464853415e3e4eeb",
+  "offer_id": "offer-memories-year-cat-2026-10-public",
+  "terms": {
+    "feature": "nextnap",
+    "currency": "USD",
+    "plan_code": "memories",
+    "simulated": true,
+    "amount_minor": 12000,
+    "billing_period": "YEAR",
+    "policy_version": "pol-2026-10-public",
+    "catalog_version": "cat-2026-10-public"
+  },
+  "provider_operation_key": "op_pi_7b07444f99b1459e",
+  "validated_state_revision": 0,
+  "outcome": {
+    "status": "SUCCEEDED",
+    "attempts": 1,
+    "currency": "USD",
+    "created_at": "2026-10-10T09:08:31.536941+00:00",
+    "updated_at": "2026-10-10T09:08:31.536941+00:00",
+    "amount_minor": 12000,
+    "decline_code": null,
+    "operation_key": "op_pi_7b07444f99b1459e",
+    "merchant_reference": "hh_demo"
+  },
+  "trace_id": "trc_03093b2c05a94599",
+  "created_at": "2026-10-10T09:08:30.493609+00:00",
+  "simulated": true,
+  "transitions": [
+    {
+      "from": null,
+      "to": "PREPARED",
+      "reason": "prepared",
+      "actor": "member:mem_parent_a",
+      "detail": {
+        "decision_id": "dec_464853415e3e4eeb",
+        "state_revision": 0
+      },
+      "trace_id": "trc_03093b2c05a94599",
+      "at": "2026-10-10T09:08:30.493609+00:00"
+    },
+    {
+      "from": "PREPARED",
+      "to": "SUBMITTED",
+      "reason": "submission_authorized",
+      "actor": "worker:w40908",
+      "detail": {
+        "provider_operation_key": "op_pi_7b07444f99b1459e"
+      },
+      "trace_id": "trc_w40908_1791623311",
+      "at": "2026-10-10T09:08:31.470511+00:00"
+    },
+    {
+      "from": "SUBMITTED",
+      "to": "CONFIRMED",
+      "reason": "reconciled_from_provider_ledger",
+      "actor": "worker:w40024",
+      "detail": {
+        "provider": {
+          "status": "SUCCEEDED",
+          "attempts": 1,
+          "currency": "USD",
+          "created_at": "2026-10-10T09:08:31.536941+00:00",
+          "updated_at": "2026-10-10T09:08:31.536941+00:00",
+          "amount_minor": 12000,
+          "decline_code": null,
+          "operation_key": "op_pi_7b07444f99b1459e",
+          "merchant_reference": "hh_demo"
+        },
+        "entitlement": "granted"
+      },
+      "trace_id": null,
+      "at": "2026-10-10T09:08:33.973328+00:00"
+    }
+  ],
+  "outbox": {
+    "state": "done",
+    "attempts": 1,
+    "last_error": null
+  },
+  "provider_record": {
+    "operation_key": "op_pi_7b07444f99b1459e",
+    "status": "SUCCEEDED",
+    "decline_code": null,
+    "amount_minor": 12000,
+    "currency": "USD",
+    "merchant_reference": "hh_demo",
+    "attempts": 1,
+    "created_at": "2026-10-10T09:08:31.536941+00:00",
+    "updated_at": "2026-10-10T09:08:31.536941+00:00"
+  }
+}

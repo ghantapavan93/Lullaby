@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8721",
+    "server_workers": 4,
+    "dataset": {
+      "households": 10000,
+      "evidence_events": 417865,
+      "briefing_revisions": 73237
+    },
+    "executed_at": "2026-10-10T09:30:34.314852+00:00"
+  },
+  "label": "four-workers",
+  "scenario": "correction_storm",
+  "concurrency": 50,
+  "seed": 7,
+  "measured": {
+    "requests": 50,
+    "wall_seconds": 1.28,
+    "throughput_rps": 39.1,
+    "p50_ms": 583.7,
+    "p95_ms": 834.5,
+    "p99_ms": 869.4,
+    "max_ms": 869.4,
+    "mean_ms": 615.4,
+    "status_codes": {
+      "200": 1,
+      "409": 49
+    },
+    "error_rate": 0.0
+  },
+  "invariant": {
+    "rule": "exactly one correction wins; the rest get REVISION_CONFLICT or ALREADY_CORRECTED",
+    "new_revisions": 1,
+    "corrections_stored": 1,
+    "held": true
+  }
+}

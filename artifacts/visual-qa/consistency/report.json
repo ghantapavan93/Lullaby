@@ -1,0 +1,139 @@
+{
+ "generated_at": "2026-10-12T00:12:09.310455+00:00",
+ "base": "http://127.0.0.1:8710",
+ "scenario": "evidence_journey",
+ "controlled": {
+  "asset_id": "vas_dc279b3e182d4819",
+  "sha256": "c9ca07aa1b55d3ca61dcb0fca4022df7255792b0447898bb009d37f6cf3339f5",
+  "source_kind": "staged_sample",
+  "duration_s": 17.0,
+  "processor_version": "motion-baseline-2",
+  "config_digest": "d29d8d1a0d6c0f0e",
+  "evidence_revision": 1,
+  "interval": {
+   "seq": 1,
+   "t_start": 2.0,
+   "t_end": 5.0,
+   "kind": "movement"
+  },
+  "commit": "72fb913",
+  "code_digest": "2ab21025aa4d"
+ },
+ "captures": {
+  "1440x900": {
+   "heading": "0:02–0:05 of the clip",
+   "kind": "Movement measured",
+   "facts": [
+    [
+     "How much of the picture changed",
+     "6.5% on average, 11.3% at most"
+    ],
+    [
+     "Video available",
+     "All of it (90 frames)"
+    ],
+    [
+     "Light level",
+     "144 of 255"
+    ],
+    [
+     "Measured by",
+     "The server, from the decoded frames (method motion-baseline-2)"
+    ]
+   ],
+   "summary": [
+    [
+     "Movement measured",
+     "5 s"
+    ],
+    [
+     "Small change (uncertain)",
+     "2 s"
+    ],
+    [
+     "No significant movement",
+     "4 s"
+    ],
+    [
+     "Camera moved",
+     "2 s"
+    ],
+    [
+     "Couldn't be measured (dark, blurred, frozen or missing video)",
+     "4 s"
+    ]
+   ],
+   "caption": "Staged test clip: generated shapes, no person or infant.",
+   "sha256": "c9ca07aa1b55d3ca61dcb0fca4022df7255792b0447898bb009d37f6cf3339f5",
+   "run": "var_b954d21c252a4664 · COMPLETED · attempt 1 · motion-baseline-2 · config d29d8d1a0d6c0f0e",
+   "evidence_revision": "1",
+   "screenshot": "artifacts/visual-qa/consistency/recorded-1440.png"
+  },
+  "390x844": {
+   "heading": "0:02–0:05 of the clip",
+   "kind": "Movement measured",
+   "facts": [
+    [
+     "How much of the picture changed",
+     "6.5% on average, 11.3% at most"
+    ],
+    [
+     "Video available",
+     "All of it (90 frames)"
+    ],
+    [
+     "Light level",
+     "144 of 255"
+    ],
+    [
+     "Measured by",
+     "The server, from the decoded frames (method motion-baseline-2)"
+    ]
+   ],
+   "summary": [
+    [
+     "Movement measured",
+     "5 s"
+    ],
+    [
+     "Small change (uncertain)",
+     "2 s"
+    ],
+    [
+     "No significant movement",
+     "4 s"
+    ],
+    [
+     "Camera moved",
+     "2 s"
+    ],
+    [
+     "Couldn't be measured (dark, blurred, frozen or missing video)",
+     "4 s"
+    ]
+   ],
+   "caption": "Staged test clip: generated shapes, no person or infant.",
+   "sha256": "c9ca07aa1b55d3ca61dcb0fca4022df7255792b0447898bb009d37f6cf3339f5",
+   "run": "var_b954d21c252a4664 · COMPLETED · attempt 1 · motion-baseline-2 · config d29d8d1a0d6c0f0e",
+   "evidence_revision": "1",
+   "screenshot": "artifacts/visual-qa/consistency/recorded-390.png"
+  }
+ },
+ "checks": {
+  "same heading on desktop and mobile": true,
+  "same kind on desktop and mobile": true,
+  "same facts on desktop and mobile": true,
+  "same summary on desktop and mobile": true,
+  "same caption on desktop and mobile": true,
+  "same sha256 on desktop and mobile": true,
+  "same run on desktop and mobile": true,
+  "same evidence_revision on desktop and mobile": true,
+  "page shows the API's clip hash": true,
+  "page shows the API's processor version": true,
+  "page shows the API's config digest": true,
+  "page shows the API's evidence revision": true,
+  "page shows the API's interval": true,
+  "summary adds up to the clip length": true
+ },
+ "passed": true
+}

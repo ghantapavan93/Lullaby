@@ -1,0 +1,4 @@
+Alembic migrations for the application database. The URL comes from DATABASE_URL (see
+app/db.py). The simulated provider database is not managed here; it creates its own schema.
+
+    alembic upgrade head

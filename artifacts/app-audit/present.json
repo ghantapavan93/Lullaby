@@ -1,0 +1,242 @@
+{
+ "results": {
+  "recruiter": {
+   "captions": [
+    "1 / 6 \u00b7 recruiter | One family, one night | Loading the synthetic night\u2026",
+    "1 / 6 \u00b7 recruiter | One family, one night | Revision 4: 10 h 40 min of recorded sleep, 94.4% camera observation.",
+    "2 / 6 \u00b7 recruiter | Parent A corrects the wake time | Saving the correction\u2026",
+    "2 / 6 \u00b7 recruiter | Parent A corrects the wake time | Revision 5: recorded sleep is now 10 h 25 min. Coverage is still 94.4%. The camera's record is kept.",
+    "3 / 6 \u00b7 recruiter | Caregiver B still has the old screen open | Recording Caregiver B's acknowledgment\u2026",
+    "3 / 6 \u00b7 recruiter | Caregiver B still has the old screen open | You acknowledged the earlier version. Two details have changed since then.",
+    "4 / 6 \u00b7 recruiter | A feature only a plan blocks | Checking eligibility\u2026",
+    "4 / 6 \u00b7 recruiter | A feature only a plan blocks | Developmental milestones: the camera mount is fine; only the plan blocks it. Offer: Simulated Milestones plan \u2014 $300/year.",
+    "5 / 6 \u00b7 recruiter | The camera moves before the purchase | Moving the camera, then submitting the old offer\u2026",
+    "5 / 6 \u00b7 recruiter | The camera moves before the purchase | The old offer is refused before any payment call: a plan can't fix a Flex Stand. Nothing was charged.",
+    "6 / 6 \u00b7 recruiter | When the facts change | the system changes its answer without losing the truth."
+   ],
+   "seconds": 7.3,
+   "db_night_rev": [
+    [
+     1
+    ],
+    [
+     5
+    ]
+   ],
+   "db_intents": [],
+   "db_ack_b": [
+    [
+     4
+    ]
+   ],
+   "provider": [],
+   "mount": [
+    [
+     "flex_stand"
+    ]
+   ],
+   "failed_steps": []
+  },
+  "product": {
+   "captions": [
+    "1 / 7 \u00b7 product | One family, one night | Loading the synthetic night\u2026",
+    "1 / 7 \u00b7 product | One family, one night | Revision 4: 10 h 40 min of recorded sleep, 94.4% camera observation.",
+    "2 / 7 \u00b7 product | Some information is unavailable | 40 min (03:40\u201304:20) weren't observed. That time stays unknown; nothing is invented to fill it.",
+    "3 / 7 \u00b7 product | Parent A corrects the wake time | Saving the correction\u2026",
+    "3 / 7 \u00b7 product | Parent A corrects the wake time | Revision 5: recorded sleep is now 10 h 25 min. Coverage is still 94.4%. The camera's record is kept.",
+    "3 / 7 \u00b7 product | Caregiver B still has the old screen open | Recording Caregiver B's acknowledgment\u2026",
+    "4 / 7 \u00b7 product | Caregiver B still has the old screen open | You acknowledged the earlier version. Two details have changed since then.",
+    "5 / 7 \u00b7 product | A feature only a plan blocks | Checking eligibility\u2026",
+    "5 / 7 \u00b7 product | A feature only a plan blocks | Developmental milestones: the camera mount is fine; only the plan blocks it. Offer: Simulated Milestones plan \u2014 $300/year.",
+    "6 / 7 \u00b7 product | The camera moves before the purchase | Moving the camera, then submitting the old offer\u2026",
+    "6 / 7 \u00b7 product | The camera moves before the purchase | The old offer is refused before any payment call: a plan can't fix a Flex Stand. Nothing was charged.",
+    "7 / 7 \u00b7 product | When the facts change | the system changes its answer without losing the truth."
+   ],
+   "seconds": 7.3,
+   "db_night_rev": [
+    [
+     1
+    ],
+    [
+     5
+    ]
+   ],
+   "db_intents": [],
+   "db_ack_b": [
+    [
+     4
+    ]
+   ],
+   "provider": [],
+   "mount": [
+    [
+     "flex_stand"
+    ]
+   ],
+   "failed_steps": []
+  },
+  "engineering": {
+   "captions": [
+    "1 / 9 \u00b7 engineering | One family, one night | Loading the synthetic night\u2026",
+    "1 / 9 \u00b7 engineering | One family, one night | Revision 4: 10 h 40 min of recorded sleep, 94.4% camera observation.",
+    "2 / 9 \u00b7 engineering | Some information is unavailable | 40 min (03:40\u201304:20) weren't observed. That time stays unknown; nothing is invented to fill it.",
+    "2 / 9 \u00b7 engineering | Parent A corrects the wake time | Saving the correction\u2026",
+    "3 / 9 \u00b7 engineering | Parent A corrects the wake time | Saving the correction\u2026",
+    "3 / 9 \u00b7 engineering | Parent A corrects the wake time | Revision 5: recorded sleep is now 10 h 25 min. Coverage is still 94.4%. The camera's record is kept.",
+    "4 / 9 \u00b7 engineering | Caregiver B still has the old screen open | Recording Caregiver B's acknowledgment\u2026",
+    "4 / 9 \u00b7 engineering | Caregiver B still has the old screen open | You acknowledged the earlier version. Two details have changed since then.",
+    "5 / 9 \u00b7 engineering | A feature only a plan blocks | Checking eligibility\u2026",
+    "5 / 9 \u00b7 engineering | A feature only a plan blocks | Developmental milestones: the camera mount is fine; only the plan blocks it. Offer: Simulated Milestones plan \u2014 $300/year.",
+    "6 / 9 \u00b7 engineering | The camera moves before the purchase | Moving the camera, then submitting the old offer\u2026",
+    "6 / 9 \u00b7 engineering | The camera moves before the purchase | The old offer is refused before any payment call: a plan can't fix a Flex Stand. Nothing was charged.",
+    "7 / 9 \u00b7 engineering | The worker dies after the provider succeeds | Submitting; the worker will be killed after the provider commits\u2026",
+    "7 / 9 \u00b7 engineering | The worker dies after the provider succeeds | Intent SUBMITTED. The simulated provider recorded the charge; the worker process exited before the app recorded it.",
+    "8 / 9 \u00b7 engineering | Restart and reconcile | Waiting for the crashed worker's lease, then restarting it\u2026",
+    "8 / 9 \u00b7 engineering | Restart and reconcile | Confirmed from the provider's own ledger: one operation, provider attempts 1.",
+    "9 / 9 \u00b7 engineering | When the facts change | the system changes its answer without losing the truth."
+   ],
+   "seconds": 15.6,
+   "db_night_rev": [
+    [
+     1
+    ],
+    [
+     5
+    ]
+   ],
+   "db_intents": [
+    [
+     "CONFIRMED"
+    ]
+   ],
+   "db_ack_b": [
+    [
+     4
+    ]
+   ],
+   "provider": [
+    [
+     "SUCCEEDED",
+     1
+    ]
+   ],
+   "mount": [
+    [
+     "floor_stand"
+    ]
+   ],
+   "failed_steps": []
+  },
+  "exit_mid_stale_offer": {
+   "pause_label": "Pause",
+   "mount_during": [
+    [
+     "flex_stand"
+    ]
+   ],
+   "mount_after_exit": [
+    [
+     "floor_stand"
+    ]
+   ],
+   "bar_gone": true
+  },
+  "header_present_button": {
+   "started": "1 / 6 \u00b7 recruiter",
+   "exited": true
+  }
+ },
+ "console": [
+  {
+   "page": "recruiter",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "recruiter",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "page": "product",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "product",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "page": "engineering",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "engineering",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  },
+  {
+   "page": "exit",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "page": "exit",
+   "type": "error",
+   "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  }
+ ],
+ "pageerrors": [],
+ "http_errors": [
+  [
+   "recruiter",
+   "POST",
+   "/v1/render-receipts",
+   404
+  ],
+  [
+   "recruiter",
+   "POST",
+   "/v1/purchase-intents",
+   409
+  ],
+  [
+   "product",
+   "POST",
+   "/v1/render-receipts",
+   404
+  ],
+  [
+   "product",
+   "POST",
+   "/v1/purchase-intents",
+   409
+  ],
+  [
+   "engineering",
+   "POST",
+   "/v1/render-receipts",
+   404
+  ],
+  [
+   "engineering",
+   "POST",
+   "/v1/purchase-intents",
+   409
+  ],
+  [
+   "exit",
+   "POST",
+   "/v1/render-receipts",
+   404
+  ],
+  [
+   "exit",
+   "POST",
+   "/v1/purchase-intents",
+   409
+  ]
+ ]
+}

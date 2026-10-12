@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "households": 10000,
+  "seed": 11,
+  "injected_fault": "6% of 'requirements_checklist' receipts dropped",
+  "render_rate": 0.9,
+  "experiment": "availability_explanation",
+  "config_version": "v1",
+  "assigned": {
+    "total": 10000,
+    "counts": {
+      "reason_sentence": 5042,
+      "requirements_checklist": 4958
+    },
+    "chi_square": 0.706,
+    "p_value": 0.40090838652089933,
+    "mismatch": false
+  },
+  "exposed": {
+    "total": 8702,
+    "counts": {
+      "reason_sentence": 4532,
+      "requirements_checklist": 4170
+    },
+    "chi_square": 15.059,
+    "p_value": 0.00010419851012046247,
+    "mismatch": true
+  },
+  "executed_at": "2026-10-10T10:11:05.539004+00:00"
+}

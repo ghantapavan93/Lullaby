@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Proof Layer — purchase to access</title>
+  <meta name="description" content="Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300&family=JetBrains+Mono:wght@400&display=swap">
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <style>
+    .landing { max-width: var(--pl-container-reading); margin: 0 auto; padding: var(--pl-space-8) var(--pl-space-4) var(--pl-space-16); }
+    .landing section { margin-top: var(--pl-space-8); }
+    .landing h2 { font-size: var(--pl-type-title-size); line-height: var(--pl-type-title-line); margin: 0 0 var(--pl-space-3); }
+    .landing ol, .landing ul { padding-left: var(--pl-space-5); }
+    .landing li { margin: var(--pl-space-2) 0; }
+    .landing .btn-row { margin-top: var(--pl-space-6); }
+    .landing .facts dt { font-weight: 600; }
+    #status { margin-top: var(--pl-space-3); }
+  </style>
+</head>
+<body>
+  <aside class="disclosure" role="note" aria-label="Prototype disclosure">
+    <svg class="icon icon-sm" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+    <span>Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.</span>
+  </aside>
+  <main class="landing" id="main">
+    <p class="eyebrow">Proof Layer · research prototype</p>
+    <h1 class="display">"I paid for this. Why can't I use it?"</h1>
+    <p class="lede">A working backend that answers that question one camera at a time. It separates what was bought, where it's connected, which plan the camera has and what actually works, then checks it, and never sells a plan to fix a problem a plan can't fix.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="/app">Open the prototype</a>
+      <a class="btn btn-secondary" href="/app?present=product">Watch the 1-minute walkthrough</a>
+    </div>
+    <p class="small muted" id="status">Checking the backend…</p>
+
+    <section aria-labelledby="try">
+      <h2 id="try">What to try first</h2>
+      <ol>
+        <li><strong>Scenario Studio → "Paid, not connected".</strong> A confirmed purchase isn't on a camera yet. Connect it without paying again, then watch access get checked as a separate step.</li>
+        <li><strong>Same symptom, two causes.</strong> Two situations where a parent sees the same thing. The real backend decides and refuses differently for each, in a rolled-back transaction.</li>
+        <li><strong>"Renewal, then recorded evidence".</strong> A clip is refused until the store's renewal reaches the same camera. A worker then decodes and measures it. A caregiver's report sits beside the measurement and never changes it.</li>
+        <li><strong>For engineers → X-Ray and Growth Lab.</strong> The trace of each answer, the stored rows behind it, and certification against the test report for this exact code.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="real">
+      <h2 id="real">What is real, and what isn't</h2>
+      <dl class="facts">
+        <dt>Real</dt><dd>The backend: PostgreSQL, the entitlement rules, the outbox worker, crash recovery, idempotency, and video decoding and measurement (PyAV and numpy).</dd>
+        <dt>Synthetic</dt><dd>Every family, child, camera and purchase. Payments and app-store events are simulated; no money moves.</dd>
+        <dt>Not claimed</dt><dd>Sleep, breathing, health or safety from video. The clip is generated shapes, with no child in it.</dd>
+        <dt>Not Nanit</dt><dd>An independent prototype that uses only Nanit's public product rules. No Nanit code, data, images or branding.</dd>
+      </dl>
+    </section>
+
+    <section aria-labelledby="private">
+      <h2 id="private">Your workspace is private</h2>
+      <p>Opening the prototype gives your browser its own copy of the synthetic data. Nobody else sees or changes it, and you can't change anyone else's. It ends after 30 idle minutes or 2 hours, and is then wiped. Uploads are off.</p>
+    </section>
+
+    <p class="small muted"><a href="/privacy">Privacy</a></p>
+  </main>
+  <script>
+    // An honest status line: the backend's own health check, not an assumption.
+    fetch("/healthz", { cache: "no-store" }).then(async (r) => {
+      const body = await r.json().catch(() => ({}));
+      const free = body.workspaces ? (body.workspaces.clean || 0) + (body.workspaces.dirty || 0) : null;
+      document.getElementById("status").textContent = r.ok
+        ? `Backend healthy${free !== null ? `: ${free} of ${body.workspaces.total} workspaces free` : ""}.`
+        : "The backend reports a problem right now; the prototype may not work. Try again later.";
+    }).catch(() => { document.getElementById("status").textContent = "The backend can't be reached right now. Try again later."; });
+  </script>
+</body>
+</html>

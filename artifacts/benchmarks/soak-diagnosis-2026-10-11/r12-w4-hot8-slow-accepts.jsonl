@@ -1,0 +1,9 @@
+{"t_end": 1791711530.332, "pid": 31764, "accept_s": 7.329, "timeout_attr": 0.0, "fix": false, "calls": 1, "would_block": 0}
+{"t_end": 1791711542.106, "pid": 30100, "accept_s": 11.77, "timeout_attr": 0.0, "fix": false, "calls": 18, "would_block": 10}
+{"t_end": 1791711590.671, "pid": 31764, "accept_s": 0.706, "timeout_attr": 0.0, "fix": false, "calls": 21, "would_block": 13}
+{"t_end": 1791711590.671, "pid": 33152, "accept_s": 0.707, "timeout_attr": 0.0, "fix": false, "calls": 25, "would_block": 16}
+{"t_end": 1791711597.889, "pid": 31764, "accept_s": 0.96, "timeout_attr": 0.0, "fix": false, "calls": 23, "would_block": 14}
+{"t_end": 1791711603.158, "pid": 30100, "accept_s": 5.268, "timeout_attr": 0.0, "fix": false, "calls": 30, "would_block": 18}
+{"t_end": 1791711608.641, "pid": 23436, "accept_s": 5.482, "timeout_attr": 0.0, "fix": false, "calls": 27, "would_block": 19}
+{"t_end": 1791711626.69, "pid": 31764, "accept_s": 1.996, "timeout_attr": 0.0, "fix": false, "calls": 30, "would_block": 19}
+{"t_end": 1791711656.021, "pid": 33152, "accept_s": 20.45, "timeout_attr": 0.0, "fix": false, "calls": 41, "would_block": 27}

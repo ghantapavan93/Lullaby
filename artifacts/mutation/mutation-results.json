@@ -1,0 +1,1106 @@
+{
+  "generated_at": "2026-10-11T16:00:52+00:00",
+  "python": "3.13.2",
+  "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "command": "python scripts/mutate.py ",
+  "results": [
+    {
+      "id": "BASELINE",
+      "guarantee": "unmutated copy",
+      "target": "",
+      "change": {},
+      "verdict": "GREEN",
+      "exit_code": 0,
+      "seconds": 324.6,
+      "summary": "584 passed, 2 skipped, 13 warnings in 320.42s (0:05:20)",
+      "first_failures": []
+    },
+    {
+      "id": "M01",
+      "guarantee": "A purchase decision must belong to the requesting household",
+      "target": "app/purchases.py",
+      "change": {
+        "old": "CapabilityDecision.household_id == principal.household_id)).scalar_one_or_none()",
+        "new": "True)).scalar_one_or_none()"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 26.5,
+      "summary": "1 failed, 43 passed, 1 warning in 22.46s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_decision_belongs_to_its_household"
+      ]
+    },
+    {
+      "id": "M02",
+      "guarantee": "A correction must name the revision the parent saw (expected_revision)",
+      "target": "app/engine.py",
+      "change": {
+        "old": "if window.current_revision != expected_revision:",
+        "new": "if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 163.7,
+      "summary": "1 failed, 462 passed, 1 warning in 160.07s (0:02:40)",
+      "first_failures": [
+        "tests/test_corrections_and_acks.py::test_stale_screen_correction_gets_revision_conflict"
+      ]
+    },
+    {
+      "id": "M03",
+      "guarantee": "Idempotency: a retry with the same key replays; a different payload is rejected (app check)",
+      "target": "app/purchases.py",
+      "change": {
+        "old": "    if existing is not None:\n        if existing.request_fingerprint",
+        "new": "    if False:\n        if existing.request_fingerprint"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 29.7,
+      "summary": "1 failed, 52 passed, 1 warning in 25.65s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_same_key_from_concurrent_separate_clients_creates_one_intent"
+      ]
+    },
+    {
+      "id": "M04",
+      "guarantee": "Idempotency: one intent per (household, key) (database constraint)",
+      "target": "database",
+      "change": {
+        "sql": [
+          "ALTER TABLE purchase_intents DROP CONSTRAINT uq_intents_idempotency"
+        ]
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 158.7,
+      "summary": "1 failed, 449 passed, 1 warning in 154.97s (0:02:34)",
+      "first_failures": [
+        "tests/test_commerce.py::test_unique_constraint_is_the_backstop_without_the_lock"
+      ]
+    },
+    {
+      "id": "M05",
+      "guarantee": "A camera on the wrong mount is blocked; a plan offer can't fix hardware",
+      "target": "app/entitlements.py",
+      "change": {
+        "old": "elif not any(m in policy[\"mounts\"] for m in mounts):",
+        "new": "elif False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 23.1,
+      "summary": "1 failed, 41 passed, 1 warning in 19.20s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_hardware_blocked_decision_never_produces_a_provider_submission"
+      ]
+    },
+    {
+      "id": "M06",
+      "guarantee": "An unknown provider outcome stays UNKNOWN; it is never turned into CONFIRMED",
+      "target": "app/purchases.py",
+      "change": {
+        "old": "if status == \"SUCCEEDED\":",
+        "new": "if status != \"FAILED\":"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 29.3,
+      "summary": "1 failed, 58 passed, 1 warning in 25.93s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_provider_outcomes_are_recorded_distinctly[pending-UNKNOWN-PENDING]"
+      ]
+    },
+    {
+      "id": "M07",
+      "guarantee": "No camera evidence means coverage is unknown or partial, never full",
+      "target": "app/briefing.py",
+      "change": {
+        "old": "observed = iv.minutes(usable)",
+        "new": "observed = iv.minutes(usable) if usable else elapsed"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 141.6,
+      "summary": "1 failed, 251 passed, 1 warning in 137.92s (0:02:17)",
+      "first_failures": [
+        "tests/test_briefing_rules.py::test_confirmed_zero_is_distinct_from_unknown"
+      ]
+    },
+    {
+      "id": "M08",
+      "guarantee": "A household-owned row is loaded only within the caller's household",
+      "target": "app/security.py",
+      "change": {
+        "old": "    stmt = select(model).where(model.id == resource_id,  # type: ignore[attr-defined]\n                               model.household_id == principal.household_id)",
+        "new": "    stmt = select(model).where(model.id == resource_id)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 24.2,
+      "summary": "1 failed, 43 passed, 1 warning in 20.49s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_decision_belongs_to_its_household"
+      ]
+    },
+    {
+      "id": "M09",
+      "guarantee": "A revocation committed while a request waits for the lock still stops it",
+      "target": "app/security.py",
+      "change": {
+        "old": "if member is None or member.revoked_at is not None or member.household_id != principal.household_id:",
+        "new": "if member is None:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 18.2,
+      "summary": "1 failed, 27 passed, 1 warning in 14.57s",
+      "first_failures": [
+        "tests/critic/test_held.py::test_revocation_committed_while_waiting_for_the_lock_stops_the_write"
+      ]
+    },
+    {
+      "id": "M10",
+      "guarantee": "An older acknowledgment can never move a caregiver's head backwards",
+      "target": "app/acks.py",
+      "change": {
+        "old": "where=AckHead.revision < upsert.excluded.revision",
+        "new": "where=AckHead.revision != upsert.excluded.revision"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 21.1,
+      "summary": "1 failed, 35 passed, 1 warning in 17.48s",
+      "first_failures": [
+        "tests/redteam/test_rt_acks.py::test_rt_delayed_older_ack_cannot_override_newer"
+      ]
+    },
+    {
+      "id": "M11",
+      "guarantee": "No offers on safety surfaces (live view, safety alert)",
+      "target": "app/decisions.py",
+      "change": {
+        "old": "if surface in SAFETY_SURFACES and result[\"offer\"]:",
+        "new": "if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 172.5,
+      "summary": "1 failed, 492 passed, 1 skipped, 1 warning in 168.78s (0:02:48)",
+      "first_failures": [
+        "tests/test_growth.py::test_no_offer_is_ever_attached_on_a_safety_surface"
+      ]
+    },
+    {
+      "id": "M12",
+      "guarantee": "While a purchase is being confirmed, don't sell it again",
+      "target": "app/decisions.py",
+      "change": {
+        "old": "if result[\"status\"] == \"BLOCKED\" and unconfirmed:",
+        "new": "if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 40.7,
+      "summary": "1 failed, 63 passed, 1 warning in 36.75s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_purchase_being_confirmed_is_not_offered_again"
+      ]
+    },
+    {
+      "id": "M13",
+      "guarantee": "Purchase re-runs the rules against the camera as it is now",
+      "target": "app/purchases.py",
+      "change": {
+        "old": "if result[\"status\"] != \"BLOCKED\" or not live_offer or live_offer[\"offer_id\"] != offer_id:",
+        "new": "if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 148.8,
+      "summary": "1 failed, 281 passed, 1 warning in 145.21s (0:02:25)",
+      "first_failures": [
+        "tests/test_camera_plans.py::test_a_plan_that_starts_after_the_check_is_not_sold_again"
+      ]
+    },
+    {
+      "id": "M14",
+      "guarantee": "Client prices can't override server terms",
+      "target": "app/purchases.py",
+      "change": {
+        "old": "        raise _reject(principal, \"TERMS_MISMATCH\",",
+        "new": "        if False: raise _reject(principal, \"TERMS_MISMATCH\","
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 26.6,
+      "summary": "1 failed, 45 passed, 1 warning in 22.62s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_mismatched_expected_terms_are_rejected[expected0]"
+      ]
+    },
+    {
+      "id": "M15",
+      "guarantee": "A refund (revoked claim) removes the plan",
+      "target": "app/entitlements.py",
+      "change": {
+        "old": "if \"revoked\" in statuses:",
+        "new": "if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 87.5,
+      "summary": "1 failed, 155 passed, 1 warning in 83.75s (0:01:23)",
+      "first_failures": [
+        "tests/test_access.py::test_refund_after_activation_revokes_access_and_keeps_history"
+      ]
+    },
+    {
+      "id": "M16",
+      "guarantee": "A camera's plan doesn't depend on the order its claims arrived",
+      "target": "app/entitlements.py",
+      "change": {
+        "old": "            plan = max(events, key=lambda e: (e.starts_at, rank(e.plan_code))).plan_code",
+        "new": "            plan = events[-1].plan_code"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 143.5,
+      "summary": "1 failed, 267 passed, 1 warning in 139.55s (0:02:19)",
+      "first_failures": [
+        "tests/test_camera_plans.py::test_order_and_duplicates_never_change_the_plan"
+      ]
+    },
+    {
+      "id": "M17",
+      "guarantee": "A reported sleep claim inside watched time where the camera saw no sleep is contested",
+      "target": "app/briefing.py",
+      "change": {
+        "old": "seen_awake = iv.subtract(iv.intersect(claimed, usable), camera_sleep + basis)",
+        "new": "seen_awake = []"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 14.3,
+      "summary": "1 failed, 18 passed, 1 warning in 10.50s",
+      "first_failures": [
+        "tests/critic/test_evidence_and_acks.py::test_correction_cannot_silently_overrule_camera_observation"
+      ]
+    },
+    {
+      "id": "M18",
+      "guarantee": "One live upgrade per camera (database backstop only)",
+      "target": "database",
+      "change": {
+        "sql": [
+          "DROP INDEX uq_intents_one_live_upgrade"
+        ]
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 155.6,
+      "summary": "1 failed, 452 passed, 1 warning in 152.19s (0:02:32)",
+      "first_failures": [
+        "tests/test_commerce.py::test_database_allows_one_live_upgrade_per_camera"
+      ]
+    },
+    {
+      "id": "M19",
+      "guarantee": "A purchase or code names one camera only (database backstop only)",
+      "target": "database",
+      "change": {
+        "sql": [
+          "ALTER TABLE entitlement_claims DROP CONSTRAINT ex_claim_one_camera"
+        ]
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 115.8,
+      "summary": "1 failed, 202 passed, 1 warning in 111.59s (0:01:51)",
+      "first_failures": [
+        "tests/test_access.py::test_database_keeps_one_purchase_on_one_camera_in_every_channel[web]"
+      ]
+    },
+    {
+      "id": "M20",
+      "guarantee": "The app's own unconfirmed purchase counts as being confirmed (no offer again)",
+      "target": "app/decisions.py",
+      "change": {
+        "old": "found = set(pending_claims) | {terms[\"plan_code\"] for terms in in_flight}",
+        "new": "found = set(pending_claims)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 35.9,
+      "summary": "1 failed, 63 passed, 1 warning in 32.26s",
+      "first_failures": [
+        "tests/redteam/test_rt_commerce.py::test_rt_purchase_being_confirmed_is_not_offered_again"
+      ]
+    },
+    {
+      "id": "M21",
+      "guarantee": "A newly pending higher plan moves the household version (earlier offers go stale)",
+      "target": "app/claims.py",
+      "change": {
+        "old": "return plan[\"plan_code\"], plan[\"state\"], plan[\"member_cap\"], tuple(plan[\"pending_plans\"])",
+        "new": "return plan[\"plan_code\"], plan[\"state\"], plan[\"member_cap\"]"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 142.9,
+      "summary": "1 failed, 280 passed, 1 warning in 139.22s (0:02:19)",
+      "first_failures": [
+        "tests/test_camera_plans.py::test_a_second_pending_purchase_makes_earlier_offers_stale"
+      ]
+    },
+    {
+      "id": "M22",
+      "guarantee": "A re-delivered record doesn't change the recorded-sleep fingerprint",
+      "target": "app/briefing.py",
+      "change": {
+        "old": "list(dict.fromkeys((i[\"start\"], i[\"end\"], i[\"source\"]) for i in f[\"intervals\"]))",
+        "new": "[(i[\"start\"], i[\"end\"], i[\"source\"]) for i in f[\"intervals\"]]"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 37.3,
+      "summary": "1 failed, 68 passed, 1 warning in 33.47s",
+      "first_failures": [
+        "tests/redteam/test_rt_evidence.py::test_rt_duplicate_record_does_not_require_renewed_review"
+      ]
+    },
+    {
+      "id": "M23",
+      "guarantee": "Two households redeeming one code at once get a clear refusal, not a server error",
+      "target": "app/claims.py",
+      "change": {
+        "old": "    except IntegrityError:\n        settled = _already_recorded(db, device, channel, external_ref, event_status, starts_at, ends_at,\n                                    request_hash, before)",
+        "new": "    except IntegrityError:\n        raise\n        settled = None"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 146.3,
+      "summary": "1 failed, 282 passed, 1 warning in 142.73s (0:02:22)",
+      "first_failures": [
+        "tests/test_camera_plans.py::test_one_code_redeemed_by_two_households_at_once_lands_on_one_camera"
+      ]
+    },
+    {
+      "id": "M24",
+      "guarantee": "A killed experiment admits no one and counts no exposure",
+      "target": "app/growth.py",
+      "change": {
+        "old": "    return bool(control and control.killed)",
+        "new": "    return False"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 44.6,
+      "summary": "1 failed, 87 passed, 1 warning in 40.67s",
+      "first_failures": [
+        "tests/redteam/test_rt_experiments.py::test_rt_kill_switch"
+      ]
+    },
+    {
+      "id": "M25",
+      "guarantee": "A family that already paid is never offered the same capability again",
+      "target": "app/decisions.py",
+      "change": {
+        "old": "    if result[\"status\"] == \"BLOCKED\" and result[\"offer\"]:\n        result = _withhold_if_already_bought(",
+        "new": "    if False:\n        result = _withhold_if_already_bought("
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 89.5,
+      "summary": "1 failed, 149 passed, 1 warning in 85.79s (0:01:25)",
+      "first_failures": [
+        "tests/test_access.py::test_pending_evidence_waits_and_never_offers_a_purchase"
+      ]
+    },
+    {
+      "id": "M26",
+      "guarantee": "A purchase on another camera is refused by the connect command itself",
+      "target": "app/access.py",
+      "change": {
+        "old": "    if binding[\"bound\"] and (binding[\"elsewhere\"] or binding[\"device_id\"] != device.id):\n        code = \"CODE_ALREADY_REDEEMED\"",
+        "new": "    if False:\n        code = \"CODE_ALREADY_REDEEMED\""
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 80.1,
+      "summary": "1 failed, 151 passed, 1 warning in 76.48s (0:01:16)",
+      "first_failures": [
+        "tests/test_access.py::test_purchase_bound_to_another_camera_is_not_moved"
+      ]
+    },
+    {
+      "id": "M27",
+      "guarantee": "The provider's highest version wins, whatever order events arrive in",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    top = max(e.provider_version for e in events)",
+        "new": "    top = events[-1].provider_version"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 83.5,
+      "summary": "1 failed, 157 passed, 1 warning in 80.06s (0:01:20)",
+      "first_failures": [
+        "tests/test_access.py::test_late_older_provider_event_changes_nothing"
+      ]
+    },
+    {
+      "id": "M28",
+      "guarantee": "A refund of a connected purchase revokes it on that camera",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    if state[\"state\"] != \"refunded\":\n        return None",
+        "new": "    if True:\n        return None"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 82.3,
+      "summary": "1 failed, 155 passed, 1 warning in 78.84s (0:01:18)",
+      "first_failures": [
+        "tests/test_access.py::test_refund_after_activation_revokes_access_and_keeps_history"
+      ]
+    },
+    {
+      "id": "M29",
+      "guarantee": "A connect from an outdated screen is refused",
+      "target": "app/access.py",
+      "change": {
+        "old": "    if household.state_revision != expected_state_revision:\n        raise DomainError(409, \"STALE_ACCESS_VIEW\"",
+        "new": "    if False:\n        raise DomainError(409, \"STALE_ACCESS_VIEW\""
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 85.3,
+      "summary": "1 failed, 152 passed, 1 warning in 81.78s (0:01:21)",
+      "first_failures": [
+        "tests/test_access.py::test_concurrent_connects_of_one_purchase_bind_exactly_once"
+      ]
+    },
+    {
+      "id": "M30",
+      "guarantee": "A camera that already has a paid plan is not given a duplicate",
+      "target": "app/access.py",
+      "change": {
+        "old": "        if paid_rank >= _rank(catalog_version, found[\"plan_code\"]):\n            raise DomainError(409, \"CAMERA_ALREADY_HAS_PLAN\",",
+        "new": "        if False:\n            raise DomainError(409, \"CAMERA_ALREADY_HAS_PLAN\","
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 84.8,
+      "summary": "1 failed, 153 passed, 1 warning in 81.24s (0:01:21)",
+      "first_failures": [
+        "tests/test_access.py::test_duplicate_purchase_is_not_connected_to_the_same_camera"
+      ]
+    },
+    {
+      "id": "M31",
+      "guarantee": "Evidence for another family's purchase is refused with a clear answer",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    if owner != household.id:\n        raise DomainError(409, \"PURCHASE_OWNED_ELSEWHERE\"",
+        "new": "    if False:\n        raise DomainError(409, \"PURCHASE_OWNED_ELSEWHERE\""
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 89.4,
+      "summary": "1 failed, 161 passed, 1 warning in 85.74s (0:01:25)",
+      "first_failures": [
+        "tests/test_access.py::test_another_familys_purchase_cannot_be_recorded_or_seen"
+      ]
+    },
+    {
+      "id": "M32",
+      "guarantee": "Capability verified is never inferred from operation completed",
+      "target": "app/access.py",
+      "change": {
+        "old": "    opened = None\n    if verified is not None:",
+        "new": "    opened = None\n    verified = verified or connect\n    if verified is not None:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 112.6,
+      "summary": "1 failed, 189 passed, 1 warning in 109.00s (0:01:49)",
+      "first_failures": [
+        "tests/test_access.py::test_three_outcomes_are_never_inferred_from_one_another"
+      ]
+    },
+    {
+      "id": "M33",
+      "guarantee": "A completed connect is not a verified capability until a check runs",
+      "target": "app/access.py",
+      "change": {
+        "old": "    overlay_plan = (last_bind.outcome.get(\"plan_code\") if awaiting_verification",
+        "new": "    overlay_plan = (None if awaiting_verification"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 82.5,
+      "summary": "1 failed, 147 passed, 1 warning in 78.91s (0:01:18)",
+      "first_failures": [
+        "tests/test_access.py::test_paid_not_active_connects_without_a_new_purchase"
+      ]
+    },
+    {
+      "id": "M38",
+      "guarantee": "Another household's purchase can't be put on this family's camera",
+      "target": "app/claims.py",
+      "change": {
+        "old": "    if owner is not None and owner != household.id:",
+        "new": "    if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 122.2,
+      "summary": "1 failed, 210 passed, 1 warning in 118.44s (0:01:58)",
+      "first_failures": [
+        "tests/test_access.py::test_another_household_cannot_put_this_familys_purchase_on_its_camera"
+      ]
+    },
+    {
+      "id": "M39",
+      "guarantee": "A purchase grants the plan of the period covering now (a cheaper renewal applies)",
+      "target": "app/entitlements.py",
+      "change": {
+        "old": "            plan = max((e.plan_code for e in covering), key=rank)",
+        "new": "            plan = max((e.plan_code for e in events), key=rank)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 120.8,
+      "summary": "1 failed, 206 passed, 1 warning in 117.10s (0:01:57)",
+      "first_failures": [
+        "tests/test_access.py::test_a_cheaper_plan_at_renewal_takes_effect_when_its_period_starts"
+      ]
+    },
+    {
+      "id": "M40",
+      "guarantee": "A period that hasn't started is scheduled, not ended",
+      "target": "app/entitlements.py",
+      "change": {
+        "old": "        elif upcoming:\n            state = \"scheduled\"",
+        "new": "        elif False:\n            state = \"scheduled\""
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 118.1,
+      "summary": "1 failed, 207 passed, 1 warning in 114.42s (0:01:54)",
+      "first_failures": [
+        "tests/test_access.py::test_a_period_that_has_not_started_is_scheduled_not_ended"
+      ]
+    },
+    {
+      "id": "M41",
+      "guarantee": "A paid, connected period that hasn't started reads as scheduled, not as no plan",
+      "target": "app/access.py",
+      "change": {
+        "old": "    if scheduled_higher:",
+        "new": "    if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 241.1,
+      "summary": "1 failed, 530 passed, 1 skipped, 1 warning in 237.41s (0:03:57)",
+      "first_failures": [
+        "tests/test_subscription_model.py::test_late_arriving_prior_period"
+      ]
+    },
+    {
+      "id": "M42",
+      "guarantee": "A check sorts after the connect it saw (commit time, not transaction start)",
+      "target": "app/access.py",
+      "change": {
+        "old": "check = AccessCheck(id=new_id(\"chk\"), created_at=func.clock_timestamp(),",
+        "new": "check = AccessCheck(id=new_id(\"chk\"), created_at=func.now(),"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 249.9,
+      "summary": "1 failed, 536 passed, 1 skipped, 1 warning in 246.12s (0:04:06)",
+      "first_failures": [
+        "tests/test_subscription_model.py::test_concurrent_connect_and_verification_ordering"
+      ]
+    },
+    {
+      "id": "M43",
+      "guarantee": "An upgrade with unmet prerequisites stops with a diagnostic before changing anything",
+      "target": "migrations/versions/0007_claim_periods.py",
+      "change": {
+        "old": "def upgrade() -> None:\n    _preflight()",
+        "new": "def upgrade() -> None:\n    pass"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 203.3,
+      "summary": "1 failed, 504 passed, 1 skipped, 1 warning in 199.55s (0:03:19)",
+      "first_failures": [
+        "tests/test_migration_upgrade.py::test_a_purchase_split_across_cameras_blocks_the_upgrade_and_changes_nothing"
+      ]
+    },
+    {
+      "id": "M44",
+      "guarantee": "Entitlement time is read through one controllable clock",
+      "target": "app/claims.py",
+      "change": {
+        "old": "def utcnow() -> datetime:\n    return clock.now()",
+        "new": "def utcnow() -> datetime:\n    return datetime.now(timezone.utc)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 122.8,
+      "summary": "1 failed, 221 passed, 1 warning in 119.12s (0:01:59)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_apple_grace_keeps_access_until_the_grace_end"
+      ]
+    },
+    {
+      "id": "M45",
+      "guarantee": "A demo reset takes every lock up front, so an open page is never a deadlock victim",
+      "target": "app/seed.py",
+      "change": {
+        "old": "    db.execute(text(f\"LOCK TABLE {APP_TABLES} IN ACCESS EXCLUSIVE MODE\"))",
+        "new": "    pass"
+      },
+      "verdict": "SURVIVED",
+      "exit_code": 0,
+      "seconds": 347.9,
+      "summary": "584 passed, 2 skipped, 13 warnings in 344.12s (0:05:44)",
+      "first_failures": []
+    },
+    {
+      "id": "M46",
+      "guarantee": "A store contradiction is never hidden behind 'connected, checking'",
+      "target": "app/access.py",
+      "change": {
+        "old": "    conflicting = first(\"conflicting\")\n    if conflicting:",
+        "new": "    conflicting = first(\"conflicting\")\n    if conflicting and not awaiting_plan:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 274.2,
+      "summary": "1 failed, 538 passed, 1 skipped, 1 warning in 270.35s (0:04:30)",
+      "first_failures": [
+        "tests/test_subscription_model.py::test_a_store_contradiction_after_connect_is_not_hidden_behind_checking"
+      ]
+    },
+    {
+      "id": "M47",
+      "guarantee": "Billing retry outside a grace period grants no access",
+      "target": "app/provider_lifecycle.py",
+      "change": {
+        "old": "        \"DID_FAIL_TO_RENEW\": \"billing_retry\",",
+        "new": "        \"DID_FAIL_TO_RENEW\": \"grace\","
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 128.5,
+      "summary": "1 failed, 223 passed, 1 warning in 124.56s (0:02:04)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_billing_retry_without_grace_removes_access_but_keeps_the_camera"
+      ]
+    },
+    {
+      "id": "M48",
+      "guarantee": "A store grace period keeps access on the camera until the grace end",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    windows = state[\"periods\"] + (state[\"current_grace\"] if state[\"state\"] == \"grace\" else [])",
+        "new": "    windows = state[\"periods\"]"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 129.0,
+      "summary": "1 failed, 221 passed, 1 warning in 125.21s (0:02:05)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_apple_grace_keeps_access_until_the_grace_end"
+      ]
+    },
+    {
+      "id": "M49",
+      "guarantee": "A late grace event can't undo a recovery",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    windows = state[\"periods\"] + (state[\"current_grace\"] if state[\"state\"] == \"grace\" else [])",
+        "new": "    windows = state[\"periods\"] + state[\"grace_windows\"]"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 128.4,
+      "summary": "1 failed, 227 passed, 1 warning in 124.56s (0:02:04)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_a_late_grace_event_does_not_undo_a_recovery"
+      ]
+    },
+    {
+      "id": "M50",
+      "guarantee": "A grace period whose end has passed is billing retry, not grace",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    if state[\"state\"] == \"grace\" and state[\"ends_at\"] is not None and state[\"ends_at\"] <= now:",
+        "new": "    if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 118.2,
+      "summary": "1 failed, 221 passed, 1 warning in 114.77s (0:01:54)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_apple_grace_keeps_access_until_the_grace_end"
+      ]
+    },
+    {
+      "id": "M51",
+      "guarantee": "A paused plan says it is paused, not that it ended",
+      "target": "app/access.py",
+      "change": {
+        "old": "    for state in (\"billing_retry\", \"paused\"):",
+        "new": "    for state in (\"billing_retry\",):"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 101.5,
+      "summary": "1 failed, 184 passed, 1 warning in 97.72s (0:01:37)",
+      "first_failures": [
+        "tests/test_access.py::test_every_scenario_reaches_its_expected_status_and_never_sells[plan_paused]"
+      ]
+    },
+    {
+      "id": "M52",
+      "guarantee": "A store-reported expiry is not called a missing renewal",
+      "target": "app/access.py",
+      "change": {
+        "old": "        if ended is not None and ended[\"state\"] == \"expired\":",
+        "new": "        if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 127.5,
+      "summary": "1 failed, 229 passed, 1 warning in 123.63s (0:02:03)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_store_reported_expiry_is_not_called_a_missing_renewal"
+      ]
+    },
+    {
+      "id": "M53",
+      "guarantee": "A purchase in billing retry stays on its camera; connecting it again is refused",
+      "target": "app/access.py",
+      "change": {
+        "old": "\"billing_retry\": (\"PURCHASE_PAYMENT_RETRYING\",",
+        "new": "\"billing_retry_\": (\"PURCHASE_PAYMENT_RETRYING\","
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 125.7,
+      "summary": "1 failed, 223 passed, 1 warning in 121.97s (0:02:01)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_billing_retry_without_grace_removes_access_but_keeps_the_camera"
+      ]
+    },
+    {
+      "id": "M54",
+      "guarantee": "When the store ends access early but a claim still grants it, the camera says so",
+      "target": "app/access.py",
+      "change": {
+        "old": "    ended_early = next((p for p in mine if _store_ended_camera_active(p, plan)), None)",
+        "new": "    ended_early = None"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 132.3,
+      "summary": "1 failed, 236 passed, 1 warning in 128.37s (0:02:08)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_a_later_store_word_inside_a_written_grace_window_is_not_hidden[later0]"
+      ]
+    },
+    {
+      "id": "M55",
+      "guarantee": "A plan whose payment is retrying or paused is never sold again",
+      "target": "app/decisions.py",
+      "change": {
+        "old": "             or p[\"state\"] in (\"billing_retry\", \"paused\")]",
+        "new": "             or False]"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 129.6,
+      "summary": "1 failed, 233 passed, 1 warning in 125.92s (0:02:05)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_a_plan_whose_payment_is_retrying_or_paused_is_never_sold_again[apple-DID_RENEW-DID_FAIL_TO_RENEW-PAYMENT_RETRYING]"
+      ]
+    },
+    {
+      "id": "M56",
+      "guarantee": "Grace names the last day with access, not the end instant",
+      "target": "app/access.py",
+      "change": {
+        "old": "    return _day((datetime.fromisoformat(iso) - timedelta(microseconds=1)).isoformat())",
+        "new": "    return _day(iso)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 129.4,
+      "summary": "1 failed, 221 passed, 1 warning in 125.81s (0:02:05)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_apple_grace_keeps_access_until_the_grace_end"
+      ]
+    },
+    {
+      "id": "M57",
+      "guarantee": "A lower plan's grace doesn't hide a higher plan that works",
+      "target": "app/access.py",
+      "change": {
+        "old": "    if grace and _rank(catalog_version, grace[\"plan_code\"]) >= current_rank:",
+        "new": "    if grace:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 129.8,
+      "summary": "1 failed, 241 passed, 1 warning in 126.16s (0:02:06)",
+      "first_failures": [
+        "tests/test_billing_lifecycle.py::test_a_higher_plan_on_the_camera_is_not_hidden_by_a_lower_plans_billing"
+      ]
+    },
+    {
+      "id": "M58",
+      "guarantee": "A late-delivered failure is not timed as a negative recovery",
+      "target": "app/access_metrics.py",
+      "change": {
+        "old": "    out_of_order = took is not None and took < 0",
+        "new": "    out_of_order = False"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 123.5,
+      "summary": "1 failed, 217 passed, 1 warning in 120.08s (0:02:00)",
+      "first_failures": [
+        "tests/test_access_metrics.py::test_durations_come_from_record_times"
+      ]
+    },
+    {
+      "id": "M59",
+      "guarantee": "Reading recorded evidence checks the camera's plan",
+      "target": "app/video_evidence.py",
+      "change": {
+        "old": "    g = require_gate(db, household, device, record=False)",
+        "new": "    g = gate(db, household, device)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 290.4,
+      "summary": "1 failed, 556 passed, 1 skipped, 1 warning in 286.34s (0:04:46)",
+      "first_failures": [
+        "tests/test_video_evidence.py::test_the_evidence_needs_a_plan_with_video_history"
+      ]
+    },
+    {
+      "id": "M60",
+      "guarantee": "A signed media link expires",
+      "target": "app/video_evidence.py",
+      "change": {
+        "old": "        expired = int(expires) < (now or time.time())",
+        "new": "        expired = False"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 302.6,
+      "summary": "1 failed, 558 passed, 1 skipped, 6 warnings in 298.65s (0:04:58)",
+      "first_failures": [
+        "tests/test_video_evidence.py::test_media_bytes_need_a_valid_unexpired_link"
+      ]
+    },
+    {
+      "id": "M61",
+      "guarantee": "A signed media link opens only the clip it names",
+      "target": "app/video_evidence.py",
+      "change": {
+        "old": "        valid = hmac.compare_digest(sig.encode(), good.encode()) and token_asset == asset_id",
+        "new": "        valid = hmac.compare_digest(sig.encode(), good.encode())"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 324.1,
+      "summary": "1 failed, 558 passed, 1 skipped, 7 warnings in 320.28s (0:05:20)",
+      "first_failures": [
+        "tests/test_video_evidence.py::test_media_bytes_need_a_valid_unexpired_link"
+      ]
+    },
+    {
+      "id": "M62",
+      "guarantee": "A stalled feed is missing evidence, not stillness",
+      "target": "app/video_processing.py",
+      "change": {
+        "old": "    if w[\"identical_ratio\"] is not None and w[\"identical_ratio\"] >= c.frozen_ratio \\",
+        "new": "    if False and w[\"identical_ratio\"] is not None \\"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 285.8,
+      "summary": "1 failed, 539 passed, 1 skipped, 1 warning in 281.78s (0:04:41)",
+      "first_failures": [
+        "tests/test_video_evidence.py::test_a_scripted_clip_is_measured_as_scripted"
+      ]
+    },
+    {
+      "id": "M67",
+      "guarantee": "A stall right after a pan is still a stall: change carried over the lag doesn't count",
+      "target": "app/video_processing.py",
+      "change": {
+        "old": "    within = w.get(\"local_change_within\", w[\"local_change\"])",
+        "new": "    within = w[\"local_change\"]"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 309.6,
+      "summary": "1 failed, 540 passed, 1 skipped, 1 warning in 305.63s (0:05:05)",
+      "first_failures": [
+        "tests/test_video_evidence.py::test_the_shipped_demo_clip_is_measured_as_scripted_in_every_window"
+      ]
+    },
+    {
+      "id": "M68",
+      "guarantee": "Passing tests on other code never certify this code",
+      "target": "app/proof.py",
+      "change": {
+        "old": "    verdict = \"BLOCKED\" if blockers else \"CERTIFIED\" if build[\"report_matches_code\"] else \"UNVERIFIED\"",
+        "new": "    verdict = \"BLOCKED\" if blockers else \"CERTIFIED\""
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 230.2,
+      "summary": "1 failed, 511 passed, 1 skipped, 1 warning in 226.11s (0:03:46)",
+      "first_failures": [
+        "tests/test_proof.py::test_a_report_from_other_code_is_never_certified"
+      ]
+    },
+    {
+      "id": "M63",
+      "guarantee": "Missing frames are missing evidence, not stillness",
+      "target": "app/video_processing.py",
+      "change": {
+        "old": "    if w[\"frames\"] == 0 or (w[\"coverage\"] or 0) < c.min_coverage:",
+        "new": "    if w[\"frames\"] == 0:"
+      },
+      "verdict": "SURVIVED",
+      "exit_code": 0,
+      "seconds": 312.5,
+      "summary": "584 passed, 2 skipped, 13 warnings in 308.69s (0:05:08)",
+      "first_failures": []
+    },
+    {
+      "id": "M64",
+      "guarantee": "A report from an outdated evidence screen is refused",
+      "target": "app/video_evidence.py",
+      "change": {
+        "old": "    if expected_revision != asset.evidence_revision:",
+        "new": "    if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 271.0,
+      "summary": "1 failed, 559 passed, 1 skipped, 7 warnings in 267.19s (0:04:27)",
+      "first_failures": [
+        "tests/test_video_evidence.py::test_a_contradicting_annotation_keeps_the_measurement"
+      ]
+    },
+    {
+      "id": "M66",
+      "guarantee": "A comparison's refusal probes leave nothing behind",
+      "target": "app/compare.py",
+      "change": {
+        "old": "            discard_kept()               # bind's detached analytics would otherwise outlive the rollback",
+        "new": "            pass"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 159.4,
+      "summary": "1 failed, 454 passed, 1 warning in 155.69s (0:02:35)",
+      "first_failures": [
+        "tests/test_compare.py::test_probes_are_rolled_back"
+      ]
+    },
+    {
+      "id": "M65",
+      "guarantee": "Camera motion isn't reported as movement in the scene",
+      "target": "app/video_processing.py",
+      "change": {
+        "old": "    if (w[\"camera_shift_median\"] or 0) >= c.camera_shift_px:",
+        "new": "    if False:"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 147.1,
+      "summary": "1 failed, 282 passed, 1 warning in 143.02s (0:02:23)",
+      "first_failures": [
+        "tests/test_camera_plans.py::test_one_code_redeemed_by_two_households_at_once_lands_on_one_camera"
+      ]
+    },
+    {
+      "id": "M34",
+      "guarantee": "Two statuses at the same provider version are a conflict, not a guess",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "        \"state\": \"conflicting\" if len(statuses) > 1 else statuses[0],",
+        "new": "        \"state\": statuses[-1],"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 84.8,
+      "summary": "1 failed, 158 passed, 1 warning in 80.88s (0:01:20)",
+      "first_failures": [
+        "tests/test_access.py::test_same_version_contradiction_is_conflicting_and_cannot_be_connected"
+      ]
+    },
+    {
+      "id": "M36",
+      "guarantee": "A confirmed renewal of a connected purchase reaches its camera",
+      "target": "app/purchase_evidence.py",
+      "change": {
+        "old": "    renewed = apply_periods(db, household, after, catalog_version)",
+        "new": "    renewed = None"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 102.5,
+      "summary": "1 failed, 179 passed, 1 warning in 98.85s (0:01:38)",
+      "first_failures": [
+        "tests/test_access.py::test_every_scenario_reaches_its_expected_status_and_never_sells[renewal_reflected]"
+      ]
+    },
+    {
+      "id": "M37",
+      "guarantee": "An ended purchase can't be connected as if it were current",
+      "target": "app/access.py",
+      "change": {
+        "old": "    if _ended(found, utcnow()):\n        raise DomainError(409, \"PURCHASE_EXPIRED\"",
+        "new": "    if False:\n        raise DomainError(409, \"PURCHASE_EXPIRED\""
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 118.9,
+      "summary": "1 failed, 200 passed, 1 warning in 114.90s (0:01:54)",
+      "first_failures": [
+        "tests/test_access.py::test_an_ended_purchase_cannot_be_connected"
+      ]
+    },
+    {
+      "id": "M35",
+      "guarantee": "A repeated connect that changed nothing does not reopen verification",
+      "target": "app/access.py",
+      "change": {
+        "old": "        AccessAction.outcome[\"already_connected\"].astext == \"false\")",
+        "new": "        True)"
+      },
+      "verdict": "KILLED",
+      "exit_code": 1,
+      "seconds": 105.4,
+      "summary": "1 failed, 193 passed, 1 warning in 101.95s (0:01:41)",
+      "first_failures": [
+        "tests/test_access.py::test_repeated_activation_is_recorded_but_does_not_reopen_verification"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+crashed exit=17
+
+restarted exit=0
+reconciled: [{'intent_id': 'pi_7b07444f99b1459e', 'provider': 'SUCCEEDED', 'state': 'CONFIRMED'}]
+processed 0 job(s)

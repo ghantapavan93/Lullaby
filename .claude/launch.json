@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "proof-layer",
+      "runtimeExecutable": "proof-layer/.venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "proof-layer/scripts/demo.py",
+        "8710"
+      ],
+      "port": 8710
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "label": "outbox-claim-1000000",
+  "scenario": "optimization: outbox claim index",
+  "synthetic": true,
+  "workload": {
+    "history_done_jobs": 1000000,
+    "pending_jobs": 200,
+    "repeat": 7,
+    "outbox_rows_by_state": {
+      "done": 1002043,
+      "pending": 200
+    },
+    "outbox_bytes": 240926720,
+    "fill_seconds": 14.4,
+    "query": "SELECT outbox.id FROM outbox WHERE (outbox.state = 'pending' OR outbox.state = 'in_progress' AND outbox.lease_until < now()) AND outbox.available_at <= now() ORDER BY outbox.id LIMIT 1 FOR UPDATE SKIP LOCKED"
+  },
+  "baseline": {
+    "median_ms": 356.284,
+    "runs_ms": [
+      355.748,
+      369.938,
+      356.284,
+      356.407,
+      353.871,
+      360.074,
+      327.351
+    ],
+    "plan": "Limit > LockRows > Index Scan",
+    "index": [
+      "outbox_pkey"
+    ],
+    "shared_hit_blocks": 2024,
+    "shared_read_blocks": 19098,
+    "claimed_job_id": 1002044
+  },
+  "change": "CREATE INDEX ix_outbox_claimable ON outbox (id) WHERE state IN ('pending', 'in_progress')",
+  "index_build_ms": 379.7,
+  "index_bytes": 16384,
+  "after": {
+    "median_ms": 0.026,
+    "runs_ms": [
+      0.077,
+      0.026,
+      0.029,
+      0.023,
+      0.026,
+      0.026,
+      0.037
+    ],
+    "plan": "Limit > LockRows > Index Scan",
+    "index": [
+      "ix_outbox_claimable"
+    ],
+    "shared_hit_blocks": 4,
+    "shared_read_blocks": 0,
+    "claimed_job_id": 1002044
+  },
+  "speedup": 13703.2,
+  "identical_result": true,
+  "write_cost_10k_jobs_ms": {
+    "without_index": 230.3,
+    "with_index": 290.0
+  },
+  "invariant": {
+    "rule": "the index changes the plan, not the answer: the same job is claimed",
+    "held": true
+  },
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "postgres": "17.8",
+    "executed_at": "2026-10-10T12:58:18.568738+00:00"
+  }
+}

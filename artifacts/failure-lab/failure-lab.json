@@ -1,0 +1,164 @@
+{
+  "generated_at": "2026-10-10T13:23:35+00:00",
+  "command": "python scripts/failure_lab.py",
+  "synthetic": true,
+  "scenarios": [
+    {
+      "fault": "Duplicate sleep event (camera re-sends a record under a new key)",
+      "expected": "minutes and the recorded-sleep fingerprint unchanged; caregivers aren't asked to re-review",
+      "observed": "rev 4\u21925, minutes 640.0\u2192640.0, fingerprint same",
+      "held": true,
+      "final_state": {
+        "revision": 5,
+        "evidence_rows": 28
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.06
+    },
+    {
+      "fault": "Out-of-order observation (an earlier camera report arrives last)",
+      "expected": "observed minutes rise by exactly the 20 newly covered minutes; coverage stays \u2264 100%",
+      "observed": "observed 680.0\u2192700.0 min (+20.0), 94.4%\u219297.2%",
+      "held": true,
+      "final_state": {
+        "pct": 97.2,
+        "state": "partial",
+        "window_minutes": 720.0,
+        "observed_minutes": 700.0
+      },
+      "uncertainty": "Coverage reflects what was reported, whenever it arrives; a report that never arrives stays a gap.",
+      "seconds": 0.04
+    },
+    {
+      "fault": "Missing camera coverage (sleep recorded, no availability report)",
+      "expected": "coverage is unknown (no percentage), never 100% and never a measured 0%",
+      "observed": "state=unknown, pct=None",
+      "held": true,
+      "final_state": {
+        "pct": null,
+        "state": "unknown",
+        "window_minutes": 720.0,
+        "observed_minutes": null
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.04
+    },
+    {
+      "fault": "Simultaneous corrections (8 parents' screens submit at once)",
+      "expected": "exactly one wins (200); seven get 409; exactly one new revision",
+      "observed": "status codes [200, 409, 409, 409, 409, 409, 409, 409]; revisions 4\u21925",
+      "held": true,
+      "final_state": {
+        "revisions": 5
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.17
+    },
+    {
+      "fault": "Stale caregiver screen (acknowledges an older revision after a correction)",
+      "expected": "the ack binds to the revision shown, says a newer one exists, and names what changed",
+      "observed": "acknowledged rev 4, current 5, changed ['final_wake', 'recorded_sleep']",
+      "held": true,
+      "final_state": {
+        "acknowledged_revision": 4,
+        "current_revision": 5,
+        "changed_since": [
+          "final_wake",
+          "recorded_sleep"
+        ]
+      },
+      "uncertainty": "The caregiver is told what changed; the system can't know whether they read it.",
+      "seconds": 0.1
+    },
+    {
+      "fault": "Expired upgrade (offer bought after its expiry)",
+      "expected": "409 STALE_DECISION; no intent; nothing charged",
+      "observed": "409 STALE_DECISION; intents 0; provider ops 0",
+      "held": true,
+      "final_state": {
+        "intents": 0
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.1
+    },
+    {
+      "fault": "Hardware change (camera moved to a Flex Stand after the offer was shown)",
+      "expected": "the shown offer is refused; a fresh check blocks on hardware with no offer",
+      "observed": "buy 409 STALE_DECISION; new decision BLOCKED ['PLAN_REQUIRED', 'MOUNT_NOT_SUPPORTED'], offer None",
+      "held": true,
+      "final_state": {
+        "intents": 0,
+        "provider_ops": 0
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.1
+    },
+    {
+      "fault": "Duplicate purchase (10 taps with one idempotency key, at once)",
+      "expected": "one 201, nine replays (200); one intent; one submit job",
+      "observed": "codes [200, 200, 200, 200, 200, 200, 200, 200, 200, 201]; intents 1; submit jobs 1",
+      "held": true,
+      "final_state": {
+        "intents": 1,
+        "submit_jobs": 1
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.2
+    },
+    {
+      "fault": "Worker crash after the provider charged (real process exit)",
+      "expected": "process exits 17; intent stays SUBMITTED; reconciliation confirms from the ledger; one operation, one attempt",
+      "observed": "exit 17; after crash SUBMITTED (provider SUCCEEDED); after reconcile CONFIRMED; operations 1, attempts [1]",
+      "held": true,
+      "final_state": {
+        "intent": "CONFIRMED",
+        "provider_operations": 1
+      },
+      "uncertainty": "Between the crash and reconciliation the app says 'submitted', not 'confirmed'.",
+      "seconds": 2.26
+    },
+    {
+      "fault": "Provider timeout (charge pending at the provider)",
+      "expected": "UNKNOWN until the provider decides, no offer meanwhile, then CONFIRMED; one operation",
+      "observed": "UNKNOWN \u2192 after 3 reconciles UNKNOWN; offer while unknown: None; after settle CONFIRMED; operations 1",
+      "held": true,
+      "final_state": {
+        "intent": "CONFIRMED"
+      },
+      "uncertainty": "While UNKNOWN, the app neither grants nor re-sells; only the provider can settle it.",
+      "seconds": 0.26
+    },
+    {
+      "fault": "Lost response after a committed charge",
+      "expected": "the worker asks the ledger instead of retrying blind: CONFIRMED with one operation, one attempt",
+      "observed": "CONFIRMED; operations 1, attempts [1]",
+      "held": true,
+      "final_state": {
+        "intent": "CONFIRMED"
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.17
+    },
+    {
+      "fault": "Analytics duplication (client resends an event and a render receipt)",
+      "expected": "each stored once",
+      "observed": "events 1, render receipts 1",
+      "held": true,
+      "final_state": {
+        "events": 1,
+        "receipts": 1
+      },
+      "uncertainty": "None beyond the stated rule.",
+      "seconds": 0.11
+    },
+    {
+      "fault": "Invalid referral qualification",
+      "expected": "",
+      "observed": "not run: referrals are not built",
+      "held": null,
+      "final_state": null,
+      "uncertainty": "Deferred by research (11_RESEARCH_DECISIONS.md).",
+      "seconds": 0
+    }
+  ]
+}

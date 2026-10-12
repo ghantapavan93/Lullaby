@@ -1,0 +1,17 @@
+# Public HTTPS in front of the review gateway. {SITE} is replaced by install.sh.
+{SITE} {
+	reverse_proxy 127.0.0.1:8800 {
+		flush_interval -1
+	}
+	header {
+		-Server
+		X-Robots-Tag "noindex"
+		Strict-Transport-Security "max-age=31536000"
+	}
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}

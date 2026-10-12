@@ -1,0 +1,35 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8720",
+    "server_workers": 1,
+    "dataset": {
+      "households": 10000,
+      "evidence_events": 417864,
+      "briefing_revisions": 73236
+    },
+    "executed_at": "2026-10-10T09:24:11.516168+00:00"
+  },
+  "label": "one-connection",
+  "scenario": "read_burst",
+  "concurrency": 32,
+  "seed": 7,
+  "measured": {
+    "requests": 3000,
+    "wall_seconds": 67.79,
+    "throughput_rps": 44.3,
+    "p50_ms": 520.2,
+    "p95_ms": 1928.8,
+    "p99_ms": 2825.1,
+    "max_ms": 5479.8,
+    "mean_ms": 702.1,
+    "status_codes": {
+      "200": 3000
+    },
+    "error_rate": 0.0
+  }
+}

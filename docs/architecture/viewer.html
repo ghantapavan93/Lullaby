@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Excalidraw board check</title>
+<style>
+  html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; background: #fff; color: #1e1e1e; }
+  #bar { padding: 8px 12px; border-bottom: 1px solid #dee2e6; font-size: 14px; }
+  #app { height: calc(100% - 42px); }
+</style>
+<!-- The real Excalidraw library (pinned), used to open, check and export the scenes. -->
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/excalidraw.production.min.js"></script>
+</head>
+<body>
+<div id="bar">Loading…</div>
+<div id="app"></div>
+<script>
+// Open one board in the editable Excalidraw editor, then expose a check and an
+// SVG export made by Excalidraw itself (not by any script of ours).
+const board = new URLSearchParams(location.search).get("board") || "A-backend-architecture";
+const bar = document.getElementById("bar");
+let scene = null;
+
+async function main() {
+  const raw = await (await fetch(`${board}.excalidraw`, { cache: "no-store" })).json();
+  const restored = ExcalidrawLib.restore(raw, null, null);
+  scene = { raw, restored };
+  const texts = restored.elements.filter((e) => e.type === "text").length;
+  const arrows = restored.elements.filter((e) => e.type === "arrow").length;
+  bar.textContent = `${board}: ${restored.elements.length} elements (${texts} text, ${arrows} arrows), ${Object.keys(raw.files || {}).length} images. Editable below.`;
+  ReactDOM.createRoot(document.getElementById("app")).render(React.createElement(ExcalidrawLib.Excalidraw, {
+    excalidrawAPI: (api) => { window.excalidrawAPI = api; },   // used by the editability check
+    initialData: { elements: restored.elements, appState: { ...restored.appState, viewBackgroundColor: "#ffffff" },
+                   files: raw.files || {}, scrollToContent: true },
+  }));
+}
+
+// Called by the check: element counts before and after Excalidraw's restore,
+// and an SVG export from Excalidraw's exportToSvg.
+window.checkAndExport = async function () {
+  const { raw, restored } = scene;
+  const svg = await ExcalidrawLib.exportToSvg({
+    elements: restored.elements,
+    appState: { ...restored.appState, exportBackground: true, viewBackgroundColor: "#ffffff", exportWithDarkMode: false },
+    files: raw.files || {},
+  });
+  const body = new XMLSerializer().serializeToString(svg);
+  const saved = await fetch(`/save?name=${encodeURIComponent(board)}`, { method: "POST", body });
+  return { input: raw.elements.length, restored: restored.elements.length,
+           deleted: restored.elements.filter((e) => e.isDeleted).length,
+           svgBytes: body.length, svgTexts: svg.querySelectorAll("text").length, saved: saved.status };
+};
+// A PNG of the whole board, also rendered by Excalidraw, for reading it in crops.
+window.exportPng = async function () {
+  const { raw, restored } = scene;
+  const blob = await ExcalidrawLib.exportToBlob({
+    elements: restored.elements, mimeType: "image/png", exportPadding: 24,
+    appState: { ...restored.appState, exportBackground: true, viewBackgroundColor: "#ffffff" }, files: raw.files || {},
+  });
+  const saved = await fetch(`/save?name=${encodeURIComponent(board)}&kind=png`, { method: "POST", body: blob });
+  return { pngBytes: blob.size, saved: saved.status };
+};
+// Editability check: change one element's text through Excalidraw's own API,
+// select it, and read the scene back from the editor.
+window.checkEditable = function (id, text) {
+  const api = window.excalidrawAPI;
+  const els = api.getSceneElements().map((e) => (e.id === id ? ExcalidrawLib.newElementWith(e, { text, originalText: text }) : e));
+  api.updateScene({ elements: els, appState: { selectedElementIds: { [id]: true } } });
+  api.scrollToContent(els.filter((e) => e.id === id), { fitToContent: true });
+  const after = api.getSceneElements().find((e) => e.id === id);
+  return { inEditor: api.getSceneElements().length, edited: after?.text === text,
+           selected: Boolean(api.getAppState().selectedElementIds[id]) };
+};
+main().catch((e) => { bar.textContent = "Failed: " + e; });
+</script>
+</body>
+</html>

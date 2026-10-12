@@ -1,0 +1,49 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8721",
+    "server_workers": 4,
+    "dataset": {
+      "households": 100000,
+      "evidence_events": 1794220,
+      "briefing_revisions": 315015
+    },
+    "executed_at": "2026-10-10T12:46:30.477679+00:00"
+  },
+  "label": "large-100k",
+  "scenario": "reconnect_storm",
+  "concurrency": 200,
+  "seed": 7,
+  "measured": {
+    "requests": 2000,
+    "wall_seconds": 41.03,
+    "throughput_rps": 48.7,
+    "p50_ms": 2760.3,
+    "p95_ms": 11725.2,
+    "p99_ms": 16926.6,
+    "max_ms": 28521.8,
+    "mean_ms": 3901.0,
+    "status_codes": {
+      "200": 2000
+    },
+    "error_rate": 0.0,
+    "retries": {
+      "count": 0,
+      "gave_up": 0
+    },
+    "pg_after": {
+      "connections": 40,
+      "waiting_on_locks": 0,
+      "idle_in_transaction": 0
+    }
+  },
+  "invariant": {
+    "rule": "no request fails for good; the server sheds nothing with a 5xx",
+    "gave_up": 0,
+    "held": true
+  }
+}

@@ -1,0 +1,680 @@
+{
+  "label": "large-100k-after-backlog",
+  "scenario": "explain",
+  "explain": {
+    "current briefing #1": {
+      "execution_ms": 0.042,
+      "planning_ms": 2.47,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "current briefing #2": {
+      "execution_ms": 0.058,
+      "planning_ms": 2.774,
+      "rows": 1,
+      "indexes": [
+        "uq_windows_tenant"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_windows_tenant",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.id = %(id_1)s::VARCHAR AND briefing_windows.household_id = %(household_id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "current briefing #3": {
+      "execution_ms": 0.031,
+      "planning_ms": 2.824,
+      "rows": 1,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.id, briefing_revisions.household_id, briefing_revisions.window_id, briefing_revisions.revision, briefing_revisions.facts, briefing_revisions.fingerprints, briefing_revisions.evidence_ids, briefing_revisions.cause, briefing_revisions.trace_id, briefing_revisions.created_at FROM briefing_revisions WHERE briefing_revisions.window_id = %(window_id_1)s::VARCHAR AND briefing_revisions.revision = %(revision_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "current briefing #4": {
+      "execution_ms": 0.03,
+      "planning_ms": 2.434,
+      "rows": 1,
+      "indexes": [
+        "children_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index children_pkey",
+      "sql": "SELECT children.id, children.household_id, children.display_name FROM children WHERE children.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "historical revision #5": {
+      "execution_ms": 0.018,
+      "planning_ms": 0.058,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "historical revision #6": {
+      "execution_ms": 0.03,
+      "planning_ms": 0.092,
+      "rows": 1,
+      "indexes": [
+        "uq_windows_tenant"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_windows_tenant",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.id = %(id_1)s::VARCHAR AND briefing_windows.household_id = %(household_id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "historical revision #7": {
+      "execution_ms": 0.034,
+      "planning_ms": 0.08,
+      "rows": 1,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.id, briefing_revisions.household_id, briefing_revisions.window_id, briefing_revisions.revision, briefing_revisions.facts, briefing_revisions.fingerprints, briefing_revisions.evidence_ids, briefing_revisions.cause, briefing_revisions.trace_id, briefing_revisions.created_at FROM briefing_revisions WHERE briefing_revisions.window_id = %(window_id_1)s::VARCHAR AND briefing_revisions.revision = %(revision_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "historical revision #8": {
+      "execution_ms": 0.019,
+      "planning_ms": 0.056,
+      "rows": 1,
+      "indexes": [
+        "children_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index children_pkey",
+      "sql": "SELECT children.id, children.household_id, children.display_name FROM children WHERE children.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "revision history #9": {
+      "execution_ms": 0.018,
+      "planning_ms": 0.051,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "revision history #10": {
+      "execution_ms": 0.022,
+      "planning_ms": 0.073,
+      "rows": 1,
+      "indexes": [
+        "uq_windows_tenant"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_windows_tenant",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.id = %(id_1)s::VARCHAR AND briefing_windows.household_id = %(household_id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "revision history #11": {
+      "execution_ms": 0.08,
+      "planning_ms": 0.099,
+      "rows": 24,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 27,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.id, briefing_revisions.household_id, briefing_revisions.window_id, briefing_revisions.revision, briefing_revisions.facts, briefing_revisions.fingerprints, briefing_revisions.evidence_ids, briefing_revisions.cause, briefing_revisions.trace_id, briefing_revisions.created_at FROM briefing_revisions WHERE briefing_revisions.window_id = %(window_id_1)s::VARCHAR ORDER BY briefing_revisions.revision",
+      "seq_scan_on_large_table": []
+    },
+    "caregiver changes #12": {
+      "execution_ms": 0.02,
+      "planning_ms": 0.061,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "caregiver changes #13": {
+      "execution_ms": 0.02,
+      "planning_ms": 0.067,
+      "rows": 1,
+      "indexes": [
+        "uq_windows_tenant"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_windows_tenant",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.id = %(id_1)s::VARCHAR AND briefing_windows.household_id = %(household_id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "caregiver changes #14": {
+      "execution_ms": 0.019,
+      "planning_ms": 0.064,
+      "rows": 1,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.id, briefing_revisions.household_id, briefing_revisions.window_id, briefing_revisions.revision, briefing_revisions.facts, briefing_revisions.fingerprints, briefing_revisions.evidence_ids, briefing_revisions.cause, briefing_revisions.trace_id, briefing_revisions.created_at FROM briefing_revisions WHERE briefing_revisions.window_id = %(window_id_1)s::VARCHAR AND briefing_revisions.revision = %(revision_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "caregiver changes #15": {
+      "execution_ms": 0.044,
+      "planning_ms": 0.12,
+      "rows": 2,
+      "indexes": [
+        "ix_members_household_id"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 10,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_members_household_id",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.household_id = %(household_id_1)s::VARCHAR AND members.revoked_at IS NULL ORDER BY members.created_at, members.id",
+      "seq_scan_on_large_table": []
+    },
+    "caregiver changes #16": {
+      "execution_ms": 0.035,
+      "planning_ms": 2.575,
+      "rows": 0,
+      "indexes": [
+        "uq_ack_member_revision"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 5,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index uq_ack_member_revision",
+      "sql": "SELECT acknowledgments.id, acknowledgments.household_id, acknowledgments.window_id, acknowledgments.revision_id, acknowledgments.revision, acknowledgments.member_id, acknowledgments.fingerprints, acknowledgments.trace_id, acknowledgments.created_at FROM acknowledgments WHERE acknowledgments.window_id = %(window_id_1)s::VARCHAR AND acknowledgments.member_id = %(member_id_1)s::VARCHAR ORDER BY acknowledgments.revision DESC",
+      "seq_scan_on_large_table": []
+    },
+    "caregiver changes #17": {
+      "execution_ms": 0.02,
+      "planning_ms": 1.285,
+      "rows": 0,
+      "indexes": [
+        "ack_heads_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 1,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index ack_heads_pkey",
+      "sql": "SELECT ack_heads.member_id, ack_heads.window_id, ack_heads.household_id, ack_heads.revision, ack_heads.acknowledgment_id, ack_heads.updated_at FROM ack_heads WHERE ack_heads.member_id = %(pk_1)s::VARCHAR AND ack_heads.window_id = %(pk_2)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view #18": {
+      "execution_ms": 0.024,
+      "planning_ms": 0.074,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view #19": {
+      "execution_ms": 0.024,
+      "planning_ms": 0.076,
+      "rows": 1,
+      "indexes": [
+        "uq_windows_tenant"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_windows_tenant",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.id = %(id_1)s::VARCHAR AND briefing_windows.household_id = %(household_id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view #20": {
+      "execution_ms": 0.053,
+      "planning_ms": 0.107,
+      "rows": 3,
+      "indexes": [
+        "ix_briefing_windows_household_id"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 9,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_briefing_windows_household_id",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.household_id = %(household_id_1)s::VARCHAR AND briefing_windows.child_id = %(child_id_1)s::VARCHAR AND briefing_windows.local_date >= %(local_date_1)s::DATE AND briefing_windows.local_date <= %(local_date_2)s::DATE ORDER BY briefing_windows.local_date",
+      "seq_scan_on_large_table": []
+    },
+    "week view #21": {
+      "execution_ms": 0.05,
+      "planning_ms": 0.111,
+      "rows": 23,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 27,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.window_id FROM briefing_revisions WHERE briefing_revisions.window_id IN (%(window_id_1_1)s::VARCHAR, %(window_id_1_2)s::VARCHAR, %(window_id_1_3)s::VARCHAR) AND (briefing_revisions.cause ->> %(cause_1)s::TEXT) = %(param_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view #22": {
+      "execution_ms": 0.021,
+      "planning_ms": 0.073,
+      "rows": 1,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.id, briefing_revisions.household_id, briefing_revisions.window_id, briefing_revisions.revision, briefing_revisions.facts, briefing_revisions.fingerprints, briefing_revisions.evidence_ids, briefing_revisions.cause, briefing_revisions.trace_id, briefing_revisions.created_at FROM briefing_revisions WHERE briefing_revisions.window_id = %(window_id_1)s::VARCHAR AND briefing_revisions.revision = %(revision_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "week view, long history #23": {
+      "execution_ms": 0.03,
+      "planning_ms": 0.056,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view, long history #24": {
+      "execution_ms": 0.029,
+      "planning_ms": 0.068,
+      "rows": 1,
+      "indexes": [
+        "uq_windows_tenant"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_windows_tenant",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.id = %(id_1)s::VARCHAR AND briefing_windows.household_id = %(household_id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view, long history #25": {
+      "execution_ms": 0.145,
+      "planning_ms": 0.096,
+      "rows": 7,
+      "indexes": [
+        "ix_briefing_windows_household_id"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 15,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_briefing_windows_household_id",
+      "sql": "SELECT briefing_windows.id, briefing_windows.household_id, briefing_windows.child_id, briefing_windows.local_date, briefing_windows.timezone, briefing_windows.starts_at, briefing_windows.ends_at, briefing_windows.current_revision FROM briefing_windows WHERE briefing_windows.household_id = %(household_id_1)s::VARCHAR AND briefing_windows.child_id = %(child_id_1)s::VARCHAR AND briefing_windows.local_date >= %(local_date_1)s::DATE AND briefing_windows.local_date <= %(local_date_2)s::DATE ORDER BY briefing_windows.local_date",
+      "seq_scan_on_large_table": []
+    },
+    "week view, long history #26": {
+      "execution_ms": 0.042,
+      "planning_ms": 0.073,
+      "rows": 0,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 6,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.window_id FROM briefing_revisions WHERE briefing_revisions.window_id IN (%(window_id_1_1)s::VARCHAR, %(window_id_1_2)s::VARCHAR, %(window_id_1_3)s::VARCHAR, %(window_id_1_4)s::VARCHAR, %(window_id_1_5)s::VARCHAR, %(window_id_1_6)s::VARCHAR, %(window_id_1_7)s::VARCHAR) AND (briefing_revisions.cause ->> %(cause_1)s::TEXT) = %(param_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "week view, long history #27": {
+      "execution_ms": 0.017,
+      "planning_ms": 0.061,
+      "rows": 1,
+      "indexes": [
+        "uq_revisions_number"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_revisions_number",
+      "sql": "SELECT briefing_revisions.id, briefing_revisions.household_id, briefing_revisions.window_id, briefing_revisions.revision, briefing_revisions.facts, briefing_revisions.fingerprints, briefing_revisions.evidence_ids, briefing_revisions.cause, briefing_revisions.trace_id, briefing_revisions.created_at FROM briefing_revisions WHERE briefing_revisions.window_id = %(window_id_1)s::VARCHAR AND briefing_revisions.revision = %(revision_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #28": {
+      "execution_ms": 0.016,
+      "planning_ms": 0.05,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #29": {
+      "execution_ms": 0.06,
+      "planning_ms": 1.84,
+      "rows": 1,
+      "indexes": [
+        "households_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 5,
+      "shared_read_blocks": 0,
+      "summary": "LockRows > Index Scan; index households_pkey",
+      "sql": "SELECT households.id, households.name, households.timezone, households.state_revision, households.created_at FROM households WHERE households.id = %(id_1)s::VARCHAR FOR UPDATE",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #30": {
+      "execution_ms": 0.026,
+      "planning_ms": 0.064,
+      "rows": 1,
+      "indexes": [
+        "households_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index households_pkey",
+      "sql": "SELECT households.id, households.name, households.timezone, households.state_revision, households.created_at FROM households WHERE households.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #31": {
+      "execution_ms": 0.039,
+      "planning_ms": 3.432,
+      "rows": 1,
+      "indexes": [
+        "uq_devices_one_primary"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_devices_one_primary",
+      "sql": "SELECT devices.id, devices.household_id, devices.label, devices.model, devices.mount, devices.is_primary, devices.updated_at FROM devices WHERE devices.household_id = %(household_id_1)s::VARCHAR AND devices.is_primary",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #32": {
+      "execution_ms": 0.023,
+      "planning_ms": 1.316,
+      "rows": 1,
+      "indexes": [],
+      "seq_scans": [
+        "commercial_config"
+      ],
+      "shared_hit_blocks": 1,
+      "shared_read_blocks": 0,
+      "summary": "Seq Scan; no index; seq scan commercial_config",
+      "sql": "SELECT commercial_config.id, commercial_config.catalog_version, commercial_config.policy_version, commercial_config.updated_at FROM commercial_config WHERE commercial_config.id = %(pk_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #33": {
+      "execution_ms": 0.04,
+      "planning_ms": 3.236,
+      "rows": 1,
+      "indexes": [
+        "ix_claims_device"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_claims_device",
+      "sql": "SELECT entitlement_claims.id, entitlement_claims.household_id, entitlement_claims.device_id, entitlement_claims.channel, entitlement_claims.external_ref, entitlement_claims.event_status, entitlement_claims.plan_code, entitlement_claims.starts_at, entitlement_claims.ends_at, entitlement_claims.request_hash, entitlement_claims.trace_id, entitlement_claims.received_at FROM entitlement_claims WHERE entitlement_claims.household_id = %(household_id_1)s::VARCHAR AND entitlement_claims.device_id = %(device_id_1)s::VARCHAR ORDER BY entitlement_claims.received_at, entitlement_claims.id",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #34": {
+      "execution_ms": 0.024,
+      "planning_ms": 4.725,
+      "rows": 0,
+      "indexes": [
+        "uq_intents_one_live_upgrade"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 1,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index uq_intents_one_live_upgrade",
+      "sql": "SELECT purchase_intents.terms FROM purchase_intents WHERE purchase_intents.household_id = %(household_id_1)s::VARCHAR AND purchase_intents.device_id = %(device_id_1)s::VARCHAR AND purchase_intents.state IN (%(state_1_1)s::VARCHAR, %(state_1_2)s::VARCHAR, %(state_1_3)s::VARCHAR) AND purchase_intents.id != %(id_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "eligibility decision + assignment #35": {
+      "execution_ms": 0.028,
+      "planning_ms": 1.418,
+      "rows": 1,
+      "indexes": [
+        "experiment_assignments_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 3,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index experiment_assignments_pkey",
+      "sql": "SELECT experiment_assignments.household_id, experiment_assignments.experiment_key, experiment_assignments.config_version, experiment_assignments.variant, experiment_assignments.assigned_at FROM experiment_assignments WHERE experiment_assignments.household_id = %(household_id_1)s::VARCHAR AND experiment_assignments.experiment_key = %(experiment_key_1)s::VARCHAR AND experiment_assignments.config_version = %(config_version_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "camera plans #36": {
+      "execution_ms": 0.021,
+      "planning_ms": 0.074,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "camera plans #37": {
+      "execution_ms": 0.025,
+      "planning_ms": 0.054,
+      "rows": 1,
+      "indexes": [
+        "households_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index households_pkey",
+      "sql": "SELECT households.id, households.name, households.timezone, households.state_revision, households.created_at FROM households WHERE households.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "camera plans #38": {
+      "execution_ms": 0.012,
+      "planning_ms": 0.04,
+      "rows": 1,
+      "indexes": [],
+      "seq_scans": [
+        "commercial_config"
+      ],
+      "shared_hit_blocks": 1,
+      "shared_read_blocks": 0,
+      "summary": "Seq Scan; no index; seq scan commercial_config",
+      "sql": "SELECT commercial_config.id, commercial_config.catalog_version, commercial_config.policy_version, commercial_config.updated_at FROM commercial_config WHERE commercial_config.id = %(pk_1)s::INTEGER",
+      "seq_scan_on_large_table": []
+    },
+    "camera plans #39": {
+      "execution_ms": 0.04,
+      "planning_ms": 0.085,
+      "rows": 1,
+      "indexes": [
+        "ix_devices_household_id"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 9,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_devices_household_id",
+      "sql": "SELECT devices.id, devices.household_id, devices.label, devices.model, devices.mount, devices.is_primary, devices.updated_at FROM devices WHERE devices.household_id = %(household_id_1)s::VARCHAR ORDER BY devices.is_primary DESC, devices.id",
+      "seq_scan_on_large_table": []
+    },
+    "camera plans #40": {
+      "execution_ms": 0.045,
+      "planning_ms": 0.142,
+      "rows": 1,
+      "indexes": [
+        "ix_claims_device"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_claims_device",
+      "sql": "SELECT entitlement_claims.id, entitlement_claims.household_id, entitlement_claims.device_id, entitlement_claims.channel, entitlement_claims.external_ref, entitlement_claims.event_status, entitlement_claims.plan_code, entitlement_claims.starts_at, entitlement_claims.ends_at, entitlement_claims.request_hash, entitlement_claims.trace_id, entitlement_claims.received_at FROM entitlement_claims WHERE entitlement_claims.household_id = %(household_id_1)s::VARCHAR AND entitlement_claims.device_id = %(device_id_1)s::VARCHAR ORDER BY entitlement_claims.received_at, entitlement_claims.id",
+      "seq_scan_on_large_table": []
+    },
+    "purchase intent list #41": {
+      "execution_ms": 0.03,
+      "planning_ms": 0.077,
+      "rows": 1,
+      "indexes": [
+        "members_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 4,
+      "shared_read_blocks": 0,
+      "summary": "Index Scan; index members_pkey",
+      "sql": "SELECT members.id, members.household_id, members.display_name, members.role, members.can_bill, members.revoked_at, members.created_at FROM members WHERE members.id = %(pk_1)s::VARCHAR",
+      "seq_scan_on_large_table": []
+    },
+    "purchase intent list #42": {
+      "execution_ms": 0.033,
+      "planning_ms": 0.209,
+      "rows": 0,
+      "indexes": [
+        "ix_purchase_intents_household_id"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 2,
+      "shared_read_blocks": 0,
+      "summary": "Sort > Index Scan; index ix_purchase_intents_household_id",
+      "sql": "SELECT purchase_intents.id, purchase_intents.household_id, purchase_intents.member_id, purchase_intents.decision_id, purchase_intents.device_id, purchase_intents.offer_id, purchase_intents.idempotency_key, purchase_intents.request_fingerprint, purchase_intents.terms, purchase_intents.state, purchase_intents.provider_operation_key, purchase_intents.validated_state_revision, purchase_intents.outcome, purchase_intents.trace_id, purchase_intents.created_at, purchase_intents.updated_at FROM purchase_intents WHERE purchase_intents.household_id = %(household_id_1)s::VARCHAR ORDER BY purchase_intents.",
+      "seq_scan_on_large_table": []
+    },
+    "outbox job claim #43": {
+      "execution_ms": 1.109,
+      "planning_ms": 3.217,
+      "rows": 0,
+      "indexes": [
+        "outbox_pkey"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 1940,
+      "shared_read_blocks": 0,
+      "summary": "Limit > LockRows > Index Scan; index outbox_pkey",
+      "sql": "SELECT outbox.id, outbox.household_id, outbox.kind, outbox.dedupe_key, outbox.payload, outbox.state, outbox.attempts, outbox.available_at, outbox.lease_until, outbox.last_error, outbox.trace_id, outbox.created_at, outbox.updated_at FROM outbox WHERE (outbox.state = %(state_1)s::VARCHAR OR outbox.state = %(state_2)s::VARCHAR AND outbox.lease_until < now()) AND outbox.available_at <= now() ORDER BY outbox.id LIMIT %(param_1)s::INTEGER FOR UPDATE SKIP LOCKED",
+      "seq_scan_on_large_table": []
+    },
+    "reconciliation scan #44": {
+      "execution_ms": 0.136,
+      "planning_ms": 0.128,
+      "rows": 0,
+      "indexes": [
+        "uq_intents_one_live_upgrade"
+      ],
+      "seq_scans": [],
+      "shared_hit_blocks": 33,
+      "shared_read_blocks": 0,
+      "summary": "Bitmap Heap Scan > Bitmap Index Scan; index uq_intents_one_live_upgrade",
+      "sql": "SELECT purchase_intents.id FROM purchase_intents WHERE purchase_intents.state IN (%(state_1_1)s::VARCHAR, %(state_1_2)s::VARCHAR)",
+      "seq_scan_on_large_table": []
+    },
+    "experiment health aggregation #45": {
+      "execution_ms": 0.723,
+      "planning_ms": 0.07,
+      "rows": 2,
+      "indexes": [],
+      "seq_scans": [
+        "experiment_assignments"
+      ],
+      "shared_hit_blocks": 72,
+      "shared_read_blocks": 0,
+      "summary": "Aggregate > Seq Scan; no index; seq scan experiment_assignments",
+      "sql": "SELECT experiment_assignments.variant, count(*) AS count_1 FROM experiment_assignments WHERE experiment_assignments.experiment_key = %(experiment_key_1)s::VARCHAR AND experiment_assignments.config_version = %(config_version_1)s::VARCHAR GROUP BY experiment_assignments.variant",
+      "seq_scan_on_large_table": []
+    },
+    "experiment health aggregation #46": {
+      "execution_ms": 0.037,
+      "planning_ms": 2.177,
+      "rows": 0,
+      "indexes": [],
+      "seq_scans": [
+        "render_receipts"
+      ],
+      "shared_hit_blocks": 0,
+      "shared_read_blocks": 0,
+      "summary": "Aggregate > Sort > Seq Scan; no index; seq scan render_receipts",
+      "sql": "SELECT render_receipts.variant, count(distinct(render_receipts.household_id)) AS count_1 FROM render_receipts WHERE render_receipts.experiment_key = %(experiment_key_1)s::VARCHAR AND render_receipts.config_version = %(config_version_1)s::VARCHAR GROUP BY render_receipts.variant",
+      "seq_scan_on_large_table": []
+    }
+  },
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "postgres": "17.8",
+    "database_mb": 1483.8,
+    "table_rows": {
+      "alembic_version": 1,
+      "entitlement_claims": 95018,
+      "devices": 99959,
+      "commercial_config": 1,
+      "children": 99941,
+      "households": 99913,
+      "outbox": 2043,
+      "briefing_windows": 300634,
+      "purchase_intents": 2020,
+      "ack_heads": 150,
+      "evidence_events": 1793874,
+      "acknowledgments": 151,
+      "briefing_revisions": 314864,
+      "analytics_events": 1988,
+      "intent_transitions": 6009,
+      "capability_decisions": 2022,
+      "members": 200000,
+      "authorization_log": 13198,
+      "render_receipts": 0,
+      "experiment_assignments": 2021,
+      "notifications": 0
+    },
+    "executed_at": "2026-10-10T12:48:44.363389+00:00"
+  }
+}

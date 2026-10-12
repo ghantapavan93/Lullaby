@@ -1,0 +1,35 @@
+{
+  "environment": {
+    "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "cpu_count": 16,
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "postgres": "17.8",
+    "server": "http://127.0.0.1:8721",
+    "server_workers": 4,
+    "dataset": {
+      "households": 10000,
+      "evidence_events": 417866,
+      "briefing_revisions": 73238
+    },
+    "executed_at": "2026-10-10T09:34:32.966321+00:00"
+  },
+  "label": "two-drivers-b",
+  "scenario": "read_burst",
+  "concurrency": 16,
+  "seed": 12,
+  "measured": {
+    "requests": 1500,
+    "wall_seconds": 46.39,
+    "throughput_rps": 32.3,
+    "p50_ms": 301.1,
+    "p95_ms": 1325.2,
+    "p99_ms": 2249.6,
+    "max_ms": 18052.0,
+    "mean_ms": 476.8,
+    "status_codes": {
+      "200": 1500
+    },
+    "error_rate": 0.0
+  }
+}
