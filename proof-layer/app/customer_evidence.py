@@ -7,10 +7,9 @@ Two layers, on purpose:
   words as a HYPOTHESIS, what this prototype does about it, and what stays
   unknown. They quote nobody and cite no specific post.
 - Dated sources, counts and confidence live in a private research file
-  (research/customer_evidence_sources.json). They come from public forum
-  threads that were read by an automated pass Nanit's Terms prohibit, so they
-  are never distributed. When the file is present (the author's machine) the
-  view shows them; when it isn't (any public copy) the view says so.
+  (research/customer_evidence_sources.json) and are never distributed. When
+  the file is present (the author's machine) the view shows them; when it
+  isn't (any public copy) the view says so.
 
 A scenario is a deterministic, synthetic representation of the reported
 SYMPTOM, never of Nanit's internal cause, which is not public. A forum report

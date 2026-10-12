@@ -14,7 +14,7 @@ These are 3-minute runs (16 clients, same mix as the original). They are not equ
 
 | Item | Value |
 |---|---|
-| Code under test | tag `interview-candidate-2026-10-11` (`0620500`), in a temporary git worktree. The main tree was not changed apart from this file and the artifact folder |
+| Code under test | tag `review-candidate-2026-10-11` (`0620500`), in a temporary git worktree. The main tree was not changed apart from this file and the artifact folder |
 | Database | `proof_layer_bench` (100,000 households, 1.6 GB), PostgreSQL 17 at 127.0.0.1:54329, `max_connections` 100 |
 | Server | uvicorn 0.54.0, Python 3.13.2, ports 8801–8813, `--log-level warning`. Pool 10 + 10 per process (`app/db.py`) |
 | Load | `bench/diag_soak.py`: a copy of the `bench.load` soak with the same seed (7), mix (90% reads, 10% acks), 2,000 households, batches of 1,600, between-batch `pg_stats()` + `server_memory_mb()`, 60 s client timeout and concurrency 16. Each run is 180 s |

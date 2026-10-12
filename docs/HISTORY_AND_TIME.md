@@ -1,6 +1,6 @@
 # What we believed then, and what we know now
 
-A design note. It describes what the current tables can and can't reconstruct. No temporal rewrite is proposed before the interview.
+A design note. It describes what the current tables can and can't reconstruct. No temporal rewrite is proposed for this version.
 
 ## The times the system already keeps
 
