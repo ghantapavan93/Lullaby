@@ -220,9 +220,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     # tell a live loop from a hung one (deploy/gateway reads its age).
     heartbeat = Path(os.environ["PROOF_LAYER_HEARTBEAT"]) if os.environ.get("PROOF_LAYER_HEARTBEAT") else None
     while True:
-        if heartbeat is not None:
-            heartbeat.touch()
         try:
+            if heartbeat is not None:
+                heartbeat.parent.mkdir(parents=True, exist_ok=True)
+                heartbeat.touch()
             if time.monotonic() - last_reconcile >= RECONCILE_EVERY or args.once:
                 reconciled = reconcile_intents(f"worker:{args.id}")
                 if reconciled:

@@ -141,8 +141,8 @@ CAVEAT = ("Each card is a customer-reported symptom stated as a hypothesis, not 
           "scenario is a synthetic, deterministic representation of the symptom, not of Nanit's internal cause, "
           "and says nothing about whether Nanit already handles it internally. Public reports are a selected, "
           "partly agent-coded sample, not incident rates.")
-NO_SOURCES = ("Dated sources are kept in private research notes and are not distributed: they were read by an "
-              "automated pass that Nanit's Terms prohibit.")
+NO_SOURCES = ("Each card paraphrases a pattern in parents' public posts on the Nanit Community forum. The dated "
+              "sources stay in the author's private research notes and are not distributed with this demo.")
 
 
 def private_sources() -> dict[str, Any]:

@@ -9,7 +9,7 @@ COPY proof-layer/app /srv/proof-layer/app
 COPY proof-layer/migrations /srv/proof-layer/migrations
 COPY proof-layer/alembic.ini /srv/proof-layer/alembic.ini
 COPY proof-layer/static /srv/proof-layer/static
-COPY deploy/gateway/gateway.py /srv/deploy/gateway/gateway.py
+COPY deploy/gateway/gateway.py deploy/gateway/headers.py /srv/deploy/gateway/
 COPY deploy/landing /srv/deploy/landing
 COPY deploy/render/run.py /srv/deploy/render/run.py
 COPY docs/architecture /srv/docs/architecture

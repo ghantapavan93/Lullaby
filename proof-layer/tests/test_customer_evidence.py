@@ -40,6 +40,7 @@ def test_without_private_notes_the_view_says_so(client, demo, monkeypatch, tmp_p
     monkeypatch.setattr(customer_evidence, "PRIVATE_SOURCES", tmp_path / "missing.json")
     body = client.get("/v1/customer-evidence", headers=CAREGIVER).json()
     assert body["sources_available"] is False and "not distributed" in body["sources_note"]
+    assert "public posts" in body["sources_note"] and "Terms" not in body["sources_note"]
     assert all(c["sources"] == [] and c["confidence"] is None for c in body["cards"])
 
 

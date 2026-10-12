@@ -3,10 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Proof Layer — purchase to access</title>
-  <meta name="description" content="Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.">
+  <title>Proof Layer · I paid for this. Why can’t I use it?</title>
+  <meta name="description" content="When a parent paid but can't use a feature, this backend traces purchase → camera → feature, names the real cause, and never sells what they already have. Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.">
   <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F4EE">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0E1124">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Proof Layer">
+  <meta property="og:title" content="I paid for this. Why can’t I use it?">
+  <meta property="og:description" content="A backend that traces purchase → camera → feature, names the real cause, and never sells what the parent already has. Independent engineering prototype; synthetic data, simulated payments.">
+  <meta property="og:image" content="/static/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300&family=JetBrains+Mono:wght@400&display=swap">
@@ -29,21 +41,22 @@
     <span>Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.</span>
   </aside>
   <main class="landing" id="main">
-    <p class="eyebrow">Proof Layer · research prototype</p>
-    <h1 class="display">"I paid for this. Why can't I use it?"</h1>
+    <p class="eyebrow">Proof Layer · an independent prototype by Pavan Kalyan</p>
+    <h1 class="display">“I paid for this. Why can’t I use it?”</h1>
     <p class="lede">A working backend that answers that question one camera at a time. It separates what was bought, where it's connected, which plan the camera has and what actually works, then checks it, and never sells a plan to fix a problem a plan can't fix.</p>
     <div class="btn-row">
       <a class="btn btn-primary" href="/app">Open the prototype</a>
-      <a class="btn btn-secondary" href="/app?present=product">Watch the 1-minute walkthrough</a>
+      <a class="btn btn-secondary" href="/app?present=recruiter">Watch it work, in about a minute</a>
     </div>
     <p class="small muted" id="status">Checking the backend…</p>
 
     <section aria-labelledby="try">
       <h2 id="try">What to try first</h2>
       <ol>
-        <li><strong>Scenario Studio → "Paid, not connected".</strong> A confirmed purchase isn't on a camera yet. Connect it without paying again, then watch access get checked as a separate step.</li>
+        <li><strong>Customer evidence.</strong> What parents reported in public, paraphrased, and the scenario that reproduces each pattern.</li>
+        <li><strong>Scenario Studio → “Paid, but not active”.</strong> A confirmed purchase isn't on a camera yet. Connect it without paying again, then watch access get checked as a separate step.</li>
         <li><strong>Same symptom, two causes.</strong> Two situations where a parent sees the same thing. The real backend decides and refuses differently for each, in a rolled-back transaction.</li>
-        <li><strong>"Renewal, then recorded evidence".</strong> A clip is refused until the store's renewal reaches the same camera. A worker then decodes and measures it. A caregiver's report sits beside the measurement and never changes it.</li>
+        <li><strong>“Renewal, then recorded evidence”.</strong> A clip is refused until the store's renewal reaches the same camera. A worker then decodes and measures it. A caregiver's report sits beside the measurement and never changes it.</li>
         <li><strong>For engineers → X-Ray and Growth Lab.</strong> The trace of each answer, the stored rows behind it, and certification against the test report for this exact code.</li>
       </ol>
     </section>
@@ -94,20 +107,25 @@
         }
         if (body && body.workspaces) {
           const free = (body.workspaces.clean || 0) + (body.workspaces.dirty || 0);
-          status.textContent = r.ok
-            ? `Backend awake: ${free} of ${body.workspaces.total} private workspace${body.workspaces.total === 1 ? "" : "s"} free.`
-            : "The backend is up but reports a problem right now; the prototype may not work. Try again in a minute.";
+          const idle = body.lease ? Math.round(body.lease.idle_minutes) : 10;
+          // Only the final state is announced to screen readers, not every quip.
+          status.setAttribute("role", "status");
+          status.textContent = !r.ok
+            ? "The backend is up but reports a problem right now; the prototype may not work. Try again in a minute."
+            : free > 0
+              ? "Backend awake. A private workspace is ready for you."
+              : `Backend awake. Its review workspace is in use; one frees up within ${idle} minutes.`;
           return;
         }
       } catch { clearTimeout(t); }
       if (Date.now() - started > 180000) {
+        status.setAttribute("role", "status");
         status.textContent = "The free backend didn't wake up this time. Reload the page in a minute.";
         return;
       }
       status.textContent = quips[Math.min(i++, quips.length - 1)];
       setTimeout(check, 4000);
     }
-    status.setAttribute("role", "status");
     check();
   </script>
 </body>

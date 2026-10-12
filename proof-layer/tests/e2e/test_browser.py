@@ -149,8 +149,8 @@ def test_an_offer_never_rendered_creates_no_exposure(page, server):
                           .where(RenderReceipt.surface == "feature_availability")).scalar_one() == 0
 
 
-@pytest.mark.parametrize("behavior,label", [("decline", "Failed — not charged"),
-                                            ("pending", "Outcome unknown — checking")])
+@pytest.mark.parametrize("behavior,label", [("decline", "Failed. Not charged"),
+                                            ("pending", "Outcome unknown. Checking")])
 def test_failed_and_unknown_outcomes_are_distinct_and_never_celebrate(page, server, behavior, label):
     page.goto(server + "/#/features")
     page.get_by_role("button", name="Check availability").click()
@@ -592,7 +592,7 @@ def test_present_never_claims_a_correction_another_visitor_beat_it_to(server, br
         route.continue_()
 
     pg.route("**/corrections", other_visitor_first)
-    pg.goto(server + "/?present=recruiter&fast=1")
+    pg.goto(server + "/?present=product&fast=1")    # the walkthrough with the correction step
     expect(pg.locator(".present-title")).to_have_text("Parent A corrects the wake time", timeout=60000)
     expect(pg.locator(".present-line")).to_contain_text("Not saved", timeout=30000)
     assert raced == [200]

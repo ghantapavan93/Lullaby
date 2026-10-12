@@ -12,13 +12,13 @@ const VIEWERS = [
 const ROUTES = [
   { id: "home", label: "Home", short: "Home", icon: "home", group: "family" },
   { id: "access", label: "Access journey", short: "Access", icon: "link", group: "family" },
-  { id: "recorded", label: "Recorded evidence", short: "Clip", icon: "camera", group: "family" },
-  { id: "briefing", label: "Night briefing", short: "Evidence", icon: "moon", group: "evidence" },
+  { id: "recorded", label: "Recorded evidence", short: "Video", icon: "camera", group: "family" },
+  { id: "briefing", label: "Night briefing", short: "Night", icon: "moon", group: "evidence" },
   { id: "changes", label: "What changed", short: "Changes", icon: "compare", group: "evidence" },
   { id: "features", label: "Plans & features", short: "Features", icon: "key", group: "evidence" },
   { id: "studio", label: "Scenario Studio", short: "Studio", icon: "sliders", group: "engineering" },
   { id: "growth", label: "Growth Lab", short: "Growth", icon: "chart", group: "engineering" },
-  { id: "customers", label: "Customer evidence", short: "Customers", icon: "user", group: "engineering" },
+  { id: "customers", label: "Customer evidence", short: "Customers", icon: "user", group: "family" },
 ];
 const TAB_ROUTES = ["home", "access", "recorded", "briefing"];
 const EVIDENCE_ROUTES = ["briefing", "changes", "features"];
@@ -159,8 +159,8 @@ function showSessionEnded() {
   bar.id = "session-banner";
   bar.className = "connection-banner";
   bar.setAttribute("role", "alert");
-  bar.innerHTML = `Your session ended. Nothing was changed. <button type="button" class="btn btn-secondary" onclick="location.reload()">Reload</button>`;
-  document.body.prepend(bar);
+  bar.innerHTML = `Your session ended. Nothing was changed. <button type="button" class="btn btn-secondary" data-action="reload">Reload</button>`;
+  document.getElementById("top-stack").append(bar);
 }
 
 function setConnection(online) {
@@ -172,7 +172,7 @@ function setConnection(online) {
   bar.className = "connection-banner";
   bar.setAttribute("role", "status");
   bar.textContent = "Offline: showing the last data we loaded. We'll retry automatically.";
-  document.body.prepend(bar);
+  document.getElementById("top-stack").append(bar);
 }
 
 // Replace an element's markup only when it changed, so a background refresh
@@ -312,23 +312,28 @@ async function ensureWorkspace() {
     if (r && r.ok) { state.workspace = await r.json(); return true; }
     body = r ? await r.json().catch(() => null) : null;
     const preparing = body?.code === "WORKSPACE_NOT_READY";
-    if ((body?.code && !preparing) || Date.now() - started > 180000) break;
-    document.getElementById("main").innerHTML = preparing
+    // Every workspace in use: one frees within the idle limit, so wait for it (up to 15 minutes) instead of giving up.
+    const busy = body?.code === "ALL_WORKSPACES_BUSY";
+    if ((body?.code && !preparing && !busy) || Date.now() - started > (busy ? 900000 : 180000)) break;
+    document.getElementById("main").innerHTML = busy
+      ? `<div class="alert alert-info" role="status">${icon("clock")}<div>
+      <p class="alert-title">Someone else is using the review workspace</p><p>This copy runs one private workspace at a time on free infrastructure. It frees up when they finish, or after a few idle minutes. This page keeps trying and opens as soon as it's yours.</p></div></div>`
+      : preparing
       ? `<div class="alert alert-info" role="status">${icon("clock")}<div>
       <p class="alert-title">Preparing your workspace…</p><p>Its synthetic data is being reset to the starting point. This takes a few seconds.</p></div></div>`
       : `<div class="alert alert-info" role="status">${icon("clock")}<div>
       <p class="alert-title">Waking the backend…</p><p>It runs on free infrastructure and naps after 15 quiet minutes. This usually takes under a minute.</p></div></div>`;
-    await new Promise((res) => setTimeout(res, 4000));
+    await new Promise((res) => setTimeout(res, busy ? 15000 : 4000));
   }
   body = body || {};
   document.getElementById("main").innerHTML = `<div class="alert alert-warning" role="alert">${icon("alert")}<div>
     <p class="alert-title">The review workspace couldn't start</p><p>${esc(body.message || "Try again in a few minutes.")}</p>
-    <div class="btn-row"><button type="button" class="btn btn-secondary" onclick="location.reload()">Try again</button></div></div></div>`;
+    <div class="btn-row"><button type="button" class="btn btn-secondary" data-action="reload">Try again</button></div></div></div>`;
   return false;
 }
 
 function showWorkspaceEnded() {
-  if (document.getElementById("workspace-banner")) return;
+  if (document.getElementById("workspace-banner") || !state.workspace) return;   // one that never started didn't end
   clearInterval(pollTimer);
   const bar = document.createElement("div");
   bar.id = "workspace-banner";
@@ -336,8 +341,8 @@ function showWorkspaceEnded() {
   bar.setAttribute("role", "alert");
   const w = state.workspace || {};
   const limits = w.idle_minutes ? ` (they end after ${Math.round(w.idle_minutes)} idle minutes, or ${Math.round(w.max_minutes || 120)} in all)` : "";
-  bar.innerHTML = `This private review workspace has ended${esc(limits)}. Its synthetic data is gone. <button type="button" class="btn btn-secondary" onclick="location.reload()">Start a fresh one</button>`;
-  document.body.prepend(bar);
+  bar.innerHTML = `This private review workspace has ended${esc(limits)}. Its synthetic data is gone. <button type="button" class="btn btn-secondary" data-action="reload">Start a fresh one</button>`;
+  document.getElementById("top-stack").append(bar);
 }
 
 async function boot() {
@@ -397,12 +402,16 @@ async function enterRoute() {
   if (state.route === "recorded") await loadRecorded();
   renderChrome();
   render();
+  document.title = `${ROUTES.find((r) => r.id === state.route)?.label ?? "Home"} · Proof Layer`;
 }
-// A new page starts at its top, with focus on the content (not the scroll position of the last one).
+// A new page starts at its top, with focus on its heading (not the scroll position of the last one).
 window.addEventListener("hashchange", async () => {
+  if (state.xrayOpen && !matchMedia("(min-width: 1280px)").matches) closeXray();   // its links navigate the page behind it
   await enterRoute();
   window.scrollTo(0, 0);
-  document.getElementById("main").focus({ preventScroll: true });
+  const heading = document.querySelector("#main h1");
+  if (heading) heading.tabIndex = -1;
+  (heading || document.getElementById("main")).focus({ preventScroll: true });
 });
 
 function pendingCount() {
@@ -765,12 +774,12 @@ function purchasePanel() {
   const p = state.purchase;
   if (!p) return "";
   const text = {
-    PREPARED: [icon("clock", "icon-sm"), "Pending — waiting for the worker"],
-    SUBMITTED: [icon("clock", "icon-sm"), "Pending — waiting for the provider"],
+    PREPARED: [icon("clock", "icon-sm"), "Pending: waiting for the worker"],
+    SUBMITTED: [icon("clock", "icon-sm"), "Pending: waiting for the provider"],
     CONFIRMED: [icon("check", "icon-sm"), "Confirmed (simulated)"],
-    FAILED: [icon("xoct", "icon-sm"), "Failed — not charged"],
-    UNKNOWN: [icon("unknown", "icon-sm"), "Outcome unknown — checking"],
-    CANCELLED_BEFORE_SUBMISSION: [icon("unknown", "icon-sm"), "Cancelled before submission — not charged"],
+    FAILED: [icon("xoct", "icon-sm"), "Failed. Not charged"],
+    UNKNOWN: [icon("unknown", "icon-sm"), "Outcome unknown. Checking"],
+    CANCELLED_BEFORE_SUBMISSION: [icon("unknown", "icon-sm"), "Cancelled before submission. Not charged"],
   }[p.state];
   const retries = p.provider_record ? p.provider_record.attempts : 0;
   const explain = {
@@ -839,7 +848,7 @@ function cameraPicker() {
       <span class="camera-body">
         <span class="camera-name">${esc(d.label)}</span>
         <span class="camera-meta">${esc(d.mount_label)}</span>
-        <span class="camera-tags"><span class="tag">${planLine(d.plan)}</span><span class="tag">Team up to ${d.plan.member_cap}</span></span>
+        <span class="camera-tags"><span class="tag">${planLine(d.plan)}</span><span class="tag">Up to ${d.plan.member_cap} caregivers</span></span>
       </span>
       <span class="camera-check" aria-hidden="true">${on ? `${icon("check", "icon-sm")}Selected` : ""}</span>
     </button>`;
@@ -1007,13 +1016,27 @@ function homeScreen() {
       </li>`).join("")}</ul></section>` : "";
   return `<div class="page-head"><p class="eyebrow">Your family</p><h1 class="display">Your cameras</h1>
       <p class="lede">Paid for a plan, and something doesn't work on a camera? Plans attach to a camera. Each one below shows what was bought, where it is connected, and what works right now, and why.</p></div>
+    <section class="card start-here" aria-labelledby="start-title">
+      <p class="eyebrow">Start here</p>
+      <h2 id="start-title">Parents write: “I paid for this. Why can’t I use it?”</h2>
+      <p>The cause differs from family to family: a plan bought but never connected, a code used on the wrong camera, a mount the feature can't use, a renewal the app hasn't seen. In most of them, buying again wouldn't help. This prototype finds the actual cause, and says so when a purchase isn't the answer.</p>
+      <div class="btn-row"><button type="button" class="btn btn-primary" data-present="start:recruiter">Watch it work, in about a minute</button>
+        <a class="btn btn-secondary" href="#/customers">See what parents reported${icon("arrow", "icon-sm")}</a>
+        <a class="btn btn-ghost" href="#/studio">Build a scenario yourself</a></div>
+    </section>
     <div class="access-grid">${cards}</div>
     ${purchases}
     <section class="card lab-entry" aria-labelledby="lab-title">
       <div><p class="eyebrow">Family evidence lab</p><h2 id="lab-title">Last night, clearly</h2>
       <p class="small muted" style="margin:0">The night briefing with corrections, unobserved time and caregiver acknowledgments.</p></div>
       <a class="btn btn-secondary" href="#/briefing">Open the briefing${icon("arrow", "icon-sm")}</a>
-    </section>`;
+    </section>
+    <nav class="card eng-entry" aria-label="For engineers">
+      <p class="eyebrow">For engineers</p>
+      <div class="btn-row"><a class="btn btn-secondary" href="#/studio">Scenario Studio</a><a class="btn btn-secondary" href="#/growth">Growth Lab</a>
+        <a class="btn btn-secondary" href="#/customers">Customer evidence</a><button type="button" class="btn btn-ghost" data-action="xray-open">Engineering X-Ray</button>
+        <a class="btn btn-ghost" href="/architecture">System architecture</a></div>
+    </nav>`;
 }
 
 function accessCameraPicker() {
@@ -1043,7 +1066,7 @@ function supportCard(d) {
   const asked = d.lookedUp;          // what the parent typed: support needs it most when nothing was found
   const summary = [`Camera: ${d.device.label} (${d.device.mount_label})`,
     p ? `Purchase: ${purchaseLine(p)} · ${p.external_ref}` : asked ? `Looked up: ${CHANNEL_LABEL[asked.channel] || asked.channel} · ${asked.ref}` : null,
-    `Status: ${d.status}`, `Checked at revision ${d.state_revision}`].filter(Boolean).join("\n");
+    `Status: ${d.headline} (${d.status})`, `Checked at ${new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`].filter(Boolean).join("\n");
   return `<div class="card support-card" role="region" aria-label="What to tell support">
     <h3>What to tell support</h3>
     <p class="small muted" style="margin:0">This prototype doesn't contact anyone. A real app would send this summary with your request.</p>
@@ -1218,7 +1241,7 @@ function openConnectSheet() {
     <h2 id="access-sheet-title">Connect your plan</h2>
     <dl class="terms">
       <dt>Purchase</dt><dd>${esc(purchaseLine(p))}</dd>
-      <dt>Store status</dt><dd>Confirmed (provider version ${p.provider_version})</dd>
+      <dt>Store status</dt><dd>Confirmed by the store</dd>
       <dt>Camera</dt><dd>${esc(d.device.label)} · ${esc(d.device.mount_label)}</dd>
       <dt>Will work here</dt><dd>${esc(d.connect_preview?.usable.join(", ") || "Nothing on this mount")}</dd>
       ${d.connect_preview?.hardware_limited.length ? `<dt>Limited by the mount</dt><dd>${esc(d.connect_preview.hardware_limited.join(", "))}</dd>` : ""}
@@ -1254,8 +1277,18 @@ async function connectPurchase() {
   // Operation completed. The capability is verified by a separate check.
   await refreshAccess();
   render();
-  announce(`Connected to ${state.accessDetail.device.label}. Checking the camera.`);
+  toast(`Connected to ${state.accessDetail.device.label}. Checking the camera…`);
   await verifyAccess();
+  showAccessResult();
+}
+
+// The access status after an action: scrolled into view, with focus on its heading.
+function showAccessResult() {
+  const heading = document.querySelector("#main .verified-card h2, #main .access-status-title");
+  if (!heading) return;
+  heading.tabIndex = -1;
+  heading.scrollIntoView({ behavior: smooth(), block: "center" });
+  heading.focus({ preventScroll: true });
 }
 
 async function verifyAccess() {
@@ -1312,7 +1345,7 @@ function studioScreen() {
         <span class="expect-pair">${accessPill(st)}${got ? (got[dev] === st ? `<span class="st-ok small">${icon("check", "icon-sm")}matches</span>` : `<span class="st-changed small">got ${esc(got[dev])}</span>`) : ""}</span>
         ${after ? `<span class="expect-after small">After the store's event: ${accessPill(after[dev])}</span>` : ""}</li>`).join("")}</ul>
       <p class="small muted">${esc(s.resolution)}</p>
-      <div class="btn-row"><button type="button" class="btn ${active ? "btn-secondary" : "btn-primary"}" data-action="studio-run" data-key="${s.key}">${active ? "Rebuild" : "Build this scenario"}</button>
+      <div class="btn-row"><button type="button" class="btn ${active ? "btn-ghost" : "btn-secondary"}" data-action="studio-run" data-key="${s.key}">${active ? "Rebuild" : "Build this scenario"}</button>
         ${active ? `<a class="btn btn-ghost" href="#/access/${s.focus.device_id}">Open the parent journey${icon("arrow", "icon-sm")}</a>` : ""}
         ${active && s.key === "evidence_journey" && ROUTES.some((r) => r.id === "recorded") ? `<a class="btn btn-ghost" href="#/recorded">Open the recorded evidence${icon("arrow", "icon-sm")}</a>` : ""}</div>
       ${active && STORE_NEXT[s.key] ? (run.renewed ? `<p class="small muted">The store's event was applied. Rebuild to start the scenario again.</p>`
@@ -1554,11 +1587,11 @@ function certificationCard() {
 function growthScreen() {
   const cams = state.access?.cameras || [];
   return `<div class="page-head"><p class="eyebrow">For engineers</p><h1 class="display">Growth Lab</h1>
-      <p class="lede">Did access hold after it was verified? What do we actually know about the outcome? Which invariants block release?</p></div>
+      <p class="lede">Which rules must pass before a release, and did they? Did access hold after it was verified? What do we actually know about the outcome?</p></div>
     <div class="segmented" role="radiogroup" aria-label="Camera">${cams.map((c) => `<button type="button" role="radio" aria-checked="${c.device.id === state.accessDevice}" data-action="growth-camera" data-device="${c.device.id}">${esc(c.device.label)}</button>`).join("")}</div>
+    <div class="mt-6">${certificationCard()}</div>
     <div class="growth-grid mt-6"><div>${windowCard()}</div><div>${outcomeCard()}</div></div>
-    ${funnelCard()}
-    ${certificationCard()}`;
+    ${funnelCard()}`;
 }
 
 // ------------------------------------------------------------------ recorded evidence (video)
@@ -1705,7 +1738,9 @@ function runStatus(run) {
   const dev = ["REGISTERED", "FAILED"].includes(run.state) ? `<div class="demo-bar" role="region" aria-label="Simulation"><span class="dev-chip">simulation</span>
       <span>${run.state === "FAILED" ? "Not part of the parent app: queue the same run again." : "Not part of the parent app: start the worker as a separate process."}</span>
       <button type="button" data-action="${run.state === "FAILED" ? "video-retry" : "video-worker"}">${run.state === "FAILED" ? "Retry the analysis" : "Run the worker"}</button></div>` : "";
-  return `<div class="run-status"><span class="pill pill-${st[0]}">${icon(st[1], "icon-sm")}${esc(st[2])}</span>
+  const stalled = run.state === "REGISTERED" && state.video?.workerStartedAt && Date.now() - state.video.workerStartedAt > 45000;
+  const stall = stalled ? `<p class="small" role="status">The worker hasn't picked this up yet. Run it again; if it stays queued, reload the page.</p>` : "";
+  return `${stall}<div class="run-status"><span class="apill apill-${st[0]}">${icon(st[1], "icon-sm")}${esc(st[2])}</span>
     ${run.state === "COMPLETED" ? `<span class="small muted">${mmss(Math.round(run.summary.input.duration_s ?? frames.last_t))} clip</span>` : ""}
     ${run.state === "FAILED" ? `<span class="small">Reason: <code>${esc(run.error_code)}</code></span>` : ""}</div>${dev}`;
 }
@@ -1835,6 +1870,8 @@ async function videoAction(action, el) {
   } else if (action === "video-worker") {
     const r = await api("/v1/dev/video/worker", { method: "POST" });
     log(`worker process started → ${r.status} pid ${r.data?.pid ?? "?"}`);
+    if (r.ok) { v.workerStartedAt = Date.now(); toast("The worker started. It measures the frames in its own process."); }
+    else toast(r.data?.message || "The worker couldn't start. Try again in a moment.");
   } else if (action === "video-retry") {
     const r = await api(`/v1/video/assets/${v.assetId}/analysis/retry`, { method: "POST" });
     log(`analysis retry → ${r.status} ${r.data?.code || ""}`);
@@ -1921,7 +1958,7 @@ function customerCard(c, demo) {
     : `<p class="small muted customer-sources-note">${esc(state.customers?.sources_note || "")}</p>`;
   return `<article class="card customer-card${demo ? " demo" : ""}" aria-labelledby="cc-${c.id}">
     <div class="card-head"><h2 id="cc-${c.id}">${esc(c.title)}</h2>${c.confidence ? `<span class="apill ${CONF_TONE[conf] || "apill-neutral"}">Confidence: ${esc(c.confidence)}</span>` : `<span class="apill apill-neutral">Hypothesis</span>`}</div>
-    ${demo ? `<p class="eyebrow" style="margin:0 0 var(--pl-space-2)">Monday demonstration</p>` : ""}
+    ${demo ? `<p class="eyebrow" style="margin:0 0 var(--pl-space-2)">Shown in the walkthrough</p>` : ""}
     <p class="customer-symptom">${esc(c.symptom)}</p>
     ${sources}
     <dl class="terms customer-terms">
@@ -1942,7 +1979,7 @@ function customerScreen() {
   const c = state.customers;
   if (!c) return `<div class="page-head"><h1 class="display">Customer evidence</h1></div><div class="skeleton"></div>`;
   const ordered = [...c.cards].sort((a, b) => (b.id === c.demo_card) - (a.id === c.demo_card));
-  return `<div class="page-head"><p class="eyebrow">For engineers <span class="chip chip-sim">public reports, paraphrased</span></p><h1 class="display">Customer evidence</h1>
+  return `<div class="page-head"><p class="eyebrow">Why this exists <span class="chip chip-sim">public reports, paraphrased</span></p><h1 class="display">Customer evidence</h1>
       <p class="lede">What parents reported, what Nanit already documents, and the working scenario and tests behind our answer.</p></div>
     <div class="alert alert-unknown">${icon("unknown")}<div><p class="alert-title">How to read this</p><p>${esc(c.caveat)}</p></div></div>
     <div class="customer-grid mt-6">${ordered.map((card) => customerCard(card, card.id === c.demo_card)).join("")}</div>
@@ -1960,7 +1997,7 @@ async function tryScenario(key) {
 function resetNotice() {
   return `<div class="alert alert-error" role="alert">${icon("xoct")}<div><p class="alert-title">This demo was reset from another screen.</p>
     <p>The night you were looking at was replaced. Reload to continue with the fresh data.</p>
-    <div class="btn-row" style="margin-top:8px"><button class="btn btn-primary" type="button" onclick="location.reload()">Reload</button></div></div></div>`;
+    <div class="btn-row" style="margin-top:8px"><button class="btn btn-primary" type="button" data-action="reload">Reload</button></div></div></div>`;
 }
 
 function render() {
@@ -2166,7 +2203,7 @@ async function buy({ concurrent = 1 } = {}) {
   render();
   const crash = state.crashNext; state.crashNext = false;
   const w = await api("/v1/dev/worker", { method: "POST", body: { crash_after_provider: crash } });
-  log(`worker ${crash ? "(crash after provider) " : ""}exit=${w.data?.exit_code}${w.data?.crashed ? " — process died between provider commit and app commit" : ""}`);
+  log(`worker ${crash ? "(crash after provider) " : ""}exit=${w.data?.exit_code}${w.data?.crashed ? ": the process died between the provider commit and the app commit" : ""}`);
   await refreshPurchase();
   render();
 }
@@ -2382,6 +2419,8 @@ async function openXray() {
   document.body.classList.add("xray-is-open");     // >= 1280px the page reflows beside it
   const x = document.getElementById("xray");
   x.classList.add("open"); x.setAttribute("aria-hidden", "false");
+  const modal = !matchMedia("(min-width: 1280px)").matches;   // docked beside the page from 1280px; a dialog below
+  if (modal) { x.setAttribute("role", "dialog"); x.setAttribute("aria-modal", "true"); } else { x.removeAttribute("role"); x.removeAttribute("aria-modal"); }
   document.getElementById("xray-scrim").classList.add("open");
   document.getElementById("xray-body").innerHTML = `<p>Loading…</p>`;
   document.getElementById("xray-close").focus();
@@ -2414,7 +2453,7 @@ function devControls() {
   const b = (action, label, extra = "") => `<button type="button" data-action="${action}" ${extra}>${label}</button>`;
   return `<div class="dev-groups">
     <h4>// present mode (drives the real app)</h4>
-    <button type="button" data-present="start:recruiter">present · recruiter (~45 s)</button>
+    <button type="button" data-present="start:recruiter">present · recruiter (about 70 s)</button>
     <button type="button" data-present="start:product">present · product (~1 min)</button>
     <button type="button" data-present="start:engineering">present · engineering (~1.5 min)</button>
     <h4>// story 1–3: corrections</h4>
@@ -2552,7 +2591,21 @@ async function devAction(action, el) {
 document.addEventListener("click", async (e) => {
   const el = e.target.closest("[data-action]");
   if (!el) return;
-  const action = el.dataset.action;
+  try {
+    await onAction(e, el, el.dataset.action);
+  } catch (err) {
+    console.error(err);
+    if ("disabled" in el) el.disabled = false;
+    toast("That didn't work. Reload the page to see where things stand.");
+  }
+});
+window.addEventListener("unhandledrejection", (e) => {
+  console.error(e.reason);
+  toast("Something didn't load. Reload the page to see where things stand.");
+});
+
+async function onAction(e, el, action) {
+  if (action === "reload") { location.reload(); return; }
   if (action.startsWith("dev-")) { e.preventDefault(); state.devOpen = true; await devAction(action, el); return; }
   if (action.startsWith("video-")) { e.preventDefault(); await videoAction(action, el); return; }
   switch (action) {
@@ -2602,7 +2655,7 @@ document.addEventListener("click", async (e) => {
     }
   }
   if (state.xrayOpen && action !== "xray-open") await loadXray();
-});
+}
 // Radio groups (ARIA radiogroup of buttons): one tab stop per group, arrow keys
 // move and select, as a native radio group does.
 function syncRadioTabStops(root = document) {
@@ -2672,13 +2725,25 @@ document.addEventListener("keydown", (e) => {
   // D15: links acting as buttons respond to Space as well as Enter.
   if (e.key === " " && e.target.matches?.('a[role="button"]')) { e.preventDefault(); e.target.click(); }
 });
+const isDark = () => (document.documentElement.dataset.theme
+  ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
+function syncThemeToggle() {
+  const toggle = document.getElementById("theme-toggle");
+  const dark = isDark();
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", dark ? "#0E1124" : "#F7F4EE"));
+  toggle.setAttribute("aria-label", dark ? "Switch to the light theme" : "Switch to the dark theme");
+  toggle.innerHTML = dark
+    ? '<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+    : '<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>';
+}
 document.getElementById("theme-toggle").addEventListener("click", () => {
-  const root = document.documentElement;
-  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-  root.dataset.theme = dark ? "light" : "dark";
-  try { localStorage.setItem("pl-theme", root.dataset.theme); } catch { /* storage unavailable */ }
+  document.documentElement.dataset.theme = isDark() ? "light" : "dark";
+  try { localStorage.setItem("pl-theme", document.documentElement.dataset.theme); } catch { /* storage unavailable */ }
+  syncThemeToggle();
 });
-try { const t = localStorage.getItem("pl-theme"); if (t) document.documentElement.dataset.theme = t; } catch { /* storage unavailable */ }
+// The saved theme is applied before first paint by a small script in index.html.
+syncThemeToggle();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncThemeToggle);
 
 // ------------------------------------------------------------------ Present Mode
 // A guided walkthrough that drives the real product. Every step calls the same
@@ -2713,19 +2778,19 @@ const PRESENT_STEPS = [
     until: () => state.accessDetail?.status === "PLAN_EXPIRED", hold: 8000, audiences: ["recruiter", "product", "engineering"] },
   { pending: "The store's renewal arrives…", id: "renewed", title: "The renewal reaches the same camera",
     line: () => `${state.accessDetail?.headline}: ${state.accessDetail?.usable_features.map(featureLabel).join(", ")}. Same camera, no new purchase, no new connect.`,
-    run: async () => { await storeNext(); render(); document.getElementById("periods-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); },
+    run: async () => { await storeNext(); render(); document.getElementById("periods-title")?.scrollIntoView({ behavior: smooth(), block: "center" }); },
     until: () => state.accessDetail?.status === "ACTIVE_FEATURE_USABLE", hold: 8000, audiences: ["recruiter", "product", "engineering"] },
   { pending: "Building the scenario: paid on the website, not on any camera…", id: "paid", title: "I paid for this. Why can't I use it?",
     line: () => `${state.accessDetail?.device.label}: ${state.accessDetail?.headline}. ${state.accessDetail?.stages.filter((s) => s.state === "verified").length} of 5 checks verified; the camera check needs an action.`,
     run: async () => { await presentScenario("paid_not_active"); },
-    until: () => state.accessDetail?.status === "VERIFIED_UNBOUND", hold: 7000, audiences: ["product", "engineering"] },
+    until: () => state.accessDetail?.status === "VERIFIED_UNBOUND", hold: 7000, audiences: ["recruiter", "product", "engineering"] },
   { pending: "Connecting the purchase, then checking the camera…", id: "connect", title: "Connect, then verify",
     line: () => `Connected without a new purchase, then verified separately: ${state.accessDetail?.usable_features.map(featureLabel).join(", ")} work on the ${state.accessDetail?.device.label.toLowerCase()}.`,
     run: async () => { openConnectSheet(); await wait(fastPresent() ? 100 : 1200); await connectPurchase(); },
-    until: () => state.accessVerified && state.accessDetail?.status === "ACTIVE_FEATURE_USABLE", hold: 7000, audiences: ["product", "engineering"] },
+    until: () => state.accessVerified && state.accessDetail?.status === "ACTIVE_FEATURE_USABLE", hold: 7000, audiences: ["recruiter", "product", "engineering"] },
   { pending: "Building the scenario: a code used on the wrong camera…", id: "wrong-camera", title: "Paid, wrong camera",
     line: () => `${state.accessLookup?.headline}. Nothing is moved automatically and a second redemption is refused.`,
-    run: async () => { await presentScenario("paid_wrong_camera"); document.getElementById("lookup-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); },
+    run: async () => { await presentScenario("paid_wrong_camera"); document.getElementById("lookup-title")?.scrollIntoView({ behavior: smooth(), block: "center" }); },
     until: () => state.accessLookup?.status === "ALREADY_ASSIGNED", hold: 6000, audiences: ["product", "engineering"] },
   { pending: "Opening the certification lab…", id: "certify", title: "What the release certification says",
     line: () => `${state.certification?.verdict}: ${state.certification?.invariants.filter((i) => i.state === "passed").length} of ${state.certification?.invariants.length} invariants passed in the latest report${state.certification?.build?.report_matches_code ? ", on this exact code" : ", which ran on other code"}. The 4-process soak stays failed and visible.`,
@@ -2734,10 +2799,10 @@ const PRESENT_STEPS = [
   { pending: "Loading the synthetic night…", id: "family", title: "One family, one night",
     line: () => `Revision ${state.latest.revision}: ${sleepText()} of recorded sleep, ${coverText()} camera observation.`,
     run: async () => { await devAction("dev-reset"); state.twoScreens = true; location.hash = "#/briefing"; render(); },
-    until: () => state.latest?.revision === 4, hold: 6000, audiences: ["recruiter", "product", "engineering"] },
+    until: () => state.latest?.revision === 4, hold: 6000, audiences: ["product", "engineering"] },
   { id: "gap", title: "Some information is unavailable",
     line: () => `${gapText()} weren't observed. That time stays unknown; nothing is invented to fill it.`,
-    run: async () => document.querySelector(".timeline")?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    run: async () => document.querySelector(".timeline")?.scrollIntoView({ behavior: smooth(), block: "center" }),
     until: () => true, hold: 6000, audiences: ["product", "engineering"] },
   { pending: "Saving the correction…", id: "correction", title: "Parent A corrects the wake time",
     line: () => present.outcome?.ok
@@ -2746,24 +2811,26 @@ const PRESENT_STEPS = [
     run: async () => { document.getElementById("correction-sheet").dataset.key = "present-" + crypto.randomUUID();
       present.outcome = await submitCorrection(VIEWERS[0].id, "06:35"); },
     until: () => Boolean(present.outcome) && (!present.outcome.ok || state.latest?.revision === present.outcome.data.revision),
-    hold: 7000, audiences: ["recruiter", "product", "engineering"] },
+    hold: 7000, audiences: ["product", "engineering"] },
   { pending: "Recording Caregiver B's acknowledgment…", id: "caregiver", title: "Caregiver B still has the old screen open",
     // The screen speaks to Caregiver B; the narration speaks about them.
     line: () => state.screens[VIEWERS[1].id]?.ack?.message?.replace(/^You /, "Caregiver B ")
       ?? "Caregiver B acknowledges what their screen shows.",
     run: async () => { await acknowledge(VIEWERS[1].id);
-      document.querySelectorAll(".screen-frame")[1]?.querySelector(".ack-card")?.scrollIntoView({ behavior: "smooth", block: "center" }); },
-    until: () => Boolean(state.screens[VIEWERS[1].id]?.ack), hold: 8000, audiences: ["recruiter", "product", "engineering"] },
+      document.querySelectorAll(".screen-frame")[1]?.querySelector(".ack-card")?.scrollIntoView({ behavior: smooth(), block: "center" }); },
+    until: () => Boolean(state.screens[VIEWERS[1].id]?.ack), hold: 8000, audiences: ["product", "engineering"] },
   { pending: "Checking eligibility…", id: "offer", title: "A feature only a plan blocks",
     line: () => state.decision?.offer
-      ? `${featureLabel(state.decision.feature)}: the camera mount is fine; only the plan blocks it. Offer: ${state.decision.offer.label}.`
+      ? `${featureLabel(state.decision.feature)}: the mount is fine, only the plan blocks it. This is the one case that shows an offer: ${state.decision.offer.label}.`
       : "Checking eligibility…",
     run: async () => { state.twoScreens = false; state.viewer = VIEWERS[0].id; location.hash = "#/features";
-      state.feature = "developmental_milestones"; await decide(); },
+      state.feature = "developmental_milestones"; await decide();
+      document.querySelector(".result-section")?.scrollIntoView({ behavior: smooth(), block: "center" }); },
     until: () => Boolean(state.decision?.offer), hold: 6000, audiences: ["recruiter", "product", "engineering"] },
   { pending: "Moving the camera, then submitting the old offer…", id: "stale-offer", title: "The camera moves before the purchase",
     line: () => "The old offer is refused before any payment call: a plan can't fix a Flex Stand. Nothing was charged.",
-    run: async () => { await setMount("flex_stand"); await buy(); },
+    run: async () => { await setMount("flex_stand"); await buy();
+      document.querySelector(".result-section")?.scrollIntoView({ behavior: smooth(), block: "center" }); },
     until: () => Boolean(state.purchaseNote), hold: 7000, undo: () => setMount("floor_stand"),
     audiences: ["recruiter", "product", "engineering"] },
   { pending: "Submitting; the worker will be killed after the provider commits…", id: "crash", title: "The worker dies after the provider succeeds",
@@ -2782,11 +2849,20 @@ const PRESENT_STEPS = [
     },
     until: () => state.purchase?.state === "CONFIRMED", hold: 9000, audiences: ["engineering"] },
   { id: "close", title: "When the facts change",
-    line: () => "the system changes its answer without losing the truth.",
+    line: () => "When the facts change, the answer changes, and the history stays. These cases come from parents' public reports: see Customer evidence.",
     run: async () => { closeXray(); await setMount("floor_stand"); render(); }, until: () => true, hold: 6000,
     audiences: ["recruiter", "product", "engineering"] },
 ];
 
+const smooth = () => (matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+document.addEventListener("click", (e) => {
+  const current = e.target.closest?.('.tab-bar a[aria-current="page"]');
+  if (current) window.scrollTo({ top: 0, behavior: smooth() });
+});
+document.addEventListener("click", (e) => {      // on a phone the narration shows two lines; a tap shows it all
+  const line = e.target.closest?.(".present-line");
+  if (line) line.classList.toggle("expanded");
+});
 const fastPresent = () => new URLSearchParams(location.search).has("fast");   // automated tests only
 const present = { active: false, paused: false, index: 0, steps: [], skip: false, audience: "recruiter" };
 
@@ -2800,7 +2876,7 @@ function presentBar() {
     bar.innerHTML = `<div class="present-progress" aria-hidden="true"><span></span></div>
       <div class="present-inner">
         <p class="present-count"></p>
-        <div class="present-body"><p class="present-title"></p><p class="present-line" role="status" aria-live="polite"></p></div>
+        <div class="present-body"><p class="present-title"></p><p class="present-line" role="status" aria-live="polite" title="Tap to read it all"></p></div>
         <div class="present-controls">
           <button type="button" class="pbtn" data-present="pause"><span class="pbtn-icon">${icon("pause", "icon-sm")}</span><span class="pbtn-text">Pause</span></button>
           <button type="button" class="pbtn" data-present="next">${icon("next", "icon-sm")}<span class="pbtn-text">Next</span></button>
@@ -2885,5 +2961,7 @@ document.addEventListener("keydown", (e) => {
 
 boot().catch((err) => {
   console.error(err);
-  document.getElementById("main").innerHTML = `<div class="alert alert-error" role="alert">${icon("xoct")}<div><p class="alert-title">We couldn't load the prototype.</p><p>The server or its database isn't answering. Start it with <code>python scripts/demo.py</code>, then reload this page.</p></div></div>`;
+  document.getElementById("main").innerHTML = `<div class="alert alert-error" role="alert">${icon("xoct")}<div><p class="alert-title">We couldn't load the prototype.</p><p>${["localhost", "127.0.0.1"].includes(location.hostname)
+       ? "The server or its database isn't answering. Start it with <code>python scripts/demo.py</code>, then reload this page."
+       : "The backend isn't answering. It runs on free infrastructure; wait a minute, then reload this page."}</p></div></div>`;
 });

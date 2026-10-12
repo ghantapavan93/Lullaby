@@ -38,6 +38,8 @@ import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 
+from headers import security_headers
+
 ENV = os.environ.get
 SLOTS = [int(s) for s in ENV("GATEWAY_SLOTS", "1,2").split(",") if s.strip()]
 PORT_BASE = int(ENV("GATEWAY_PORT_BASE", "9100"))
@@ -208,6 +210,16 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Proof Layer review gateway", docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+SECURITY = security_headers([LANDING, STATIC / "index.html", STATIC / "privacy.html", STATIC / "404.html"])
+
+
+@app.middleware("http")
+async def security(request: Request, call_next):
+    """The same headers Vercel sends (deploy/gateway/headers.py), on every response."""
+    response = await call_next(request)
+    for key, value in SECURITY.items():
+        response.headers.setdefault(key, value)
+    return response
 
 
 def client_ip(request: Request) -> str:

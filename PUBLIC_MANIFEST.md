@@ -2,11 +2,11 @@
 
 Built by `release/build_public.py` from the committed tree. The source repository and its history were not modified.
 
-Kept: 458 files. Left out: 345 files.
+Kept: 463 files. Left out: 346 files.
 
 ## Left out, by reason
 
-### not on the allowlist (241)
+### not on the allowlist (242)
 - `BRIEFING_FOR_REVIEWERS.md`
 - `analysis/reports/A_product_evolution.md`
 - `analysis/reports/B_subscription_capability.md`
@@ -67,7 +67,7 @@ Kept: 458 files. Left out: 345 files.
 - `design/extraction/support-article-1440.json`
 - `design/extraction/support-article-390.json`
 - `design/extraction/url-discovery.json`
-- … 181 more
+- … 182 more
 
 ### raw thread dumps; they carry local install paths. The audit quotes what they show (37)
 - `artifacts/benchmarks/soak-diagnosis-2026-10-11/r01-w4-default-stall-18420-1.txt`
@@ -259,4 +259,5 @@ Kept: 458 files. Left out: 345 files.
 
 ## Forbidden-content scan
 
-0 hit(s).
+1 hit(s).
+- `deploy/landing/index.html:44` personal name or user path: <p class="eyebrow">Proof Layer · an independent prototype by Pavan Kalyan</p>
