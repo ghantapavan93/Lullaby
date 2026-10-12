@@ -45,11 +45,17 @@ def asset_version() -> str:
 
 
 def finish_page(path: Path, version: str, site: str) -> None:
-    """Version the page's own CSS and JS links, and make the preview image absolute."""
+    """Version every link into /static/ (cached for a year), and make the preview image absolute."""
     html = path.read_text(encoding="utf-8")
-    html = re.sub(r'((?:src|href)="/static/[^"?]+\.(?:js|css))"', rf'\1?v={version}"', html)
+    html = re.sub(r'((?:src|href|content)="/static/[^"?]+)"', rf'\1?v={version}"', html)
     html = html.replace('content="/static/', f'content="{site}/static/')
     path.write_text(html, encoding="utf-8")
+
+
+def version_script_links(path: Path, version: str) -> None:
+    """The app's own links into /static/ (the recording) are cached for a year too, so version them."""
+    js = path.read_text(encoding="utf-8")
+    path.write_text(re.sub(r'"(/static/[^"?]+)"', rf'"\1?v={version}"', js), encoding="utf-8")
 
 
 def build(backend: str, out: Path = OUT, site: str = SITE) -> Path:
@@ -73,6 +79,7 @@ def build(backend: str, out: Path = OUT, site: str = SITE) -> Path:
     for page in PAGES:
         if (out / page).exists():
             finish_page(out / page, version, site.rstrip("/"))
+    version_script_links(out / "static" / "app.js", version)
     headers = security_headers([out / page for page in PAGES])
     config = {
         "cleanUrls": True,

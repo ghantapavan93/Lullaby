@@ -226,3 +226,23 @@ def test_the_first_click_on_home_shows_the_advertised_problem(desktop):
     expect(desktop.get_by_role("button", name="Connect to Nursery camera")).to_be_visible(timeout=60000)
     assert "#/access/dev_cam_demo" in desktop.url
     expect(desktop.locator(".access-status")).to_contain_text("isn't connected")
+
+
+def test_the_page_is_never_blank_while_the_workspace_opens(server, browser):  # noqa: F811
+    """Final deployed review, 2026-10-12: on the free host the main area stayed empty
+    for about 3 s after "Open the prototype", while the workspace, sessions and first
+    records loaded. It now says what is happening from the first paint."""
+    reset(server)
+    context = browser.new_context(viewport={"width": 390, "height": 844})
+    pg = context.new_page()
+
+    def slow(route):
+        pg.wait_for_timeout(1500)
+        route.continue_()
+
+    pg.route("**/v1/dev/accounts", slow)
+    pg.goto(server + "/#/home")
+    expect(pg.locator("#main [role=status]")).to_contain_text("Opening your private workspace", timeout=1000)
+    expect(pg.locator(".access-card").first).to_be_visible(timeout=30000)
+    expect(pg.locator("#main")).not_to_contain_text("Opening your private workspace")
+    context.close()

@@ -348,6 +348,9 @@ function showWorkspaceEnded() {
 }
 
 async function boot() {
+  // The workspace, sessions and first records take a few seconds on the free host: never show an empty page meanwhile.
+  document.getElementById("main").innerHTML = `<div class="alert alert-info" role="status">${icon("clock")}<div>
+    <p class="alert-title">Opening your private workspace…</p><p>Synthetic records, made for this visit only. This takes a few seconds.</p></div></div>`;
   if (!(await ensureWorkspace())) return;
   let accounts = await (await fetch("/v1/dev/accounts")).json();
   if (!accounts.length) { await fetch("/v1/dev/reset", { method: "POST" }); accounts = await (await fetch("/v1/dev/accounts")).json(); }

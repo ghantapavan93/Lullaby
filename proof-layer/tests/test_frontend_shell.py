@@ -106,6 +106,14 @@ def test_after_a_deploy_pages_load_that_deploys_assets(bundle):
     assert "immutable" in static["headers"][0]["value"]
 
 
+def test_every_static_link_is_versioned_because_static_files_are_cached_for_a_year(bundle):
+    # An unversioned link to an immutable file (the recording, an icon) would keep a replaced file stale for a year.
+    out, _ = bundle
+    unversioned = [(page, ref) for page in ("index.html", "app.html", "privacy.html", "404.html", "static/app.js")
+                   for ref in re.findall(r'(/static/[\w.-]+\.\w+)(?!\?v=|[\w.-])', (out / page).read_text(encoding="utf-8"))]
+    assert unversioned == []
+
+
 @pytest.mark.parametrize("path", ["/", "/app", "/privacy", "/static/app.css"])
 def test_the_gateway_sends_the_same_policy(gateway, path):
     r = gateway.get(path)
