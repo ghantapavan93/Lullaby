@@ -259,5 +259,4 @@ Kept: 463 files. Left out: 346 files.
 
 ## Forbidden-content scan
 
-1 hit(s).
-- `deploy/landing/index.html:44` personal name or user path: <p class="eyebrow">Proof Layer · an independent prototype by Pavan Kalyan</p>
+0 hit(s).
