@@ -2,7 +2,7 @@
 
 Built by `release/build_public.py` from the committed tree. The source repository and its history were not modified.
 
-Kept: 439 files. Left out: 345 files.
+Kept: 442 files. Left out: 345 files.
 
 ## Left out, by reason
 

@@ -301,11 +301,21 @@ async function loadNight() {
 // expiring synthetic workspace. Run directly, the route doesn't exist (404) and
 // nothing changes.
 async function ensureWorkspace() {
-  let r;
-  try { r = await fetch("/v1/workspace", { method: "POST" }); } catch { return true; }
-  if (r.status === 404 || r.status === 405) return true;
-  if (r.ok) { state.workspace = await r.json(); return true; }
-  const body = await r.json().catch(() => ({}));
+  // A free host sleeps when idle: until the gateway itself answers (a JSON body
+  // with a code), keep waking it for up to three minutes, and say so.
+  const started = Date.now();
+  let r, body;
+  for (let attempt = 0; ; attempt++) {
+    try { r = await fetch("/v1/workspace", { method: "POST" }); } catch { r = null; }
+    if (r && (r.status === 404 || r.status === 405)) return true;
+    if (r && r.ok) { state.workspace = await r.json(); return true; }
+    body = r ? await r.json().catch(() => null) : null;
+    if (body?.code || Date.now() - started > 180000) break;
+    document.getElementById("main").innerHTML = `<div class="alert alert-info" role="status">${icon("clock")}<div>
+      <p class="alert-title">Waking the backend…</p><p>It runs on free infrastructure and naps after 15 quiet minutes. This usually takes under a minute.</p></div></div>`;
+    await new Promise((res) => setTimeout(res, 4000));
+  }
+  body = body || {};
   document.getElementById("main").innerHTML = `<div class="alert alert-warning" role="alert">${icon("alert")}<div>
     <p class="alert-title">The review workspace couldn't start</p><p>${esc(body.message || "Try again in a few minutes.")}</p>
     <div class="btn-row"><button type="button" class="btn btn-secondary" onclick="location.reload()">Try again</button></div></div></div>`;
@@ -319,7 +329,9 @@ function showWorkspaceEnded() {
   bar.id = "workspace-banner";
   bar.className = "connection-banner";
   bar.setAttribute("role", "alert");
-  bar.innerHTML = `This private review workspace has ended (they last 2 hours, or 30 idle minutes). Its synthetic data is gone. <button type="button" class="btn btn-secondary" onclick="location.reload()">Start a fresh one</button>`;
+  const w = state.workspace || {};
+  const limits = w.idle_minutes ? ` (they end after ${Math.round(w.idle_minutes)} idle minutes, or ${Math.round(w.max_minutes || 120)} in all)` : "";
+  bar.innerHTML = `This private review workspace has ended${esc(limits)}. Its synthetic data is gone. <button type="button" class="btn btn-secondary" onclick="location.reload()">Start a fresh one</button>`;
   document.body.prepend(bar);
 }
 

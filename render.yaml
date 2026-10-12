@@ -1,0 +1,24 @@
+# Render Blueprint: the Proof Layer backend on Render's free tier.
+# One free web service (gateway + one private workspace + its worker in one
+# container, deploy/render/run.py) and one free PostgreSQL database.
+# Free tier limits, accepted on purpose: the service sleeps after 15 idle
+# minutes (the Vercel landing page wakes it), and the free database expires
+# after 30 days.
+services:
+  - type: web
+    name: lullaby-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/render/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeploy: false
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lullaby-db
+          property: connectionString
+databases:
+  - name: lullaby-db
+    plan: free
+    databaseName: lullaby

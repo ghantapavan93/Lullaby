@@ -209,7 +209,7 @@ def refuse(status: int, code: str, message: str, **extra: Any) -> JSONResponse:
 
 def lease_view(slot: int, created: float, last_seen: float) -> dict[str, Any]:
     return {"expires_at": min(created + MAX_S, last_seen + IDLE_S), "ends_at_latest": created + MAX_S,
-            "idle_minutes": IDLE_S / 60, "synthetic": True}
+            "idle_minutes": IDLE_S / 60, "max_minutes": MAX_S / 60, "synthetic": True}
 
 
 # ------------------------------------------------------------------ routes
@@ -267,7 +267,9 @@ async def health():
             worker = beat.exists() and time.time() - beat.stat().st_mtime < HEARTBEAT_STALE_S
         slots.append({"slot": slot, "api": api, "worker": worker})
     ok = db_ok is not False and all(s["api"] and s["worker"] is not False for s in slots)
-    return JSONResponse({"status": "ok" if ok else "degraded", "database": db_ok, "slots": slots,
+    return JSONResponse({"status": "ok" if ok else "degraded", "host": ENV("GATEWAY_HOST_NOTE"),
+                         "database": db_ok, "slots": slots,
+                         "lease": {"idle_minutes": IDLE_S / 60, "max_minutes": MAX_S / 60},
                          "workspaces": store.counts(), "checked_at": time.time()},
                         status_code=200 if ok else 503, headers={"Cache-Control": "no-store"})
 

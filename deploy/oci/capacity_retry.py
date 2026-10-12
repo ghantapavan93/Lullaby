@@ -42,12 +42,18 @@ def main() -> int:
     print(f"{time.strftime('%H:%M:%S')} retrying {a.ocpus} OCPU in {len(ads)} ADs with {image['display-name']}",
           flush=True)
     deadline = time.monotonic() + a.minutes * 60
-    last_refresh = time.monotonic()
+    # Refresh at once and then every 20 minutes: a session lasts an hour from when it
+    # was last refreshed, not from when this loop started (a 30-minute timer counted
+    # from the loop's start once let it lapse).
+    last_refresh = float("-inf")
     round_ = 0
     while time.monotonic() < deadline:
         round_ += 1
-        if time.monotonic() - last_refresh > 30 * 60:
-            subprocess.run([provision.OCI, "session", "refresh", "--profile", a.profile], capture_output=True)
+        if time.monotonic() - last_refresh > 20 * 60:
+            r = subprocess.run([provision.OCI, "session", "refresh", "--profile", a.profile], capture_output=True, text=True)
+            if "no longer valid" in r.stdout + r.stderr:
+                print(f"{time.strftime('%H:%M:%S')} SESSION EXPIRED: run `oci session authenticate`; stopping", flush=True)
+                return 2
             last_refresh = time.monotonic()
         reasons = []
         # Ask first (one light call per AD): launch only where Oracle reports room.
