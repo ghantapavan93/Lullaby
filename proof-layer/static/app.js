@@ -1777,7 +1777,12 @@ async function playPart(t0, t1) {
     clip.currentTime = t0;
     await clip.play();
   } catch {
-    say(`Couldn't play ${span}. The clip didn't load, or the link has expired. Nothing was changed; try again.`);
+    // Name the real cause: a browser that can't decode WebM fails here too, and
+    // "try again" wouldn't help (seen in WebKit on Windows, 2026-10-12).
+    const unsupported = clip.error?.code === 4 || !clip.canPlayType("video/webm");
+    say(unsupported
+      ? `This browser can't play this clip's format (WebM). Chrome, Firefox and Edge can; so can Safari 15 or later on a Mac. Nothing was changed.`
+      : `Couldn't play ${span}. The clip didn't load, or the link has expired. Nothing was changed; try again.`);
     return;
   }
   const watch = () => {
@@ -2667,7 +2672,13 @@ document.addEventListener("click", async (e) => {
     toast("That didn't work. Reload the page to see where things stand.");
   }
 });
+// A page being reloaded or left cancels its requests; some browsers (WebKit) reject
+// those as errors. Only a failure while the page stays is worth telling the person.
+let leaving = false;
+window.addEventListener("pagehide", () => { leaving = true; });
+window.addEventListener("beforeunload", () => { leaving = true; });
 window.addEventListener("unhandledrejection", (e) => {
+  if (leaving) return;
   console.error(e.reason);
   toast("Something didn't load. Reload the page to see where things stand.");
 });

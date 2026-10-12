@@ -89,8 +89,10 @@ def main() -> int:
         "GATEWAY_SECURE_COOKIE": "1", "GATEWAY_STATIC": str(APP / "static"),
         "GATEWAY_LANDING": str(ROOT / "deploy" / "landing" / "index.html"),
         "GATEWAY_HOST_NOTE": f"free host; provider: {boundary}",
-        # One workspace only: release it sooner, so a visitor who walks away blocks no one for long.
-        "GATEWAY_IDLE_MINUTES": os.environ.get("GATEWAY_IDLE_MINUTES", "10"),
+        # An open tab polls every 4 s (background tabs about once a minute), which keeps
+        # its lease fresh; a closed tab stops. A short idle limit frees a closed tab's
+        # workspace for the next visitor in minutes (final review, 2026-10-12).
+        "GATEWAY_IDLE_MINUTES": os.environ.get("GATEWAY_IDLE_MINUTES", "3"),
         "GATEWAY_MAX_MINUTES": os.environ.get("GATEWAY_MAX_MINUTES", "45")}
     port = os.environ.get("PORT", "10000")
     commands = {

@@ -92,3 +92,24 @@ def test_a_returning_visitors_own_expired_lease_is_freed_for_them_at_once(gatewa
     r = client.post("/v1/workspace")
     assert r.status_code == 201, r.text
     assert r.json()["new"] is True
+
+
+@pytest.mark.parametrize("path", ["/v1/%2e%2e/openapi.json", "/v1/%2E%2E/metrics", "/v1/..%2fmetrics",
+                                  "/v1/%2e%2e/v1/dev/video/upload", "/architecture/%2e%2e/openapi.json"])
+def test_dot_segments_never_reach_a_workspace(gateway, path):
+    """API review, 2026-10-12: an encoded `..` passed every block (hidden routes,
+    the upload block, the worker throttle) because httpx resolved it after the
+    checks. Paths with dot segments are refused before anything else."""
+    from starlette.testclient import TestClient
+    r = TestClient(gateway.app).get(path)
+    assert r.status_code == 400 and r.json()["code"] == "BAD_PATH"
+
+
+def test_refusals_that_ask_clients_to_wait_say_so_in_a_header(gateway):
+    from starlette.testclient import TestClient
+    gateway.store.db.execute("DELETE FROM slots WHERE slot=2")
+    gateway.store.db.execute("UPDATE slots SET state='clean'")
+    gateway.store.claim("someone-else", "10.0.0.9")                    # the one workspace is taken
+    r = TestClient(gateway.app).post("/v1/workspace")
+    assert r.json()["code"] == "ALL_WORKSPACES_BUSY"
+    assert r.headers["retry-after"] == str(r.json()["retry_after_s"])

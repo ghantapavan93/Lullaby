@@ -228,8 +228,10 @@ def client_ip(request: Request) -> str:
 
 
 def refuse(status: int, code: str, message: str, **extra: Any) -> JSONResponse:
-    return JSONResponse({"code": code, "message": message} | extra, status_code=status,
-                        headers={"Cache-Control": "no-store"})
+    headers = {"Cache-Control": "no-store"}
+    if "retry_after_s" in extra:                 # standard clients back off on the header, not the body
+        headers["Retry-After"] = str(int(extra["retry_after_s"]))
+    return JSONResponse({"code": code, "message": message} | extra, status_code=status, headers=headers)
 
 
 def lease_view(slot: int, created: float, last_seen: float) -> dict[str, Any]:
@@ -321,6 +323,10 @@ async def health():
 @app.api_route("/architecture{rest:path}", methods=["GET", "HEAD"])
 async def proxy(request: Request, rest: str = ""):
     path = request.url.path
+    # Dot segments are refused before any other check: an encoded ".." passed the
+    # block lists and was then resolved by the HTTP client (API review, 2026-10-12).
+    if any(part in (".", "..") for part in path.split("/")):
+        return refuse(400, "BAD_PATH", "Paths with . or .. segments aren't accepted.")
     if path in BLOCKED:
         return refuse(403, "DISABLED_IN_REVIEW", BLOCKED[path])
     lease = store.lease_of(request.cookies.get(COOKIE))
@@ -337,7 +343,7 @@ async def proxy(request: Request, rest: str = ""):
     if len(window) >= REQUESTS_PER_MINUTE:
         return refuse(429, "SLOW_DOWN", "Too many requests from this workspace. Wait a moment.", retry_after_s=30)
     window.append(now)
-    if path == "/v1/dev/video/worker" and request.method == "POST":
+    if path in ("/v1/dev/video/worker", "/v1/dev/worker") and request.method == "POST":
         if now - last_worker_launch.get(slot, 0) < WORKER_LAUNCH_EVERY_S:
             return refuse(429, "WORKER_ALREADY_STARTED", "The worker was just started for this workspace.",
                           retry_after_s=WORKER_LAUNCH_EVERY_S)

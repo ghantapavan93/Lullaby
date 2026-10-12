@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Literal, Optional
 
 from fastapi import Depends, FastAPI, Header, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -43,7 +44,9 @@ DEV = os.environ.get("PROOF_LAYER_DEV", "0") == "1"
 ROOT = Path(__file__).resolve().parent.parent
 DISCLOSURE = "Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit."
 
-app = FastAPI(title="Nanit Proof Layer", version="1.0.0", description=DISCLOSURE)
+# No trailing-slash redirects: behind the gateway they pointed clients at the internal
+# slot address (API review, 2026-10-12). A wrong path is a JSON 404 instead.
+app = FastAPI(title="Nanit Proof Layer", version="1.0.0", description=DISCLOSURE, redirect_slashes=False)
 
 
 # A reviewer instance (scripts/reviewer.py) has a hard end. After it, every
@@ -91,6 +94,22 @@ async def trace(request: Request, call_next):
 async def auth_error(_: Request, exc: AuthError):
     return JSONResponse({"code": exc.code, "message": exc.message, "trace_id": trace_id_var.get()},
                         status_code=exc.status)
+
+
+@app.exception_handler(RequestValidationError)
+async def invalid_request(_: Request, exc: RequestValidationError):
+    """Malformed or missing input, in the same envelope as every other error. The
+    rejected values are never echoed back (API review, 2026-10-12)."""
+    fields = [{"loc": [str(part) for part in e.get("loc", ())], "type": e.get("type"), "message": e.get("msg")}
+              for e in exc.errors()]
+    return JSONResponse({"code": "INVALID_INPUT", "message": "the request is missing a field or has one in the wrong form",
+                         "fields": fields, "trace_id": trace_id_var.get()}, status_code=422)
+
+
+@app.exception_handler(405)
+async def wrong_method(_: Request, exc):
+    return JSONResponse({"code": "METHOD_NOT_ALLOWED", "message": "this path doesn't accept that method",
+                         "trace_id": trace_id_var.get()}, status_code=405)
 
 
 @app.exception_handler(ValueError)
