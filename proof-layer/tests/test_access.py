@@ -424,6 +424,21 @@ def test_three_outcomes_are_never_inferred_from_one_another(client, demo):
     assert set(tiers().values()) == {"observed"}
 
 
+def test_opening_a_feature_after_access_was_lost_is_not_a_customer_outcome(client, demo):
+    run_scenario(client, "access_lost_after_refund")                    # connected, verified, then refunded
+    assert "nextnap" not in status(client)["usable_features"]
+    client.post("/v1/analytics", headers=PARENT, json={
+        "event_id": "open-after-refund-1", "name": "access_feature_opened",
+        "properties": {"device_id": NURSERY, "feature": "nextnap"}})
+    tiers = {t["key"]: t["state"] for t in
+             client.get(f"/v1/access/cameras/{NURSERY}/outcome", headers=PARENT).json()["tiers"]}
+    assert tiers["customer_outcome_observed"] == "not_observed"
+    forged = client.post("/v1/analytics", headers=PARENT, json={         # the stamp is the server's, never the client's
+        "event_id": "open-forged-1", "name": "access_feature_opened",
+        "properties": {"device_id": NURSERY, "feature": "nextnap", "usable_when_opened": True}})
+    assert forged.status_code == 422 and forged.json()["code"] == "PROPERTY_NOT_ALLOWED"
+
+
 def test_server_access_events_cannot_be_posted_by_clients(client, demo):
     for name in ("camera_entitlement_resolved", "feature_access_verified", "activation_action_submitted"):
         r = client.post("/v1/analytics", headers=PARENT, json={
@@ -483,10 +498,17 @@ def test_reassignment_attempt_leaves_verified_access_unchanged(client, demo):
 
 def test_worker_crash_recovers_to_one_charge_and_usable_access(client, demo, monkeypatch):
     run_scenario(client, "worker_crash")
+    # An always-on worker leaves the held job alone, so the crash can still be shown
+    # (bug hunt, 2026-10-12: the deployed worker finished it first, 1 run in 4).
+    assert worker.run_once("always-on") == 0
     monkeypatch.setenv("PROOF_LAYER_INPROCESS_CRASH", "1")
     with pytest.raises(worker.SimulatedCrash):
-        worker.run_once("t", crash_after_provider=True)
-    assert status(client)["status"] == "PURCHASE_PENDING"                 # paid at the provider, not yet here
+        worker.run_once("t", crash_after_provider=True, include_held=True)
+    pending = status(client)
+    assert pending["status"] == "PURCHASE_PENDING"                       # paid at the provider, not yet here
+    # The copy names the plan being bought, not the camera's current one (bug hunt, 2026-10-12).
+    assert "Memories purchase" in pending["message"] and "Sleep purchase" not in pending["message"]
+    assert "A Memories purchase" in next(s["fact"] for s in pending["stages"] if s["key"] == "purchase")
     with transaction() as db:
         db.execute(text("UPDATE outbox SET lease_until = now() - interval '1 second', available_at = now() "
                         "WHERE state IN ('in_progress', 'pending')"))

@@ -36,6 +36,9 @@ This is a tested, independent research prototype. It is not production software 
 - The decision TTL (15 min), the lease (30 s; 3 s in the demo) and the retry backoff are demo values, not tuned.
 - Experiment analysis is partial: assignment, exposure, event capture and a sample-ratio check exist (`growth.sample_ratio`). A run-time kill switch exists (migration 0005). Power analysis, outcome metrics and guardrail evaluation don't.
 - The Kimi grants feature (time-boxed caregiver write scopes) was folded into membership roles and revocation. Scoped grants are not in this version.
+- Roles are owner, admin and caregiver. Nanit's per-Viewer toggles (audio, recorded moments, summaries, talk, notifications; FR-29) are not modeled.
+- Access is decided per camera and feature, not per client surface (app, Nanit Home display, web, iPad). Public sources disagree on whether sleep insights appear on the Nanit Home display (feature matrix, conflicts table), so no surface rule is invented.
+- The review gateway's limit on new workspaces per address trusts the first `X-Forwarded-For` entry. Through Vercel, Vercel sets that header (its documented behavior; not measured here). A visitor calling the Render URL directly can set it, so the limit can be bypassed there. One workspace and cookie-bound leases still cap the effect.
 
 ## Environment
 

@@ -37,6 +37,9 @@ from .security import new_id, trace_id_var
 LEASE = timedelta(seconds=float(os.environ.get("PROOF_LAYER_LEASE_SECONDS", "30")))
 MAX_ATTEMPTS = 8
 MAX_BACKOFF = timedelta(seconds=60)
+# A demo scenario can hold its job back from the always-on worker for this long,
+# so the manual demo worker (``--include-held``) is the one that takes it.
+HOLD = timedelta(minutes=15)
 RECONCILE_EVERY = 30.0  # seconds, in the long-running loop
 
 
@@ -45,12 +48,13 @@ class SimulatedCrash(BaseException):
     BaseException so ordinary error handling cannot swallow it."""
 
 
-def claim(db: Session, worker_id: str) -> Optional[OutboxJob]:
+def claim(db: Session, worker_id: str, include_held: bool = False) -> Optional[OutboxJob]:
+    due_by = func.now() + HOLD if include_held else func.now()
     job = db.execute(
         select(OutboxJob)
         .where(or_(OutboxJob.state == "pending",
                    (OutboxJob.state == "in_progress") & (OutboxJob.lease_until < func.now())),
-               OutboxJob.available_at <= func.now())
+               OutboxJob.available_at <= due_by)
         .order_by(OutboxJob.id).with_for_update(skip_locked=True).limit(1)).scalar_one_or_none()
     if job is None:
         return None
@@ -176,12 +180,12 @@ def reconcile_intents(actor: str) -> list[dict[str, Any]]:
     return results
 
 
-def run_once(worker_id: str = "worker", crash_after_provider: bool = False) -> int:
+def run_once(worker_id: str = "worker", crash_after_provider: bool = False, include_held: bool = False) -> int:
     trace_id_var.set(f"trc_{worker_id}_{int(time.time())}")
     processed = 0
     while True:
         with transaction() as db:
-            job = claim(db, worker_id)
+            job = claim(db, worker_id, include_held)
             if job is None:
                 return processed
             db.flush()
@@ -206,6 +210,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m app.worker")
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--crash-after-provider", action="store_true")
+    parser.add_argument("--include-held", action="store_true", help="also take jobs a demo scenario held back")
     parser.add_argument("--id", default=f"w{os.getpid()}")
     args = parser.parse_args(argv)
     last_reconcile = 0.0
@@ -220,7 +225,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             if reconciled:
                 print("reconciled:", reconciled, flush=True)
             last_reconcile = time.monotonic()
-        n = run_once(args.id, args.crash_after_provider)
+        n = run_once(args.id, args.crash_after_provider, args.include_held)
         if args.once:
             print(f"processed {n} job(s)", flush=True)
             return 0

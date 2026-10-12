@@ -75,7 +75,7 @@ STAGE_LABELS = {"purchase": "Purchase", "account": "Account", "camera": "Camera"
                 "feature": "Feature"}
 STATE_LABELS = {"verified": "Verified", "action": "Needs an action", "waiting": "Waiting", "blocked": "Blocked",
                 "conflicting": "Conflicting", "unknown": "Not yet known", "not_needed": "Not needed",
-                "unchecked": "Not checked yet"}
+                "unchecked": "Expected by the plan; not checked"}
 # Channels that grant without a payment: a trial does not make a paid purchase a duplicate.
 FREE_CHANNELS = ("trial", "seed")
 
@@ -572,11 +572,20 @@ def _plan_label(catalog_version: str, code: str) -> str:
     return entitlements.plan_label(catalog_version, code)
 
 
+def _unconfirmed_label(catalog_version: str, reason: dict[str, Any]) -> Optional[str]:
+    """The plan a not-yet-confirmed purchase is for (the highest, if several):
+    what is being bought, never the camera's current plan (bug hunt,
+    2026-10-12: "your Sleep purchase" while Memories was being confirmed)."""
+    plans = reason.get("plans") or []
+    return _plan_label(catalog_version, max(plans, key=lambda c: _rank(catalog_version, c))) if plans else None
+
+
 def _message(status: str, focus: Optional[dict[str, Any]], plan: dict[str, Any], device: Device,
              features: list[dict[str, Any]], catalog_version: str, reason: dict[str, Any]) -> str:
     camera = device.label
     plan_label = _plan_label(catalog_version, plan["plan_code"])
-    bought = _plan_label(catalog_version, focus["plan_code"]) if focus else plan_label
+    bought = (_plan_label(catalog_version, focus["plan_code"]) if focus
+              else _unconfirmed_label(catalog_version, reason) or plan_label)
     channel = purchase_evidence.CHANNEL_LABELS.get(focus["channel"], focus["channel"]) if focus else ""
     usable = [f["label"] for f in features if f["usable"]]
     if status == "ACTIVE_FEATURE_USABLE":
@@ -605,7 +614,8 @@ def _message(status: str, focus: Optional[dict[str, Any]], plan: dict[str, Any],
         return ("This purchase is connected to another camera. We don't move plans between cameras "
                 "automatically; support can look into moving it.")
     if status == "PURCHASE_PENDING":
-        return (f"The store hasn't confirmed your {bought} purchase yet. There's nothing more to buy. "
+        what = f"your {bought} purchase" if focus or reason.get("plans") else "your purchase"
+        return (f"The store hasn't confirmed {what} yet. There's nothing more to buy. "
                 "This updates when it confirms.")
     if status == "PROVIDER_UNKNOWN":
         return ("We couldn't get a final answer from the payment provider yet. This purchase won't be "
@@ -702,10 +712,16 @@ def _stages(status: str, *, focus: Optional[dict[str, Any]], plan: dict[str, Any
                          + (", reported by the store" if reason.get("store_reported") else ", no renewal reported"))
     elif focus:
         purchase_fact = f"{bought} via {channel}: {store_word[focus['state']]} (provider version {focus['provider_version']})"
+    elif status == "PURCHASE_NOT_FOUND":
+        # About the code the parent typed, never the camera's own plan (bug hunt,
+        # 2026-10-12: "Not yet known · Sleep via Trial" for an unknown code).
+        purchase_fact = "No purchase with this code or order number on your account"
     elif status == "PROVIDER_UNKNOWN":
-        purchase_fact = "An in-app purchase's outcome isn't known yet"
+        unknown = _unconfirmed_label(catalog_version, reason)
+        purchase_fact = f"An in-app {unknown + ' ' if unknown else ''}purchase's outcome isn't known yet"
     elif status == "PURCHASE_PENDING":
-        purchase_fact = "A purchase for this camera is being confirmed"
+        pending = _unconfirmed_label(catalog_version, reason)
+        purchase_fact = f"A {pending + ' ' if pending else ''}purchase for this camera is being confirmed"
     elif status == "REFUNDED_OR_REVOKED":
         purchase_fact = "A plan on this camera was refunded"
     elif granting:
@@ -732,7 +748,8 @@ def _stages(status: str, *, focus: Optional[dict[str, Any]], plan: dict[str, Any
         plan_fact = f"{plan['plan_label']} ({plan['state']})" if has_plan else "No plan"
     facts = {
         "purchase": purchase_fact,
-        "account": ("On this family's account" + ("" if member_can_bind else
+        "account": "Not known: the purchase wasn't found" if status == "PURCHASE_NOT_FOUND" else
+                   ("On this family's account" + ("" if member_can_bind else
                                                   ". Only the account owner or an admin can connect plans")),
         "camera": (f"Connected to {device.label}" if pattern[2] == "verified" else
                    "Not connected to a camera yet" if status == "VERIFIED_UNBOUND" else
@@ -754,7 +771,8 @@ def _stages(status: str, *, focus: Optional[dict[str, Any]], plan: dict[str, Any
     # trial or a seeded plan is not a purchase.
     if pattern[4] == "verified" and not checked:
         pattern = pattern[:4] + ("unchecked",)
-        facts["feature"] = f"{facts['feature']}, by the plan's rules. No check has run on this camera yet"
+        facts["feature"] = (f"{facts['feature']} should work by the plan's rules. "
+                            "No check has confirmed it on this camera yet")
     if pattern[0] == "verified" and focus is None and granting is not None and granting["channel"] in FREE_CHANNELS:
         pattern = ("not_needed",) + pattern[1:]
         facts["purchase"] = (f"{_plan_label(catalog_version, granting['plan_code'])} "
@@ -963,6 +981,14 @@ def _window_decision(base: Optional[AccessCheck], observations: list[dict[str, A
     return {"state": "HOLDING", "reason": f"{len(observations)} check(s); what was verified still holds"}
 
 
+def usable_now(db: Session, household: Household, device_id: Any, feature: Any) -> bool:
+    """Whether this household's camera can use this feature right now."""
+    device = db.get(Device, device_id) if isinstance(device_id, str) else None
+    if device is None or device.household_id != household.id:
+        return False
+    return feature in assess(db, household, device, member_can_bind=False)["usable_features"]
+
+
 def outcome_review(db: Session, household: Household, device: Device) -> dict[str, Any]:
     """Three outcomes, each from its own evidence, never inferred from another."""
     connect = last_connect(db, household.id, device.id)
@@ -978,6 +1004,9 @@ def outcome_review(db: Session, household: Household, device: Device) -> dict[st
         opened = db.execute(select(AnalyticsEvent).where(
             AnalyticsEvent.household_id == household.id, AnalyticsEvent.name == "access_feature_opened",
             AnalyticsEvent.properties["device_id"].astext == device.id,
+            # Opening a feature that no longer works is not a customer outcome
+            # (bug hunt, 2026-10-12: "observed" right after a refund).
+            AnalyticsEvent.properties["usable_when_opened"].astext == "true",
             AnalyticsEvent.received_at > verified.created_at)
             .order_by(AnalyticsEvent.received_at).limit(1)).scalar_one_or_none()
 
@@ -997,7 +1026,7 @@ def outcome_review(db: Session, household: Household, device: Device) -> dict[st
             tier("customer_outcome_observed", "Customer outcome observed", opened,
                  opened.received_at if opened else None,
                  {"event": opened.name, "properties": opened.properties} if opened else None,
-                 "no access_feature_opened event after verification"),
+                 "no access_feature_opened event, while the feature worked, after verification"),
         ],
         "caveat": "Each outcome needs its own evidence. In this prototype the parent's click is synthetic; "
                   "it validates instrumentation, not a real outcome.",

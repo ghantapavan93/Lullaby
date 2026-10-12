@@ -562,7 +562,13 @@ def post_render(body: RenderIn, authorization: Optional[str] = Header(None)):
 def post_analytics(body: AnalyticsIn, authorization: Optional[str] = Header(None)):
     with transaction() as db:
         p = authenticate(db, authorization)
-        created = growth.ingest(db, p, event_id=body.event_id, name=body.name, properties=body.properties)
+        stamped = None
+        if body.name == "access_feature_opened":     # an outcome counts only if the feature worked when opened
+            stamped = {"usable_when_opened": access.usable_now(db, db.get(Household, p.household_id),
+                                                               body.properties.get("device_id"),
+                                                               body.properties.get("feature"))}
+        created = growth.ingest(db, p, event_id=body.event_id, name=body.name, properties=body.properties,
+                                server_properties=stamped)
         return {"event_id": body.event_id, "created": created}
 
 
@@ -910,7 +916,8 @@ def dev_worker(body: WorkerIn, db: Session = Depends(get_db), authorization: Opt
     require_dev()
     authorize(session_principal(db, authorization), "dev.control", "worker")
     db.close()
-    cmd = [sys.executable, "-m", "app.worker", "--once"] + (["--crash-after-provider"] if body.crash_after_provider else [])
+    cmd = ([sys.executable, "-m", "app.worker", "--once", "--include-held"]
+           + (["--crash-after-provider"] if body.crash_after_provider else []))
     env = os.environ | {"PROOF_LAYER_LEASE_SECONDS": os.environ.get("PROOF_LAYER_LEASE_SECONDS", "3")}
     done = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True, timeout=60)
     return {"command": " ".join(cmd[1:]), "exit_code": done.returncode,

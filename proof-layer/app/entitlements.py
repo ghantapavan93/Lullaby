@@ -123,7 +123,8 @@ def evaluate(*, feature: str, plan_code: Optional[str], mounts: Optional[list[st
             "code": "PLAN_REQUIRED", "kind": "subscription", "resolution": "PURCHASE",
             "parent_message": f"{policy['label']} is included with "
                               + " or ".join(plans[p]["label"] for p in policy["plans"])
-                              + f". Your current plan is {plans.get(plan_code, {}).get('label', plan_code)}.",
+                              + (". This camera has no plan yet." if plan_code == "none" else
+                                 f". Your current plan is {plans.get(plan_code, {}).get('label', plan_code)}."),
             "detail": {"current_plan": plan_code, "eligible_plans": list(policy["plans"])},
         })
 

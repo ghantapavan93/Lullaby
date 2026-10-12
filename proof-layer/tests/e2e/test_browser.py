@@ -210,7 +210,7 @@ def test_present_mode_drives_the_real_app_to_a_recovered_purchase(server, browse
     expect(pg.locator(".pill")).to_have_text("Confirmed (simulated)", timeout=90000)
     expect(pg.locator("#present-bar")).to_have_count(0, timeout=30000)
     text = " ".join(seen)
-    assert "You acknowledged the earlier version. Two details have changed since then." in text
+    assert "Caregiver B acknowledged the earlier version. Two details have changed since then." in text
     assert "refused before any payment call" in text
     assert "provider attempts 1" in text
     assert "failed" not in pg.locator(".dev-log").first.text_content()

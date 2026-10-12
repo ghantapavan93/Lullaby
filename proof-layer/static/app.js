@@ -302,7 +302,8 @@ async function loadNight() {
 // nothing changes.
 async function ensureWorkspace() {
   // A free host sleeps when idle: until the gateway itself answers (a JSON body
-  // with a code), keep waking it for up to three minutes, and say so.
+  // with a code), keep waking it for up to three minutes, and say so. A slot
+  // still being wiped for the next visitor is also worth waiting for.
   const started = Date.now();
   let r, body;
   for (let attempt = 0; ; attempt++) {
@@ -310,8 +311,12 @@ async function ensureWorkspace() {
     if (r && (r.status === 404 || r.status === 405)) return true;
     if (r && r.ok) { state.workspace = await r.json(); return true; }
     body = r ? await r.json().catch(() => null) : null;
-    if (body?.code || Date.now() - started > 180000) break;
-    document.getElementById("main").innerHTML = `<div class="alert alert-info" role="status">${icon("clock")}<div>
+    const preparing = body?.code === "WORKSPACE_NOT_READY";
+    if ((body?.code && !preparing) || Date.now() - started > 180000) break;
+    document.getElementById("main").innerHTML = preparing
+      ? `<div class="alert alert-info" role="status">${icon("clock")}<div>
+      <p class="alert-title">Preparing your workspace…</p><p>Its synthetic data is being reset to the starting point. This takes a few seconds.</p></div></div>`
+      : `<div class="alert alert-info" role="status">${icon("clock")}<div>
       <p class="alert-title">Waking the backend…</p><p>It runs on free infrastructure and naps after 15 quiet minutes. This usually takes under a minute.</p></div></div>`;
     await new Promise((res) => setTimeout(res, 4000));
   }
@@ -484,8 +489,8 @@ function timeline(brief, previous) {
         <span><i class="sw unobserved"></i>Not observed</span>
       </div>
       <details class="list-toggle"><summary>Show as list</summary>
-        <table class="plain"><thead><tr><th scope="col">Start</th><th scope="col">End</th><th scope="col">Duration</th><th scope="col">State</th><th scope="col">Source</th></tr></thead>
-        <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Night as a list"><table class="plain"><thead><tr><th scope="col">Start</th><th scope="col">End</th><th scope="col">Duration</th><th scope="col">State</th><th scope="col">Source</th></tr></thead>
+        <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
       </details>
     </div>`;
 }
@@ -747,6 +752,15 @@ function offerCard(d) {
 
 function featureLabel(key) { return state.features.find((f) => f.feature === key)?.label ?? key; }
 
+const SETTLED = ["CONFIRMED", "FAILED", "CANCELLED_BEFORE_SUBMISSION"];
+
+// A settled purchase can leave the screen; one still in flight stays until it
+// settles. A new offer always gets a new idempotency key.
+function clearSettledPurchase() {
+  if (state.purchase && SETTLED.includes(state.purchase.state)) state.purchase = null;
+  state.purchaseKey = null;
+}
+
 function purchasePanel() {
   const p = state.purchase;
   if (!p) return "";
@@ -767,7 +781,9 @@ function purchasePanel() {
     CANCELLED_BEFORE_SUBMISSION: "Your setup changed before submission, so it was never sent. Nothing was charged.",
     PREPARED: "Saved once. Retrying uses the same operation.",
   }[p.state];
+  const scope = p.terms?.feature ? `${featureLabel(p.terms.feature)} on ${deviceName(p.terms.device_id)} · ${PLAN_LABEL[p.terms.plan_code] || p.terms.plan_code}` : "";
   return `<div class="card" role="status" aria-live="polite"><h3>Simulated upgrade</h3>
+    ${scope ? `<p class="small muted">${esc(scope)}</p>` : ""}
     <div class="state-row"><span class="pill pill-${p.state}">${text[0]}${text[1]}</span></div>
     <p class="op-line">${esc(explain)}</p>
     <p class="op-line">One operation · provider attempts ${retries}${p.transitions ? ` · ${p.transitions.length} recorded state changes` : ""}</p>
@@ -919,7 +935,10 @@ async function loadAccess() {
     state.access = r.data;
     const ids = r.data.cameras.map((c) => c.device.id);
     if (!ids.includes(state.accessDevice)) {
+      const asked = state.accessDevice;
       state.accessDevice = (r.data.cameras.find((c) => NEEDS_ATTENTION.has(c.status)) || r.data.cameras[0])?.device.id;
+      // A link to a camera that isn't on this account says so instead of quietly showing another.
+      if (asked) toast(`That camera isn't on this family's account. Showing ${deviceName(state.accessDevice)}.`);
     }
   }
   return r;
@@ -1021,7 +1040,9 @@ function featureRows(d) {
 
 function supportCard(d) {
   const p = d.focus_purchase;
-  const summary = [`Camera: ${d.device.label} (${d.device.mount_label})`, p ? `Purchase: ${purchaseLine(p)} · ${p.external_ref}` : null,
+  const asked = d.lookedUp;          // what the parent typed: support needs it most when nothing was found
+  const summary = [`Camera: ${d.device.label} (${d.device.mount_label})`,
+    p ? `Purchase: ${purchaseLine(p)} · ${p.external_ref}` : asked ? `Looked up: ${CHANNEL_LABEL[asked.channel] || asked.channel} · ${asked.ref}` : null,
     `Status: ${d.status}`, `Checked at revision ${d.state_revision}`].filter(Boolean).join("\n");
   return `<div class="card support-card" role="region" aria-label="What to tell support">
     <h3>What to tell support</h3>
@@ -1121,7 +1142,11 @@ async function storeNext() {
   const r = await api("/v1/dev/purchase-evidence", { method: "POST", viewer: VIEWERS[0].id, body: {
     ...next.body, plan_code: next.plan || "memories", starts_at: start, days: 365 } });
   log(`store event for ${next.body.external_ref} → ${r.status} ${r.data?.renewed_claim ? "new period " + r.data.renewed_claim : r.data?.code || "no new period"}`);
-  if (state.studioRun?.scenario === key) state.studioRun.renewed = r.ok;
+  if (state.studioRun?.scenario === key && r.ok) {
+    // "matches" described the build. After the store's event, show what the server says now.
+    state.studioRun.renewed = true;
+    state.studioRun.after = await measureScenario(state.studio.find((s) => s.key === key));
+  }
   await refreshAccess();
   announce(`${state.accessDetail.device.label}: ${state.accessDetail.headline}.`);
 }
@@ -1184,6 +1209,11 @@ function openConnectSheet() {
   sheet.dataset.key = "bind-ui-" + crypto.randomUUID();      // one key per attempt; a retry of this attempt reuses it
   sheet.dataset.device = d.device.id;
   sheet.dataset.revision = d.state_revision;
+  // The dialog connects the purchase it was opened for. A poll may replace
+  // state.accessDetail meanwhile (another tab connected it): the server then
+  // refuses the stale revision, and the dialog says so.
+  sheet.dataset.channel = p.channel;
+  sheet.dataset.ref = p.external_ref;
   sheet.innerHTML = `<form method="dialog" class="sheet-body" id="connect-form">
     <h2 id="access-sheet-title">Connect your plan</h2>
     <dl class="terms">
@@ -1205,7 +1235,7 @@ function openConnectSheet() {
 
 async function connectPurchase() {
   const sheet = document.getElementById("access-sheet");
-  const p = state.accessDetail.focus_purchase;
+  const p = { channel: sheet.dataset.channel, external_ref: sheet.dataset.ref };
   const save = sheet.querySelector("button[type=submit]");
   if (save) save.disabled = true;
   const r = await api("/v1/access/bind", { method: "POST", headers: { "Idempotency-Key": sheet.dataset.key },
@@ -1243,8 +1273,12 @@ async function verifyAccess() {
 async function lookupPurchase(form) {
   state.lookupChannel = form.channel.value;
   state.lookupRef = form.ref.value.trim();
+  if (state.lookupRef.length < 3) {           // the field's minlength counts spaces the trim removes
+    toast("Enter at least 3 characters of the code or order number.");
+    return;
+  }
   const r = await api("/v1/access/check", { method: "POST", body: { device_id: state.accessDevice, channel: state.lookupChannel, external_ref: state.lookupRef } });
-  state.accessLookup = r.ok ? r.data : null;
+  state.accessLookup = r.ok ? { ...r.data, lookedUp: { channel: state.lookupChannel, ref: state.lookupRef } } : null;
   if (!r.ok) toast(r.data?.message || "We couldn't check that purchase.");
   else announce(`${r.data.headline}.`);
   render();
@@ -1269,17 +1303,20 @@ function studioScreen() {
   const cards = list.map((s) => {
     const active = run?.scenario === s.key;
     const got = active ? run.actual : null;
+    const after = active ? run.after : null;
     return `<article class="card studio-card${active ? " active" : ""}" aria-labelledby="sc-${s.key}">
       <h2 id="sc-${s.key}">${esc(s.title)}</h2>
       <p class="small">${esc(s.story)}</p>
       <ol class="studio-steps">${s.steps.map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
       <ul class="studio-expect">${Object.entries(s.expected).map(([dev, st]) => `<li><span>${esc(deviceName(dev))}${s.focus.external_ref && s.focus.device_id === dev ? ` · checking ${esc(s.focus.external_ref)}` : ""}</span>
-        <span class="expect-pair">${accessPill(st)}${got ? (got[dev] === st ? `<span class="st-ok small">${icon("check", "icon-sm")}matches</span>` : `<span class="st-changed small">got ${esc(got[dev])}</span>`) : ""}</span></li>`).join("")}</ul>
+        <span class="expect-pair">${accessPill(st)}${got ? (got[dev] === st ? `<span class="st-ok small">${icon("check", "icon-sm")}matches</span>` : `<span class="st-changed small">got ${esc(got[dev])}</span>`) : ""}</span>
+        ${after ? `<span class="expect-after small">After the store's event: ${accessPill(after[dev])}</span>` : ""}</li>`).join("")}</ul>
       <p class="small muted">${esc(s.resolution)}</p>
       <div class="btn-row"><button type="button" class="btn ${active ? "btn-secondary" : "btn-primary"}" data-action="studio-run" data-key="${s.key}">${active ? "Rebuild" : "Build this scenario"}</button>
         ${active ? `<a class="btn btn-ghost" href="#/access/${s.focus.device_id}">Open the parent journey${icon("arrow", "icon-sm")}</a>` : ""}
         ${active && s.key === "evidence_journey" && ROUTES.some((r) => r.id === "recorded") ? `<a class="btn btn-ghost" href="#/recorded">Open the recorded evidence${icon("arrow", "icon-sm")}</a>` : ""}</div>
-      ${active && STORE_NEXT[s.key] ? `<div class="btn-row"><button type="button" class="btn btn-secondary" data-action="studio-renewal">${esc(STORE_NEXT[s.key].then)}</button></div>` : ""}
+      ${active && STORE_NEXT[s.key] ? (run.renewed ? `<p class="small muted">The store's event was applied. Rebuild to start the scenario again.</p>`
+        : `<div class="btn-row"><button type="button" class="btn btn-secondary" data-action="studio-renewal">${esc(STORE_NEXT[s.key].then)}</button></div>`) : ""}
       ${active && s.key === "worker_crash" ? `<div class="btn-row"><button type="button" class="btn btn-secondary" data-action="studio-worker" data-crash="1">Run worker: crash after provider</button>
         <button type="button" class="btn btn-secondary" data-action="studio-worker">Restart worker</button></div>` : ""}
     </article>`;
@@ -1313,8 +1350,8 @@ function compareCard() {
       <p class="small muted">Stages: ${x.stages.map((st) => `${esc(st.label)} ${esc(st.state)}`).join(" · ")} · fingerprint <code>${esc(x.fingerprint)}</code></p></div>`;
   return `<section class="card" aria-labelledby="cmp-title"><h2 id="cmp-title">Same symptom, two causes</h2>
     <p class="small muted card-sub">A parent sees the same thing: NextNap doesn't work. Build two situations, one after the other, and compare what the backend decided and what it refused.</p>
-    <div class="cmp-pick"><label>First ${pick("cmp-a", c?.a?.scenario || "billing_retry")}</label>
-      <label>Second ${pick("cmp-b", c?.b?.scenario || "incompatible_hardware")}</label>
+    <div class="cmp-pick"><label>First ${pick("cmp-a", state.comparePick?.a || c?.a?.scenario || "billing_retry")}</label>
+      <label>Second ${pick("cmp-b", state.comparePick?.b || c?.b?.scenario || "incompatible_hardware")}</label>
       <button type="button" class="btn btn-primary" data-action="studio-compare">Compare</button></div>
     ${state.compareError ? `<p class="small" role="alert">${esc(state.compareError)}</p>` : ""}
     ${c ? `<div class="cmp-grid" role="status">${side(c.a)}${side(c.b)}</div>
@@ -1324,11 +1361,13 @@ function compareCard() {
 async function runCompare() {
   state.compareError = null;
   const a = document.getElementById("cmp-a").value, b = document.getElementById("cmp-b").value;
+  state.comparePick = { a, b };                  // the choices stay as picked, whatever the outcome
+  if (a === b) { state.compare = null; state.compareError = "Choose two different scenarios to compare."; return; }
   state.resetting = true;                        // both builds reset the demo: not "reset elsewhere"
   const r = await api("/v1/dev/compare", { method: "POST", body: { a, b }, viewer: VIEWERS[0].id });
   try { if (r.ok) await afterReset(); } finally { state.resetting = false; }
   if (r.ok) { state.compare = r.data; state.studioRun = null; log(`compare ${a} vs ${b} → ${r.data.a.status} / ${r.data.b.status}`); }
-  else state.compareError = r.data?.message || "The comparison didn't run.";
+  else { state.compare = null; state.compareError = "The comparison didn't run. " + (r.data?.message || ""); }
 }
 
 // Expected (what the store says) vs actual (what the camera record says) vs
@@ -1356,12 +1395,8 @@ function accessMap() {
       <tbody>${rows || `<tr><td colspan="5" class="muted">No store purchases on this account.</td></tr>`}</tbody></table></div></section>`;
 }
 
-async function runStudio(key) {
-  state.resetting = true;
-  const r = await api("/v1/dev/access-scenario", { method: "POST", body: { scenario: key }, viewer: VIEWERS[0].id });
-  if (!r.ok) { state.resetting = false; toast(r.data?.message || "The scenario couldn't be built."); return; }
-  try { await afterReset(); } finally { state.resetting = false; }
-  const scenario = state.studio.find((s) => s.key === key);
+// The server's status for each camera a scenario expects something of.
+async function measureScenario(scenario) {
   const actual = {};
   for (const dev of Object.keys(scenario.expected)) {
     const focused = scenario.focus.external_ref && scenario.focus.device_id === dev;
@@ -1369,6 +1404,16 @@ async function runStudio(key) {
       : await api(`/v1/access/cameras/${dev}`, { viewer: VIEWERS[0].id });
     actual[dev] = s.data?.status;
   }
+  return actual;
+}
+
+async function runStudio(key) {
+  state.resetting = true;
+  const r = await api("/v1/dev/access-scenario", { method: "POST", body: { scenario: key }, viewer: VIEWERS[0].id });
+  if (!r.ok) { state.resetting = false; toast(r.data?.message || "The scenario couldn't be built."); return; }
+  try { await afterReset(); } finally { state.resetting = false; }
+  const scenario = state.studio.find((s) => s.key === key);
+  const actual = await measureScenario(scenario);
   state.studioRun = { scenario: key, actual, log: r.data.log };
   state.accessDevice = scenario.focus.device_id;
   if (scenario.focus.external_ref) {
@@ -1397,7 +1442,7 @@ async function studioWorker(crash) {
   log(`worker ${crash ? "(crash after provider) " : ""}exit=${w.data?.exit_code}${w.data?.crashed ? ": died between the provider commit and the app commit" : ""}`);
   await refreshAccess();
   const s = state.accessDetail;
-  if (state.studioRun) state.studioRun.actual[s.device.id] = s.status;
+  if (state.studioRun) state.studioRun.after = await measureScenario(state.studio.find((x) => x.key === state.studioRun.scenario));
   announce(`${s.device.label}: ${s.headline}.`);
 }
 
@@ -1575,7 +1620,9 @@ function recordedScreen() {
       <h2 id="gate-title">${esc(v.refused.label)} isn't on this camera's plan</h2>
       <p>Recorded evidence rests on ${esc(v.refused.label.toLowerCase())}. This camera has ${esc(v.refused.plan_label || "no plan")}. ${esc(v.refused.blockers?.[0]?.parent_message || "")}</p>
       <p class="small muted">If you paid for it, the access journey shows where it stands. Nothing here sells a plan.</p>
-      <div class="btn-row"><a class="btn btn-primary" href="#/access/${esc(state.accessDevice || "dev_cam_demo")}">Check my plan${icon("arrow", "icon-sm")}</a></div></section>`;
+      <div class="btn-row"><a class="btn btn-primary" href="#/access/${esc(state.accessDevice || "dev_cam_demo")}">Check my plan${icon("arrow", "icon-sm")}</a></div>
+      <div class="demo-bar" role="region" aria-label="Simulation"><span class="dev-chip">simulation</span><span>Not part of the parent app: build the scenario where this camera's plan, renewed by the store, includes recorded history and the clip is stored.</span>
+        <button type="button" data-action="evidence-scenario">Build it</button></div></section>`;
   }
   const d = v.view;
   if (!d) return head + `<section class="card"><p class="muted">Loading the evidence…</p></section>`;
@@ -2084,7 +2131,7 @@ async function submitCorrection(viewer = document.getElementById("correction-she
 }
 
 async function decide() {
-  state.decisionNote = null; state.purchaseNote = null; state.purchase = null; state.purchaseKey = null;
+  state.decisionNote = null; state.purchaseNote = null; clearSettledPurchase();
   const r = await api("/v1/capability-decisions", { method: "POST", body: { feature: state.feature, device_id: state.device } });
   if (!r.ok) { state.decisionNote = `<div class="alert alert-error mt-4" role="alert">${icon("xoct")}<div><p class="alert-title">We couldn't check availability</p><p>${esc(r.data?.message)}</p></div></div>`; render(); return; }
   state.decision = r.data;
@@ -2515,8 +2562,8 @@ document.addEventListener("click", async (e) => {
     case "correct-open": openCorrection(el.dataset.viewer); break;
     case "correct-cancel": document.getElementById("correction-sheet").close(); break;
     case "correct-refresh": document.getElementById("correction-sheet").close(); await showLatest(el.dataset.viewer); break;
-    case "feature": state.feature = el.dataset.feature; state.decision = null; state.purchase = null; state.purchaseNote = null; render(); break;
-    case "camera": state.device = el.dataset.device; state.decision = null; state.purchase = null; state.purchaseNote = null; await loadPreview(); render(); break;
+    case "feature": state.feature = el.dataset.feature; state.decision = null; clearSettledPurchase(); state.purchaseNote = null; render(); break;
+    case "camera": state.device = el.dataset.device; state.decision = null; clearSettledPurchase(); state.purchaseNote = null; await loadPreview(); render(); break;
     case "decide": await decide(); break;
     case "buy": el.disabled = true; await buy(); break;
     case "xray-open": e.preventDefault(); await openXray(); break;
@@ -2534,6 +2581,13 @@ document.addEventListener("click", async (e) => {
     case "access-support": state.accessSupport = el.closest(".lookup-result") ? "lookup" : state.accessDevice; state.accessMountGuide = null; render(); break;
     case "access-mount-guide": state.accessMountGuide = state.accessDevice; state.accessSupport = null; render(); break;
     case "studio-run": el.disabled = true; await runStudio(el.dataset.key); render(); break;
+    case "evidence-scenario": {       // the recorded-evidence page's own way out of "not on this plan"
+      el.disabled = true;
+      await loadStudio();
+      if (state.studio?.some((s) => s.key === "evidence_journey")) { await runStudio("evidence_journey"); await storeNext(); }
+      else toast("Scenario controls are off on this server.");
+      await loadRecorded(); render(); break;
+    }
     case "studio-renewal": el.disabled = true; await storeNext(); render(); break;
     case "studio-compare": el.disabled = true; el.textContent = "Building both…"; await runCompare(); render(); break;
     case "studio-worker": el.disabled = true; await studioWorker(Boolean(el.dataset.crash)); render(); break;
@@ -2548,6 +2602,35 @@ document.addEventListener("click", async (e) => {
     }
   }
   if (state.xrayOpen && action !== "xray-open") await loadXray();
+});
+// Radio groups (ARIA radiogroup of buttons): one tab stop per group, arrow keys
+// move and select, as a native radio group does.
+function syncRadioTabStops(root = document) {
+  root.querySelectorAll('[role="radiogroup"]').forEach((group) => {
+    const radios = [...group.querySelectorAll('[role="radio"]')];
+    const current = radios.find((r) => r.getAttribute("aria-checked") === "true") || radios[0];
+    radios.forEach((r) => { r.tabIndex = r === current ? 0 : -1; });
+  });
+}
+new MutationObserver(() => syncRadioTabStops()).observe(document.body, { childList: true, subtree: true });
+document.addEventListener("keydown", (e) => {
+  const radio = e.target.closest?.('[role="radiogroup"] [role="radio"]');
+  const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+  if (!radio || !step) return;
+  e.preventDefault();
+  const radios = [...radio.closest('[role="radiogroup"]').querySelectorAll('[role="radio"]')];
+  const next = radios[(radios.indexOf(radio) + step + radios.length) % radios.length];
+  // The click may re-render the group after an await: find the chosen radio by
+  // its data attributes and focus it once it is the checked one.
+  const selector = '[role="radio"]' + Object.entries(next.dataset)
+    .map(([k, v]) => `[data-${k.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())}="${CSS.escape(v)}"]`).join("");
+  next.click();
+  const deadline = performance.now() + 3000;
+  (function focusChosen() {
+    const el = document.querySelector(selector);
+    if (el?.getAttribute("aria-checked") === "true") el.focus();
+    else if (performance.now() < deadline) requestAnimationFrame(focusChosen);
+  })();
 });
 document.addEventListener("click", (e) => {
   const summary = e.target.closest("#nav-eng > summary");
@@ -2637,14 +2720,14 @@ const PRESENT_STEPS = [
     run: async () => { await presentScenario("paid_not_active"); },
     until: () => state.accessDetail?.status === "VERIFIED_UNBOUND", hold: 7000, audiences: ["product", "engineering"] },
   { pending: "Connecting the purchase, then checking the camera…", id: "connect", title: "Connect, then verify",
-    line: () => `Connected without a new purchase, then verified separately: ${state.accessDetail?.usable_features.join(", ")} work on the ${state.accessDetail?.device.label.toLowerCase()}.`,
+    line: () => `Connected without a new purchase, then verified separately: ${state.accessDetail?.usable_features.map(featureLabel).join(", ")} work on the ${state.accessDetail?.device.label.toLowerCase()}.`,
     run: async () => { openConnectSheet(); await wait(fastPresent() ? 100 : 1200); await connectPurchase(); },
     until: () => state.accessVerified && state.accessDetail?.status === "ACTIVE_FEATURE_USABLE", hold: 7000, audiences: ["product", "engineering"] },
   { pending: "Building the scenario: a code used on the wrong camera…", id: "wrong-camera", title: "Paid, wrong camera",
     line: () => `${state.accessLookup?.headline}. Nothing is moved automatically and a second redemption is refused.`,
     run: async () => { await presentScenario("paid_wrong_camera"); document.getElementById("lookup-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); },
     until: () => state.accessLookup?.status === "ALREADY_ASSIGNED", hold: 6000, audiences: ["product", "engineering"] },
-  { pending: "Opening the certification lab…", id: "certify", title: "Invariants block release",
+  { pending: "Opening the certification lab…", id: "certify", title: "What the release certification says",
     line: () => `${state.certification?.verdict}: ${state.certification?.invariants.filter((i) => i.state === "passed").length} of ${state.certification?.invariants.length} invariants passed in the latest report${state.certification?.build?.report_matches_code ? ", on this exact code" : ", which ran on other code"}. The 4-process soak stays failed and visible.`,
     run: async () => { location.hash = "#/growth"; await enterRoute(); },
     until: () => Boolean(state.certification), hold: 7000, audiences: ["engineering"] },
@@ -2665,7 +2748,8 @@ const PRESENT_STEPS = [
     until: () => Boolean(present.outcome) && (!present.outcome.ok || state.latest?.revision === present.outcome.data.revision),
     hold: 7000, audiences: ["recruiter", "product", "engineering"] },
   { pending: "Recording Caregiver B's acknowledgment…", id: "caregiver", title: "Caregiver B still has the old screen open",
-    line: () => state.screens[VIEWERS[1].id]?.ack?.message
+    // The screen speaks to Caregiver B; the narration speaks about them.
+    line: () => state.screens[VIEWERS[1].id]?.ack?.message?.replace(/^You /, "Caregiver B ")
       ?? "Caregiver B acknowledges what their screen shows.",
     run: async () => { await acknowledge(VIEWERS[1].id);
       document.querySelectorAll(".screen-frame")[1]?.querySelector(".ack-card")?.scrollIntoView({ behavior: "smooth", block: "center" }); },

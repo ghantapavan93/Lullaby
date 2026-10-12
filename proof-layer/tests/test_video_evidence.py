@@ -355,6 +355,9 @@ def test_a_correction_is_a_new_revision_and_the_original_stays(client, demo):
     fixed = annotate(client, asset_id, "caregiver_present", 0, 2, 2, "note-fix-0001",
                      supersedes=first["annotation_id"])
     assert fixed.status_code == 201 and fixed.json()["revision"] == 3
+    # "What changed": the replaced report is before, only its correction is after.
+    assert [x["label"] for x in fixed.json()["before"]["reported"]] == ["infant_moving"]
+    assert [x["label"] for x in fixed.json()["after"]["reported"]] == ["caregiver_present"]
     v = view(client, asset_id).json()
     original = next(a for a in v["annotations"] if a["id"] == first["annotation_id"])
     assert original["label"] == "infant_moving" and original["superseded_by"] == fixed.json()["annotation_id"]

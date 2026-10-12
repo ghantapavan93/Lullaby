@@ -412,8 +412,11 @@ def _interval_snapshot(db: Session, asset: VideoAsset, t0: float, t1: float) -> 
     run = latest_run(db, asset)
     obs = [o for o in db.execute(select(VideoObservation).where(VideoObservation.run_id == run.id)).scalars()
            if _overlaps(t0, t1, o.t_start, o.t_end)] if run else []
-    notes = [a for a in db.execute(select(VideoAnnotation).where(VideoAnnotation.asset_id == asset.id)).scalars()
-             if _overlaps(t0, t1, a.t_start, a.t_end)]
+    every = list(db.execute(select(VideoAnnotation).where(VideoAnnotation.asset_id == asset.id)).scalars())
+    # A corrected report is history, not a current one (bug hunt, 2026-10-12:
+    # "After" listed both the replaced report and its correction).
+    replaced = {a.supersedes_annotation_id for a in every if a.supersedes_annotation_id}
+    notes = [a for a in every if a.id not in replaced and _overlaps(t0, t1, a.t_start, a.t_end)]
     return {"revision": asset.evidence_revision,
             "measured": [{"kind": o.kind, "t_start": o.t_start, "t_end": o.t_end} for o in sorted(obs, key=lambda o: o.seq)],
             "reported": [{"label": a.label, "revision": a.revision, "t_start": a.t_start, "t_end": a.t_end}

@@ -1,0 +1,17 @@
+{
+ "base": "https://lullaby-rho.vercel.app",
+ "width": 390,
+ "marks": {
+  "landing: backend awake": 1.2,
+  "app: private workspace open": 4.9,
+  "second reviewer: told the workspace is in use": 5.6,
+  "scenario: Milestones ended": 12.9,
+  "clip refused by the plan gate": 14.3,
+  "store renewal reached the camera": 18.6,
+  "clip analysed by the worker": 24.5,
+  "interval played and stopped on its boundary": 28.9,
+  "report kept beside the measurement": 29.8,
+  "workspace ended: {'ended': True}": 30.1
+ },
+ "clip_stopped_at_s": 5.001414
+}

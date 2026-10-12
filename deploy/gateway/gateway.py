@@ -148,16 +148,12 @@ store = Store(STATE)
 client: httpx.AsyncClient
 recent: dict[int, deque] = defaultdict(deque)        # requests per slot in the last minute
 last_worker_launch: dict[int, float] = {}
-resetting: set[int] = set()
+resets: dict[int, asyncio.Task] = {}             # the one reseed in flight per slot
 
 
 # ------------------------------------------------------------------ slot operations
 
-async def reset_slot(slot: int) -> bool:
-    """Reseed a slot to the demo's starting state through its own dev API."""
-    if slot in resetting:
-        return False
-    resetting.add(slot)
+async def _reseed(slot: int) -> bool:
     try:
         base = slot_url(slot)
         token = (await client.post(base + "/v1/dev/sessions", json={"member_id": "mem_parent_a"}, timeout=30)).json()["token"]
@@ -165,20 +161,37 @@ async def reset_slot(slot: int) -> bool:
         return r.status_code == 200
     except (httpx.HTTPError, KeyError, ValueError):
         return False
-    finally:
-        resetting.discard(slot)
+
+
+async def reset_slot(slot: int) -> bool:
+    """Reseed a slot to the demo's starting state through its own dev API.
+
+    At most one reseed runs per slot. A caller that arrives while one is in
+    flight waits for it and shares its result: a visitor claiming a slot the
+    janitor is already wiping gets that slot once it is clean, not a refusal."""
+    task = resets.get(slot)
+    if task is None:
+        task = resets[slot] = asyncio.create_task(_reseed(slot))
+        task.add_done_callback(lambda _, s=slot: resets.pop(s, None))
+    return await asyncio.shield(task)
+
+
+async def janitor_pass() -> None:
+    """Free expired leases and reseed free slots, so the next visitor starts clean."""
+    for slot in store.expired():
+        store.release(slot)
+        recent.pop(slot, None)
+    for slot in store.with_state("dirty"):
+        # Re-read the state right before wiping: while an earlier slot was
+        # being reseeded, a visitor may have claimed this one and begun work.
+        if slot in store.with_state("dirty") and await reset_slot(slot):
+            store.mark(slot, "clean")
 
 
 async def janitor() -> None:
-    """Free expired leases and reseed free slots, so the next visitor starts clean."""
     while True:
         try:
-            for slot in store.expired():
-                store.release(slot)
-                recent.pop(slot, None)
-            for slot in store.with_state("dirty"):
-                if await reset_slot(slot):
-                    store.mark(slot, "clean")
+            await janitor_pass()
         except Exception as exc:   # the janitor must outlive any one failure; the next pass retries
             print("janitor:", repr(exc), flush=True)
         await asyncio.sleep(15)

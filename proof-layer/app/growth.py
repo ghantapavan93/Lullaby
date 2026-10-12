@@ -204,10 +204,13 @@ def _validate(schema: dict[str, dict[str, Validator]], name: str, properties: di
 
 
 def ingest(db: Session, principal: Principal, *, event_id: str, name: str,
-           properties: dict[str, Any]) -> bool:
+           properties: dict[str, Any], server_properties: Optional[dict[str, Any]] = None) -> bool:
+    """A client event. ``server_properties`` are facts the server adds when the
+    event arrives; a client can't send them, since its properties are allow-listed."""
     _validate(CLIENT_EVENTS, name, properties)
     inserted = db.execute(pg_insert(AnalyticsEvent).values(
-        event_id=event_id, household_id=principal.household_id, name=name, properties=properties,
+        event_id=event_id, household_id=principal.household_id, name=name,
+        properties=properties | (server_properties or {}),
         trace_id=current_trace_id()).on_conflict_do_nothing().returning(AnalyticsEvent.event_id)
     ).scalar_one_or_none()
     return inserted is not None

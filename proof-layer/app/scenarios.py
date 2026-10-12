@@ -13,11 +13,12 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 
+from sqlalchemy import func, update
 from sqlalchemy.orm import Session
 
-from . import access, claims, clock, decisions, purchase_evidence, purchases, seed, video_evidence
+from . import access, claims, clock, decisions, purchase_evidence, purchases, seed, video_evidence, worker
 from .db import transaction
-from .models import Device, Household, Member
+from .models import Device, Household, Member, OutboxJob
 from .security import Principal, lock_household
 
 
@@ -132,6 +133,17 @@ def prepare_purchase(device_id: str, feature: str) -> Step:
                                       expected_currency=decision.offer["currency"])
         return {"intent_id": intent.id, "state": intent.state, "operation_key": intent.provider_operation_key}
     run.__doc__ = f"in-app purchase prepared for {feature} on {device_id} (simulated)"
+    return run
+
+
+def hold_jobs() -> Step:
+    def run(db: Session, principal: Principal, household: Household) -> Any:
+        held = db.execute(update(OutboxJob).where(OutboxJob.household_id == household.id,
+                                                  OutboxJob.state == "pending")
+                          .values(available_at=func.now() + worker.HOLD)).rowcount
+        return {"held_jobs": held}
+    run.__doc__ = ("the purchase job is held for the demo worker, so an always-on worker "
+                   "doesn't finish it before the crash can be shown")
     return run
 
 
@@ -283,7 +295,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     "worker_crash": {
         "title": "Worker crash mid-purchase",
         "story": "An in-app Memories purchase is prepared. Run the worker with a crash, then recover.",
-        "steps": [prepare_purchase(NURSERY, "nextnap")],
+        "steps": [prepare_purchase(NURSERY, "nextnap"), hold_jobs()],
         "focus": {"device_id": NURSERY},
         "expected": {NURSERY: "PURCHASE_PENDING"},
         "resolution": "The recovered worker reuses the same provider key: one provider operation, then the plan appears.",
