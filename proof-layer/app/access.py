@@ -973,6 +973,11 @@ def _window_decision(base: Optional[AccessCheck], observations: list[dict[str, A
                      now_verdict: Optional[dict[str, Any]], labels: dict[str, str]) -> dict[str, Any]:
     if base is None:
         return {"state": "NOT_STARTED", "reason": "access has not been verified on this camera yet"}
+    if not base.usable_features:
+        # Holding means something usable was verified; a check that found nothing
+        # usable is not a baseline to hold (blind review, 2026-10-12).
+        return {"state": "NOTHING_USABLE", "reason": "the activation check found nothing usable on this camera, "
+                                                     "so there is nothing to hold"}
     if now_verdict and now_verdict["state"] == "access_lost":
         return {"state": "ACCESS_LOST", "reason": "features verified at activation are no longer usable: "
                                                   + ", ".join(labels.get(f, f) for f in now_verdict["lost"])}

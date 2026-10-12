@@ -2,7 +2,7 @@
 
 **Independent engineering prototype. Synthetic child records. Simulated payments. Not affiliated with Nanit.**
 
-This is the one dated verdict. Other status documents link here instead of repeating counts.
+> **Superseded by [RELEASE_PROOF_2026-10-12.md](RELEASE_PROOF_2026-10-12.md).** Kept as history. Its verdict, and its line linking the advisory lock to round 12's flaky test, are corrected there.
 
 ## Verdict
 

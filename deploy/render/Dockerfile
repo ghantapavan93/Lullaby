@@ -9,6 +9,11 @@ COPY proof-layer/app /srv/proof-layer/app
 COPY proof-layer/migrations /srv/proof-layer/migrations
 COPY proof-layer/alembic.ini /srv/proof-layer/alembic.ini
 COPY proof-layer/static /srv/proof-layer/static
+# Certification compares the test report's code digest with the running code
+# (app, migrations, static, tests): ship both, so the live Growth Lab can say
+# whether the report describes this exact code.
+COPY proof-layer/tests /srv/proof-layer/tests
+COPY artifacts/test-results/final-backend.xml /srv/artifacts/test-results/final-backend.xml
 COPY deploy/gateway/gateway.py deploy/gateway/headers.py /srv/deploy/gateway/
 COPY deploy/landing /srv/deploy/landing
 COPY deploy/render/run.py /srv/deploy/render/run.py

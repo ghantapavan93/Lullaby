@@ -90,4 +90,4 @@ Customer evidence cards are dated, paraphrased and executable: `tests/test_custo
 
 ## Mutation
 
-M25–M40 in `scripts/mutate.py` remove one access guarantee each. M36: renewal not applied. M37: ended purchase connectable. M38: ownership check. M39: plan from all periods. M40: scheduled read as ended. M19 now drops the exclusion constraint. The latest run and any survivor: `artifacts/mutation/mutation-report.md`, summarised in [RELEASE_PROOF_2026-10-11.md](RELEASE_PROOF_2026-10-11.md).
+M25–M40 in `scripts/mutate.py` remove one access guarantee each. M36: renewal not applied. M37: ended purchase connectable. M38: ownership check. M39: plan from all periods. M40: scheduled read as ended. M19 now drops the exclusion constraint. The latest run and any survivor: `artifacts/mutation/mutation-report.md`, summarised in [RELEASE_PROOF_2026-10-12.md](RELEASE_PROOF_2026-10-12.md).

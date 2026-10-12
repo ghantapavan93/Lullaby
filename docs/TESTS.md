@@ -86,7 +86,7 @@ cd proof-layer
 .venv/Scripts/python -m pytest tests/e2e
 ```
 
-The latest dated counts are in [RELEASE_PROOF_2026-10-11.md](RELEASE_PROOF_2026-10-11.md), read from `artifacts/test-results/final-*.xml`. Each report records a digest of the code it ran on, and certification compares it with the running code. Line coverage of `app/` is 94% (`artifacts/coverage-reports/coverage.txt`); the worker's real-process crash path runs in a subprocess and isn't counted. Results are stored in `artifacts/test-results/`. Recovery traces (intent transitions with the provider record) are in `artifacts/recovery-traces/`.
+The latest dated counts are in [RELEASE_PROOF_2026-10-12.md](RELEASE_PROOF_2026-10-12.md), read from `artifacts/test-results/final-*.xml`. Each report records a digest of the code it ran on, and certification compares it with the running code. Line coverage of `app/` is 94% (`artifacts/coverage-reports/coverage.txt`); the worker's real-process crash path runs in a subprocess and isn't counted. Results are stored in `artifacts/test-results/`. Recovery traces (intent transitions with the provider record) are in `artifacts/recovery-traces/`.
 
 ## Added after the research gate
 

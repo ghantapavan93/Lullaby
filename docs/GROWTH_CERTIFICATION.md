@@ -35,7 +35,7 @@ The Growth Lab (`#/growth`) shows whether the purchase-to-access invariants hold
 | crash-recovery | A worker crash after the provider commits recovers to one provider operation per idempotency key and usable access (at-least-once delivery plus an idempotent provider; not "exactly once") |
 | renewal-continuity | Every confirmed period reaches the camera (renewal, extension, late year); an ended plan is said plainly, never as a paywall |
 
-**Current result:** see [RELEASE_PROOF_2026-10-11.md](RELEASE_PROOF_2026-10-11.md). There are 15 blocking invariants; the latest is `video-evidence` (recorded evidence opens only on a plan with video history, re-checked on every media request; missing, dark or stalled video is never stillness; a report never changes a measurement). The certification card also shows the running commit, and warns when the test report is older than the last code change.
+**Current result:** see [RELEASE_PROOF_2026-10-12.md](RELEASE_PROOF_2026-10-12.md). There are 15 blocking invariants; the latest is `video-evidence` (recorded evidence opens only on a plan with video history, re-checked on every media request; missing, dark or stalled video is never stillness; a report never changes a measurement). The certification card also shows the running commit, and warns when the test report is older than the last code change.
 
 ## Release gates (shown, not hidden)
 

@@ -28,6 +28,7 @@ from hypothesis import given, settings, strategies as st
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
+from types import SimpleNamespace
 from app import access, claims, provider, purchase_evidence, scenarios, seed, worker
 from app.db import SessionLocal, transaction
 from app.models import (EVIDENCE_STATUSES, AccessAction, AccessCheck, AnalyticsEvent, EntitlementClaim, PurchaseEvidence,
@@ -719,3 +720,12 @@ def test_a_trial_does_not_hide_a_paid_plan_waiting_to_be_connected(client, demo)
     evidence(client, "web-ord-sleep-paid", plan="sleep")      # the camera is on a Sleep trial
     s = status(client)
     assert s["status"] == "VERIFIED_UNBOUND" and s["allowed_actions"] == ["connect"]
+
+
+def test_a_window_whose_activation_found_nothing_usable_is_not_holding():
+    """Blind review, 2026-10-12: Growth Lab showed a green "what was verified still
+    holds" when the activation check had found nothing usable on the camera."""
+    base = SimpleNamespace(status="ACTIVE_HARDWARE_BLOCKED", usable_features=[], fingerprint="f1", plan_code="memories")
+    still = {"state": "still_verified", "lost": [], "gained": []}
+    decision = access._window_decision(base, [], still, {})
+    assert decision["state"] == "NOTHING_USABLE" and "nothing usable" in decision["reason"]

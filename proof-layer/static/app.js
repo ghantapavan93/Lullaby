@@ -1352,7 +1352,8 @@ function studioScreen() {
       <ol class="studio-steps">${s.steps.map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
       <ul class="studio-expect">${Object.entries(s.expected).map(([dev, st]) => `<li><span>${esc(deviceName(dev))}${s.focus.external_ref && s.focus.device_id === dev ? ` · checking ${esc(s.focus.external_ref)}` : ""}</span>
         <span class="expect-pair">${accessPill(st)}${got ? (got[dev] === st ? `<span class="st-ok small">${icon("check", "icon-sm")}matches</span>` : `<span class="st-changed small">got ${esc(got[dev])}</span>`) : ""}</span>
-        ${after ? `<span class="expect-after small">After the store's event: ${accessPill(after[dev])}</span>` : ""}</li>`).join("")}</ul>
+        ${after ? `<span class="expect-after small">${s.key === "worker_crash" ? "Now" : "After the store's event"}: ${accessPill(after[dev])}</span>` : ""}</li>`).join("")}</ul>
+      ${active && run.workerNote ? `<p class="small" role="status">${esc(run.workerNote)}</p>` : ""}
       <p class="small muted">${esc(s.resolution)}</p>
       <div class="btn-row"><button type="button" class="btn ${active ? "btn-ghost" : "btn-secondary"}" data-action="studio-run" data-key="${s.key}">${active ? "Rebuild" : "Build this scenario"}</button>
         ${active ? `<a class="btn btn-ghost" href="#/access/${s.focus.device_id}">Open the parent journey${icon("arrow", "icon-sm")}</a>` : ""}
@@ -1433,6 +1434,9 @@ async function runCompare() {
   state.compareError = null;
   const a = document.getElementById("cmp-a").value, b = document.getElementById("cmp-b").value;
   state.comparePick = { a, b };                  // the choices stay as picked, whatever the outcome
+  state.compare = null;                          // the old result isn't shown as if it were the new one
+  const grid = document.querySelector(".cmp-grid");
+  if (grid) grid.outerHTML = `<p class="small muted" role="status">Building both cases on the backend…</p>`;
   if (a === b) { state.compare = null; state.compareError = "Choose two different scenarios to compare."; return; }
   state.resetting = true;                        // both builds reset the demo: not "reset elsewhere"
   const r = await api("/v1/dev/compare", { method: "POST", body: { a, b }, viewer: VIEWERS[0].id });
@@ -1513,7 +1517,12 @@ async function studioWorker(crash) {
   log(`worker ${crash ? "(crash after provider) " : ""}exit=${w.data?.exit_code}${w.data?.crashed ? ": died between the provider commit and the app commit" : ""}`);
   await refreshAccess();
   const s = state.accessDetail;
-  if (state.studioRun) state.studioRun.after = await measureScenario(state.studio.find((x) => x.key === state.studioRun.scenario));
+  if (state.studioRun) {
+    state.studioRun.after = await measureScenario(state.studio.find((x) => x.key === state.studioRun.scenario));
+    state.studioRun.workerNote = w.data?.crashed
+      ? `The worker process exited (code ${w.data.exit_code}) after the provider recorded the charge and before the app did.`
+      : `The worker ran (exit code ${w.data?.exit_code ?? "?"}).${/reconciled/.test(w.data?.stdout || "") ? " It found the provider's record and finished the purchase once." : ""}`;
+  }
   announce(`${s.device.label}: ${s.headline}.`);
 }
 
@@ -1566,7 +1575,7 @@ function funnelCard() {
     <h3 class="mt-6">Timings and exceptions</h3>
     <ul class="funnel">
       ${row("Store confirmed → a check found a feature usable", t.confirmed_to_usable.count ? `median ${duration(t.confirmed_to_usable.median_s)}` : "none yet", `${t.confirmed_to_usable.count} of ${t.journeys.length} purchases`)}
-      ${row("Connected → first usable check", t.connected_to_usable.count ? `median ${duration(t.connected_to_usable.median_s)}` : "none yet", `${t.connected_to_usable.count} connected`)}
+      ${row("Connected → first usable check", t.connected_to_usable.count ? `median ${duration(t.connected_to_usable.median_s)}` : "none yet", `${t.connected_to_usable.count} reached a usable check`)}
       ${row("Paid, not usable yet", String(f.unresolved.count), f.unresolved.count ? `${f.unresolved.not_connected} not connected · oldest ${duration(f.unresolved.oldest_s)}` : "")}
       ${row("Renewal payment failed → recovered", `${b.recovered} of ${b.purchases.length}`, b.failure_to_recovery.count ? `median ${duration(b.failure_to_recovery.median_s)} to recover` : "")}
       ${row("Refused before any payment", String(refused.reduce((n, [, c]) => n + c, 0)), refused.map(([code, c]) => `${code} ${c}`).join(" · "))}
@@ -1587,7 +1596,7 @@ const VERDICT = { still_verified: ["st-ok", "check", "still verified"], changed:
 function windowCard() {
   const w = state.window;
   if (!w) return `<div class="card"><p class="muted" style="margin:0">Owners and admins can see the verification window.</p></div>`;
-  const tone = { HOLDING: "alert-success", CHANGED: "alert-warning", ACCESS_LOST: "alert-warning", NOT_STARTED: "alert-unknown" }[w.decision.state];
+  const tone = { HOLDING: "alert-success", CHANGED: "alert-warning", ACCESS_LOST: "alert-warning", NOT_STARTED: "alert-unknown", NOTHING_USABLE: "alert-unknown" }[w.decision.state];
   const strip = w.observations.map((o) => { const v = VERDICT[o.verdict.state]; return `<li class="obs obs-${o.verdict.state}" title="${esc(o.kind)} ${clock(o.at)}">
     <span class="obs-kind">${esc(o.kind)}</span><span class="${v[0]}">${icon(v[1], "icon-sm")}${v[2]}</span><span class="small muted">${clock(o.at)} · ${esc(o.usable_features.map(featureLabel).join(", ") || "nothing usable")}</span></li>`; }).join("");
   const purchase = state.access?.purchases.find((p) => p.binding.device_id === state.accessDevice && p.state === "verified");
@@ -1595,7 +1604,7 @@ function windowCard() {
   const ev = (event, label, extra = "") => `<button type="button" class="btn btn-secondary" data-action="window-event" data-event="${event}" ${extra}>${esc(label)}</button>`;
   return `<section class="card" aria-labelledby="window-title"><h2 id="window-title">Verification window</h2>
     <p class="small muted card-sub">After access is verified, later events are checked against what was verified.</p>
-    <div class="alert ${tone}">${icon(w.decision.state === "HOLDING" ? "check" : w.decision.state === "NOT_STARTED" ? "unknown" : "alert")}<div><p class="alert-title">${esc({ HOLDING: "Holding", CHANGED: "Changed since verification", ACCESS_LOST: "Access lost", NOT_STARTED: "Not verified yet" }[w.decision.state])}</p><p>${esc(w.decision.reason)}</p></div></div>
+    <div class="alert ${tone}">${icon(w.decision.state === "HOLDING" ? "check" : ["NOT_STARTED", "NOTHING_USABLE"].includes(w.decision.state) ? "unknown" : "alert")}<div><p class="alert-title">${esc({ HOLDING: "Holding", CHANGED: "Changed since verification", ACCESS_LOST: "Access lost", NOT_STARTED: "Not verified yet", NOTHING_USABLE: "Nothing usable to hold" }[w.decision.state])}</p><p>${esc(w.decision.reason)}</p></div></div>
     ${w.activation ? `<p class="small mt-4">Activation check ${clock(w.activation.at)}: ${esc(ACCESS_SHORT[w.activation.status] || w.activation.status)} · ${esc(w.activation.usable_features.map(featureLabel).join(", ") || "nothing usable")}</p>` : ""}
     <ol class="obs-strip">${strip}</ol>
     <p class="small">Live now: ${esc(ACCESS_SHORT[w.live.status] || w.live.status)}${w.live.changed_since_last_check ? " · changed since the last check" : ""}</p>
