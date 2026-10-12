@@ -610,7 +610,8 @@ main.standalone li { margin: var(--pl-space-2) 0; }
 /* ---------------- purchase to access ---------------- */
 /* Status pill: icon + text + shape, never color alone. Waiting and unknown
    states are dashed and never celebrate. */
-.apill { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border-radius: var(--pl-radius-pill); font-size: var(--pl-type-meta-size); font-weight: 600; white-space: nowrap; border: 1px solid; }
+.apill { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border-radius: var(--pl-radius-pill); font-size: var(--pl-type-meta-size); font-weight: 600; white-space: nowrap; border: 1px solid; max-width: 100%; }
+@media (max-width: 599px) { .apill { white-space: normal; padding-block: 4px; } }
 .apill-success { background: var(--pl-status-success-soft); border: 2px solid var(--pl-status-success-border); color: var(--pl-status-success-text); }
 .apill-warning { background: var(--pl-status-warning-soft); border-color: var(--pl-status-warning-border); color: var(--pl-status-warning-text); }
 .apill-action { background: var(--pl-accent-soft); border-color: var(--pl-accent-solid); color: var(--pl-accent-text); }

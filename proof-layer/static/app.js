@@ -2277,6 +2277,8 @@ async function buy({ concurrent = 1 } = {}) {
 async function refreshPurchase() {
   if (!state.purchase) return;
   const r = await api(`/v1/purchase-intents/${state.purchase.intent_id}`);
+  // A demo reset removes the purchase it was showing: drop it instead of asking again.
+  if (r.status === 404) { state.purchase = null; return; }
   if (r.ok) {
     const before = state.purchase.state;
     state.purchase = r.data;

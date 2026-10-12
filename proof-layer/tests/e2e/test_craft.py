@@ -159,3 +159,12 @@ def test_same_problem_different_cause_opens_from_home_with_five_steps_per_case(d
     assert texts[0] != texts[1]
     assert "_" not in texts[0] + texts[1], "status codes leaked into the parent-facing steps"
     expect(sides.first.locator("details.cmp-eng")).not_to_have_attribute("open", "")
+
+
+@pytest.mark.parametrize("route", ["#/customers", "#/studio", "#/growth", "#/home"])
+def test_no_page_scrolls_sideways_on_a_small_phone(phone, server, route):  # noqa: F811
+    """Final visual QA, 2026-10-12: a long confidence pill pushed Customer evidence 6 px wide at 390."""
+    phone.goto(server + "/" + route)
+    expect(phone.locator("#main h1").first).to_be_visible()
+    phone.wait_for_timeout(800)
+    assert phone.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
