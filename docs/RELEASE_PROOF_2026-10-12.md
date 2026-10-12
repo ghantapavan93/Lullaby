@@ -26,16 +26,16 @@ This is the one dated verdict. It replaces `RELEASE_PROOF_2026-10-11.md`, which 
 
 | Check | Result | Where |
 |---|---|---|
-| Backend tests (PostgreSQL) | **616 passed**, 0 failed, on `56fb389` (06:05 CDT). The public copy's own run: 616 tests, 0 failed, 2 skipped by design | `artifacts/test-results/final-backend.xml` |
+| Backend tests (PostgreSQL) | **626 passed**, 0 failed, on `79d872b`'s code (07:00 CDT). The public copy's own run on the same code: 626 tests, 0 failed, 2 skipped by design (digest `87c65133874a`) | `artifacts/test-results/final-backend.xml` |
 | Browser tests (Chromium) | **62 passed**, 0 failed, on `56fb389`. Includes craft, phone, isolation, gateway and Present tests | `artifacts/test-results/final-e2e.xml` |
-| Certification | **CERTIFIED, 15 of 15**, locally and on the live site. Live: running code `aaef42230ebb`, report `aaef42230ebb` (`deploy/live_certification.py`, 05:54 CDT) | Growth Lab |
+| Certification | **CERTIFIED, 15 of 15**, locally and on the live site. Live: running code `87c65133874a`, report `87c65133874a` (`deploy/live_certification.py`, after the last deploy) | Growth Lab |
 | Visual QA | 168 captures, 0 console errors, 0 small targets. One 6 px overflow (Customer evidence, 390 px) was found and fixed, with a test that failed before the fix | `artifacts/visual-qa/final/` |
 | Accessibility (axe-core) | 0 violations in 68 scans, light and dark, 390 and 1440 px | `artifacts/a11y/axe-report.json` |
-| Live sweep (`deploy/live_sweep.py`) | 14 of 15 scenarios at 1440 and at 390 px, with no console errors. The one miss is the Worker-crash card (see Known limits) | `artifacts/deploy/` |
+| Live sweep (`deploy/live_sweep.py`) | Last run, after the last deploy: **15 of 15 scenarios, 0 findings** at 1440 px. Earlier runs at 1440 and 390 px had one miss, the Worker-crash card (see Known limits). An encoded `..` probe of the live backend gets 400 `BAD_PATH` | `artifacts/deploy/` |
 | Recorded walkthrough | 74.1 s, 1440×900, H.264 MP4 (4.9 MB) and VP8 WebM, real footage of the live site, decoded end to end | `artifacts/deploy/demo-recruiter.mp4` |
 | Mutation testing | 66 of 68 planted defects caught (run on 2026-10-11; not rerun) | `artifacts/mutation/` |
 | Four-process soak | **FAILED**: 17 of 30,400 requests got no answer within 60 s. Narrowed to the socket layer on Windows; not fixed, and no comparable Linux soak has run | `audits/SOAK_DIAGNOSIS_2026-10-11.md` |
-| Firefox and WebKit | **Not run**: the browsers aren't installed for Playwright here | — |
+| Firefox and WebKit | Main journeys at 390 and 1440 px (`deploy/cross_browser.py`): Firefox clean, playback included; WebKit clean except playback, because Playwright's Windows WebKit has no WebM decoder. Real Safari not tested on a device | — |
 
 ## Reviews this release went through
 
