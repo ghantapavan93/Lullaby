@@ -26,27 +26,30 @@ This is the one dated verdict. It replaces `RELEASE_PROOF_2026-10-11.md`, which 
 
 | Check | Result | Where |
 |---|---|---|
-| Backend tests (PostgreSQL) | **626 passed**, 0 failed, on `79d872b`'s code (07:00 CDT). The public copy's own run on the same code: 626 tests, 0 failed, 2 skipped by design (digest `87c65133874a`) | `artifacts/test-results/final-backend.xml` |
-| Browser tests (Chromium) | **62 passed**, 0 failed, on `56fb389`. Includes craft, phone, isolation, gateway and Present tests | `artifacts/test-results/final-e2e.xml` |
-| Certification | **CERTIFIED, 15 of 15**, locally and on the live site. Live: running code `87c65133874a`, report `87c65133874a` (`deploy/live_certification.py`, after the last deploy) | Growth Lab |
+| Backend tests (PostgreSQL) | **629 passed**, 0 failed, on `1b84afe`'s code (round 18). The public copy's own run on the same code: 627 passed, 0 failed, 2 skipped by design (digest `175571128411`) | `artifacts/test-results/final-backend.xml` |
+| Browser tests (Chromium) | **68 passed**, 0 failed, on `1b84afe`. Includes craft, phone, isolation, gateway and Present tests | `artifacts/test-results/final-e2e.xml` |
+| Certification | **CERTIFIED, 15 of 15**, locally and on the live site. Live: running code `175571128411`, report `175571128411` (`deploy/live_certification.py`, after the last deploy) | Growth Lab |
 | Visual QA | 168 captures, 0 console errors, 0 small targets. One 6 px overflow (Customer evidence, 390 px) was found and fixed, with a test that failed before the fix | `artifacts/visual-qa/final/` |
 | Accessibility (axe-core) | 0 violations in 68 scans, light and dark, 390 and 1440 px | `artifacts/a11y/axe-report.json` |
 | Live sweep (`deploy/live_sweep.py`) | Last run, after the last deploy: **15 of 15 scenarios, 0 findings** at 1440 px. Earlier runs at 1440 and 390 px had one miss, the Worker-crash card (see Known limits). An encoded `..` probe of the live backend gets 400 `BAD_PATH` | `artifacts/deploy/` |
-| Recorded walkthrough | 74.1 s, 1440×900, H.264 MP4 (4.9 MB) and VP8 WebM, real footage of the live site, decoded end to end | `artifacts/deploy/demo-recruiter.mp4` |
+| Recorded walkthrough | 74.1 s, 1440×900, H.264 MP4 (4.9 MB) and VP8 WebM, real footage of the live site, decoded end to end. Also served with the site, for visitors who find the workspace busy | `artifacts/deploy/demo-recruiter.mp4` |
+| Story recording (round 18) | 73.2 s, 1440×900, H.264 MP4 (5.1 MB), real footage of the live site after the last deploy, decoded end to end (1,830 frames): the problem, a purchase that never reached the camera, connecting it without paying again, the separate check, the same symptom with a different cause and its refusals, then the X-Ray. No blank page after "Open the prototype" | `artifacts/deploy/story.mp4` |
+| Caching | Every live `/v1` response inside a workspace carries `Cache-Control: private, no-store`, and Vercel reports `MISS`; `/static/` files are immutable for a year and every link to them is versioned | `test_workspace_responses_are_never_stored_by_a_shared_cache`, `test_every_static_link_is_versioned_because_static_files_are_cached_for_a_year` |
 | Mutation testing | 66 of 68 planted defects caught (run on 2026-10-11; not rerun) | `artifacts/mutation/` |
 | Four-process soak | **FAILED**: 17 of 30,400 requests got no answer within 60 s. Narrowed to the socket layer on Windows; not fixed, and no comparable Linux soak has run | `audits/SOAK_DIAGNOSIS_2026-10-11.md` |
 | Firefox and WebKit | Main journeys at 390 and 1440 px (`deploy/cross_browser.py`): Firefox clean, playback included; WebKit clean except playback, because Playwright's Windows WebKit has no WebM decoder. Real Safari not tested on a device | — |
 
 ## Reviews this release went through
 
-Seven independent reviewers, none given a builder summary (`docs/FAILURE_LEDGER.md`, rounds 14 to 16):
+Seven independent reviewers, none given a builder summary (`docs/FAILURE_LEDGER.md`, rounds 14 to 16), then three engines (round 17) and a first-time look at the deployed site (round 18):
 
 - an end-to-end bug hunt on a local three-workspace stack, plus a scripted sweep of the live site;
 - a frontend audit by four reviewers: visual craft, code and headers, product communication, mobile;
 - a principal backend review: no P0 found;
 - a Growth engineering review;
 - a public repository and cloud release review;
-- a blind hiring-manager review of the live link, with only the URL and the role description.
+- a blind hiring-manager review of the live link, with only the URL and the role description;
+- a first look at the deployed site as a new visitor: 10 defects, from a first click that didn't show the promised problem to an empty page while the workspace opened. All fixed; six with tests seen failing first.
 
 ## Deadlocks, stated separately
 
