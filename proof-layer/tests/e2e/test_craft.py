@@ -168,3 +168,41 @@ def test_no_page_scrolls_sideways_on_a_small_phone(phone, server, route):  # noq
     expect(phone.locator("#main h1").first).to_be_visible()
     phone.wait_for_timeout(800)
     assert phone.evaluate("document.scrollingElement.scrollWidth - innerWidth") <= 0
+
+
+# ---------------------------------------------------------------- keyboard (accessibility review, 2026-10-12)
+
+def test_the_skip_link_stays_on_the_current_page(desktop):
+    open_route(desktop, "#/briefing", ".track")
+    desktop.locator(".skip-link").focus()
+    desktop.keyboard.press("Enter")
+    desktop.wait_for_timeout(500)
+    assert "#/briefing" in desktop.url
+    assert desktop.title().startswith("Night briefing")
+
+
+def test_focus_stays_on_the_control_after_an_action_rerenders_the_page(desktop):
+    open_route(desktop, "#/studio", ".studio-card")
+    button = desktop.locator('.studio-card [data-action="studio-run"][data-key="paid_not_active"]')
+    button.focus()
+    desktop.keyboard.press("Enter")
+    expect(desktop.locator('.studio-card.active:has(.btn[data-key="paid_not_active"]) .st-ok').first).to_be_visible(timeout=60000)
+    desktop.wait_for_timeout(300)
+    assert desktop.evaluate("document.activeElement?.dataset?.key") == "paid_not_active"
+
+
+def test_the_x_ray_keeps_focus_inside_below_1280(server, browser):  # noqa: F811
+    reset(server)
+    context = browser.new_context(viewport={"width": 1024, "height": 800})
+    pg = context.new_page()
+    pg.goto(server + "/#/access/dev_cam_demo")
+    expect(pg.locator(".access-status, .verified-card").first).to_be_visible()
+    pg.locator('[data-action="xray-open"]:visible').first.click()
+    expect(pg.locator("#xray")).to_have_attribute("aria-hidden", "false")
+    escaped = []
+    for _ in range(60):
+        pg.keyboard.press("Tab")
+        if not pg.evaluate("document.getElementById('xray').contains(document.activeElement)"):
+            escaped.append(pg.evaluate("document.activeElement.outerHTML.slice(0, 80)"))
+    context.close()
+    assert escaped == []

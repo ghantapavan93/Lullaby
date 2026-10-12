@@ -387,6 +387,8 @@ async function poll() {
 // ------------------------------------------------------------------ routing & chrome
 
 function readRoute() {
+  // Only "#/..." is a route: a stray "#main" (the skip link's target) is not a move to Home.
+  if (location.hash && !location.hash.startsWith("#/")) return;
   const [r, param] = (location.hash || "#/home").replace("#/", "").split("/");
   state.route = ROUTES.some((x) => x.id === r) ? r : "home";
   if (state.route === "access" && param) state.accessDevice = decodeURIComponent(param);
@@ -1355,7 +1357,7 @@ function studioScreen() {
         ${after ? `<span class="expect-after small">${s.key === "worker_crash" ? "Now" : "After the store's event"}: ${accessPill(after[dev])}</span>` : ""}</li>`).join("")}</ul>
       ${active && run.workerNote ? `<p class="small" role="status">${esc(run.workerNote)}</p>` : ""}
       <p class="small muted">${esc(s.resolution)}</p>
-      <div class="btn-row"><button type="button" class="btn ${active ? "btn-ghost" : "btn-secondary"}" data-action="studio-run" data-key="${s.key}">${active ? "Rebuild" : "Build this scenario"}</button>
+      <div class="btn-row"><button type="button" class="btn ${active ? "btn-ghost" : "btn-secondary"}" data-action="studio-run" data-key="${s.key}" aria-describedby="sc-${s.key}">${active ? "Rebuild" : "Build this scenario"}</button>
         ${active ? `<a class="btn btn-ghost" href="#/access/${s.focus.device_id}">Open the parent journey${icon("arrow", "icon-sm")}</a>` : ""}
         ${active && s.key === "evidence_journey" && ROUTES.some((r) => r.id === "recorded") ? `<a class="btn btn-ghost" href="#/recorded">Open the recorded evidence${icon("arrow", "icon-sm")}</a>` : ""}</div>
       ${active && STORE_NEXT[s.key] ? (run.renewed ? `<p class="small muted">The store's event was applied. Rebuild to start the scenario again.</p>`
@@ -2100,13 +2102,24 @@ function render() {
     html = featuresScreen(state.viewer);
   }
   if (EVIDENCE_ROUTES.includes(state.route)) html = evidenceTabs() + html;
+  // Replacing the page would drop keyboard focus to <body> (accessibility review,
+  // 2026-10-12): find the focused control again by its id or data attributes.
+  const focused = main.contains(document.activeElement) && document.activeElement !== main ? focusKey(document.activeElement) : null;
   main.innerHTML = html;
+  if (focused) main.querySelector(focused)?.focus({ preventScroll: true });
   main.dataset.route = state.route;
   trackAccessView();
   trackRecordedView();
   document.getElementById("dev-drawer-body").innerHTML = devControls();
   renderChrome();
   observeRenders();
+}
+
+function focusKey(el) {
+  if (el.id) return `#${CSS.escape(el.id)}`;
+  const data = Object.entries(el.dataset).filter(([k]) => ["action", "key", "seq", "feature", "device", "viewer", "id", "tab"].includes(k));
+  if (!data.length) return null;
+  return el.tagName.toLowerCase() + data.map(([k, v]) => `[data-${k.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())}="${CSS.escape(v)}"]`).join("");
 }
 
 function evidenceTabs() {
@@ -2664,12 +2677,19 @@ async function devAction(action, el) {
 document.addEventListener("click", async (e) => {
   const el = e.target.closest("[data-action]");
   if (!el) return;
+  // Actions disable their button, which drops keyboard focus to <body>; when the
+  // action is done, focus goes back to the same control (or its re-rendered copy).
+  const key = el.closest("#main") ? focusKey(el) : null;
   try {
     await onAction(e, el, el.dataset.action);
   } catch (err) {
     console.error(err);
     if ("disabled" in el) el.disabled = false;
     toast("That didn't work. Reload the page to see where things stand.");
+  } finally {
+    if (key && (!document.activeElement || document.activeElement === document.body)) {
+      document.querySelector(`#main ${key}`)?.focus({ preventScroll: true });
+    }
   }
 });
 // A page being reloaded or left cancels its requests; some browsers (WebKit) reject
@@ -2793,6 +2813,12 @@ new ResizeObserver(([entry]) => {
   document.documentElement.style.setProperty("--chrome-top", `${Math.round(entry.target.getBoundingClientRect().height)}px`);
 }).observe(document.getElementById("top-stack"));
 document.getElementById("xray-close").addEventListener("click", closeXray);
+document.querySelector(".skip-link")?.addEventListener("click", (e) => {   // focus the content; keep the route
+  e.preventDefault();
+  const main = document.getElementById("main");
+  main.tabIndex = -1;
+  main.focus();
+});
 document.getElementById("xray-scrim").addEventListener("click", closeXray);
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && state.scenarioOpen) { setScenario(false); return; }
@@ -2800,7 +2826,8 @@ document.addEventListener("keydown", (e) => {
   // Below 1280 px the drawer covers the page (with a scrim), so Tab stays inside it.
   if (e.key === "Tab" && state.xrayOpen && !matchMedia("(min-width: 1280px)").matches) {
     const items = [...document.getElementById("xray").querySelectorAll("button, a[href], summary, [tabindex='0']")]
-      .filter((el) => el.offsetParent !== null);
+      .filter((el) => el.offsetParent !== null && el.getClientRects().length > 0
+        && !(el.closest("details:not([open])") && el.tagName !== "SUMMARY"));
     if (!items.length) return;
     const first = items[0], last = items[items.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -2983,7 +3010,8 @@ function paintPresent(step, waiting) {
     line = present.failed ? `This step didn't complete (${present.failed}). Nothing is claimed for it.`
       : waiting && step.pending ? step.pending : step.line();
   } catch { line = "…"; }
-  bar.querySelector(".present-line").textContent = line;
+  const lineEl = bar.querySelector(".present-line");
+  if (lineEl.textContent !== line) lineEl.textContent = line;     // a live region: write only real changes
   const pause = bar.querySelector("[data-present=pause]");
   pause.querySelector(".pbtn-text").textContent = present.paused ? "Resume" : "Pause";
   pause.querySelector(".pbtn-icon").innerHTML = icon(present.paused ? "play" : "pause", "icon-sm");
@@ -3024,7 +3052,9 @@ async function runPresent(audience = "recruiter") {
 function exitPresent() {
   present.active = false;
   document.body.classList.remove("presenting");
+  const hadFocus = document.getElementById("present-bar")?.contains(document.activeElement);
   document.getElementById("present-bar")?.remove();
+  if (hadFocus || document.activeElement === document.body) document.querySelector(".present-start")?.focus({ preventScroll: true });
 }
 
 document.addEventListener("click", (e) => {
