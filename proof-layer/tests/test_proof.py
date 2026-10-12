@@ -80,3 +80,19 @@ def test_the_code_digest_ignores_line_endings_and_caches(tmp_path):
     assert proof.code_digest(tmp_path) == before
     (tmp_path / "app" / "a.py").write_bytes(b"x = 2\n")
     assert proof.code_digest(tmp_path) != before
+
+
+def test_the_code_digest_is_the_same_on_every_platform(tmp_path):
+    """Live on Linux the digest differed from the report made on Windows: paths
+    were sorted case-insensitively there and case-sensitively here. The order is
+    now the posix path string, so a report certifies its code on any OS."""
+    import hashlib
+    for d in proof.CODE_DIRS:
+        (tmp_path / d).mkdir()
+    (tmp_path / "app" / "b.py").write_bytes(b"b\r\n")
+    (tmp_path / "app" / "README.md").write_bytes(b"r\n")
+    (tmp_path / "app" / "a.py").write_bytes(b"a\n")
+    expected = hashlib.sha256()
+    for rel in sorted(["app/README.md", "app/a.py", "app/b.py"]):          # plain string order, uppercase first
+        expected.update(rel.encode() + b"\0" + (tmp_path / rel).read_bytes().replace(b"\r\n", b"\n") + b"\0")
+    assert proof.code_digest(tmp_path) == expected.hexdigest()

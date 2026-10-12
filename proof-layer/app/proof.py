@@ -306,11 +306,14 @@ def code_digest(root: Path = APP_ROOT) -> str:
     import hashlib
 
     h = hashlib.sha256()
-    for d in CODE_DIRS:
-        for f in sorted((root / d).rglob("*")):
-            if f.is_file() and "__pycache__" not in f.parts and f.suffix != ".pyc":
-                h.update(f.relative_to(root).as_posix().encode() + b"\0")
-                h.update(f.read_bytes().replace(b"\r\n", b"\n") + b"\0")
+    files = [f for d in CODE_DIRS for f in (root / d).rglob("*")
+             if f.is_file() and "__pycache__" not in f.parts and f.suffix != ".pyc"]
+    # Order by the posix path string: sorting Path objects is case-insensitive on
+    # Windows and case-sensitive on Linux, so the same files hashed in a different
+    # order and a Windows report could never certify a Linux deploy (2026-10-12).
+    for f in sorted(files, key=lambda f: f.relative_to(root).as_posix()):
+        h.update(f.relative_to(root).as_posix().encode() + b"\0")
+        h.update(f.read_bytes().replace(b"\r\n", b"\n") + b"\0")
     return h.hexdigest()
 
 
