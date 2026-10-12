@@ -242,6 +242,19 @@ async def start_workspace(request: Request):
     return response
 
 
+@app.delete("/v1/workspace")
+async def end_workspace(request: Request):
+    """End this browser's workspace now: its slot is wiped and freed for the next
+    visitor (with one slot on a free host, nobody should wait for an idle timeout)."""
+    lease = store.lease_of(request.cookies.get(COOKIE))
+    if lease is not None:
+        store.release(lease[0])
+        recent.pop(lease[0], None)
+    response = JSONResponse({"ended": lease is not None}, headers={"Cache-Control": "no-store"})
+    response.delete_cookie(COOKIE, path="/", secure=SECURE_COOKIE, httponly=True, samesite="lax")
+    return response
+
+
 @app.get("/healthz")
 async def health():
     """Database, each slot's API and each worker's heartbeat. 503 when any is down."""

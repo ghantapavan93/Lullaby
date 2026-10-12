@@ -170,3 +170,18 @@ def test_health_reports_a_dead_worker():
         assert h.status_code == 503 and h.json()["slots"][0]["worker"] is False
     finally:
         stack.down()
+
+
+def test_a_visitor_can_end_their_workspace_and_free_it_at_once():
+    state = stack.up(slots=1, per_ip=5)
+    try:
+        a, b = visitor(state, "10.0.0.11"), visitor(state, "10.0.0.12")
+        assert start(a).status_code == 201
+        assert start(b).json()["code"] == "ALL_WORKSPACES_BUSY"
+        ended = a.delete("/v1/workspace")
+        assert ended.json() == {"ended": True} and "pl_ws=" in ended.headers["set-cookie"]
+        assert a.get("/v1/dev/accounts").status_code == 401                # the old cookie no longer works
+        assert start(b).status_code == 201                                   # freed, reseeded, handed out
+        assert b.get("/v1/dev/accounts").status_code == 200
+    finally:
+        stack.down()
